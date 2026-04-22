@@ -114,20 +114,20 @@
   <div class="summary-row">
     <a class="tile blue" onclick="showTab('orders',null)" href="javascript:void(0)">
       <div class="tile-label">Open Sales Orders</div>
-      <div class="tile-value">$81,913</div>
-      <div class="tile-sub">13 orders - 5 customers partially fulfilled</div>
+      <div class="tile-value">13 Orders</div>
+      <div class="tile-sub">5 customers partially fulfilled</div>
       <div class="tile-cta">View all orders →</div>
     </a>
     <a class="tile red" onclick="showTab('pos',null)" href="javascript:void(0)">
       <div class="tile-label">POs - Pending Bill</div>
-      <div class="tile-value">$434k</div>
-      <div class="tile-sub">12 Oatly POs - goods received, invoice outstanding</div>
+      <div class="tile-value">12 POs</div>
+      <div class="tile-sub">Oatly - goods received, invoice outstanding</div>
       <div class="tile-cta">View purchase orders →</div>
     </a>
     <a class="tile green" onclick="showTab('pos',null)" href="javascript:void(0)">
       <div class="tile-label">POs - Pending Receipt</div>
-      <div class="tile-value">$3.5m</div>
-      <div class="tile-sub">Oatly $2.7m + PerfectTed $818k inbound</div>
+      <div class="tile-value">5 POs</div>
+      <div class="tile-sub">Oatly (1) + PerfectTed (4) inbound</div>
       <div class="tile-cta">View purchase orders →</div>
     </a>
     <a class="tile" onclick="showTab('stock',null)" href="javascript:void(0)" style="border-top-color:#0E7CCE">
@@ -154,28 +154,28 @@
   <div class="summary-stats">
     <div class="stat-box" style="border-left-color:var(--blue)">
       <div class="stat-label">Total PO Pipeline</div>
-      <div class="stat-value">$3.93m</div>
-      <div class="stat-sub">All vendors open POs</div>
+      <div class="stat-value">17 POs</div>
+      <div class="stat-sub">All vendors - open POs (12 pending bill + 1 partial + 4 PerfectTed)</div>
     </div>
     <div class="stat-box" style="border-left-color:var(--green)">
       <div class="stat-label">Oatly - In Transit</div>
-      <div class="stat-value">$2.72m</div>
+      <div class="stat-value">1 PO</div>
       <div class="stat-sub">Dec 2025 - Mar 2026 batches pending receipt</div>
     </div>
     <div class="stat-box" style="border-left-color:var(--red)">
       <div class="stat-label">Oatly - Pending Bill</div>
-      <div class="stat-value">$474k</div>
+      <div class="stat-value">12 POs</div>
       <div class="stat-sub">Goods received, invoice not yet raised - action required</div>
     </div>
     <div class="stat-box" style="border-left-color:var(--blue)">
       <div class="stat-label">PerfectTed Inbound</div>
-      <div class="stat-value">$818k</div>
-      <div class="stat-sub">4 POs including $370k raised today</div>
+      <div class="stat-value">4 POs</div>
+      <div class="stat-sub">POAGD302, 327, 357, 358 - stock inbound</div>
     </div>
     <div class="stat-box" style="border-left-color:var(--amber)">
       <div class="stat-label">Sales Orders Open</div>
       <div class="stat-value">13</div>
-      <div class="stat-sub">$81,913 total value - WW Perth largest at $26,891</div>
+      <div class="stat-sub">WW Perth largest order - view orders tab for detail</div>
     </div>
   </div>
 </div>
@@ -190,27 +190,27 @@
     <table class="ns-table">
       <thead>
         <tr>
-          <th>Document</th><th>Date</th><th>Customer</th><th>Status</th><th class="num">Open Amount</th>
+          <th>Document</th><th>Date</th><th>Customer</th><th>Status</th><th class="num">Open Value (NS)</th>
         </tr>
       </thead>
       <tbody>
-        <tr><td style="font-weight:bold">SOAGD1880</td><td>27/03/2026</td><td>WW Moorebank NDC (7951)</td><td><span class="status-partial">Partially Fulfilled</span></td><td class="num" style="font-weight:bold">$14,313.60</td></tr>
-        <tr><td style="font-weight:bold">SOAGD1912</td><td>08/04/2026</td><td>Coles Edinburgh Parks (9521)</td><td><span class="status-partial">Partially Fulfilled</span></td><td class="num" style="font-weight:bold">$1,683.00</td></tr>
-        <tr><td style="font-weight:bold">SOAGD1920</td><td>09/04/2026</td><td>Maloneys Grocer</td><td><span class="status-pending">Pending Fulfillment</span></td><td class="num" style="font-weight:bold">$1,632.40</td></tr>
-        <tr><td style="font-weight:bold">SOAGD1927</td><td>10/04/2026</td><td>The Cheesecake Shop</td><td><span class="status-pending">Pending Fulfillment</span></td><td class="num" style="font-weight:bold">$11,492.00</td></tr>
-        <tr><td style="font-weight:bold">SOAGD1928</td><td>13/04/2026</td><td>Coles Kemps Creek (9274)</td><td><span class="status-partial">Partially Fulfilled</span></td><td class="num" style="font-weight:bold">$5,544.00</td></tr>
-        <tr><td style="font-weight:bold">SOAGD1931</td><td>13/04/2026</td><td>Coles Redbank (9462)</td><td><span class="status-partial">Partially Fulfilled</span></td><td class="num" style="font-weight:bold">$2,772.00</td></tr>
-        <tr><td style="font-weight:bold">SOAGD1932</td><td>13/04/2026</td><td>Coles Somerton NDC (9321)</td><td><span class="status-partial">Partially Fulfilled</span></td><td class="num" style="font-weight:bold">$5,544.00</td></tr>
-        <tr><td style="font-weight:bold">SOAGD1942</td><td>16/04/2026</td><td>Better Food Distribution</td><td><span class="status-pending">Pending Fulfillment</span></td><td class="num" style="font-weight:bold">$2,346.40</td></tr>
-        <tr><td style="font-weight:bold">SOAGD1946</td><td>17/04/2026</td><td>WW Perth (4933)</td><td><span class="status-pending">Pending Fulfillment</span></td><td class="num" style="font-weight:bold">$26,891.20</td></tr>
-        <tr><td style="font-weight:bold">SOAGD1950</td><td>18/04/2026</td><td>PerfectTed (MAD101)</td><td><span class="status-pending">Pending Fulfillment</span></td><td class="num" style="font-weight:bold">$338.73</td></tr>
-        <tr><td style="font-weight:bold">SOAGD1961</td><td>20/04/2026</td><td>Amazon Lytton BNE1</td><td><span class="status-pending">Pending Fulfillment</span></td><td class="num" style="font-weight:bold">$3,643.20</td></tr>
-        <tr><td style="font-weight:bold">SOAGD1964</td><td>21/04/2026</td><td>Socrates Distributors</td><td><span class="status-pending">Pending Fulfillment</span></td><td class="num" style="font-weight:bold">$1,904.00</td></tr>
-        <tr><td style="font-weight:bold">SOAGD1965</td><td>21/04/2026</td><td>Bidfood Pty Ltd</td><td><span class="status-pending">Pending Fulfillment</span></td><td class="num" style="font-weight:bold">$3,808.00</td></tr>
-        <tr class="total-row"><td colspan="4">TOTAL (13 orders)</td><td class="num">$81,912.53</td></tr>
+        <tr><td style="font-weight:bold">SOAGD1880</td><td>27/03/2026</td><td>WW Moorebank NDC (7951)</td><td><span class="status-partial">Partially Fulfilled</span></td><td class="num" style="font-weight:bold">14,313.60</td></tr>
+        <tr><td style="font-weight:bold">SOAGD1912</td><td>08/04/2026</td><td>Coles Edinburgh Parks (9521)</td><td><span class="status-partial">Partially Fulfilled</span></td><td class="num" style="font-weight:bold">1,683.00</td></tr>
+        <tr><td style="font-weight:bold">SOAGD1920</td><td>09/04/2026</td><td>Maloneys Grocer</td><td><span class="status-pending">Pending Fulfillment</span></td><td class="num" style="font-weight:bold">1,632.40</td></tr>
+        <tr><td style="font-weight:bold">SOAGD1927</td><td>10/04/2026</td><td>The Cheesecake Shop</td><td><span class="status-pending">Pending Fulfillment</span></td><td class="num" style="font-weight:bold">11,492.00</td></tr>
+        <tr><td style="font-weight:bold">SOAGD1928</td><td>13/04/2026</td><td>Coles Kemps Creek (9274)</td><td><span class="status-partial">Partially Fulfilled</span></td><td class="num" style="font-weight:bold">5,544.00</td></tr>
+        <tr><td style="font-weight:bold">SOAGD1931</td><td>13/04/2026</td><td>Coles Redbank (9462)</td><td><span class="status-partial">Partially Fulfilled</span></td><td class="num" style="font-weight:bold">2,772.00</td></tr>
+        <tr><td style="font-weight:bold">SOAGD1932</td><td>13/04/2026</td><td>Coles Somerton NDC (9321)</td><td><span class="status-partial">Partially Fulfilled</span></td><td class="num" style="font-weight:bold">5,544.00</td></tr>
+        <tr><td style="font-weight:bold">SOAGD1942</td><td>16/04/2026</td><td>Better Food Distribution</td><td><span class="status-pending">Pending Fulfillment</span></td><td class="num" style="font-weight:bold">2,346.40</td></tr>
+        <tr><td style="font-weight:bold">SOAGD1946</td><td>17/04/2026</td><td>WW Perth (4933)</td><td><span class="status-pending">Pending Fulfillment</span></td><td class="num" style="font-weight:bold">26,891.20</td></tr>
+        <tr><td style="font-weight:bold">SOAGD1950</td><td>18/04/2026</td><td>PerfectTed (MAD101)</td><td><span class="status-pending">Pending Fulfillment</span></td><td class="num" style="font-weight:bold">338.73</td></tr>
+        <tr><td style="font-weight:bold">SOAGD1961</td><td>20/04/2026</td><td>Amazon Lytton BNE1</td><td><span class="status-pending">Pending Fulfillment</span></td><td class="num" style="font-weight:bold">3,643.20</td></tr>
+        <tr><td style="font-weight:bold">SOAGD1964</td><td>21/04/2026</td><td>Socrates Distributors</td><td><span class="status-pending">Pending Fulfillment</span></td><td class="num" style="font-weight:bold">1,904.00</td></tr>
+        <tr><td style="font-weight:bold">SOAGD1965</td><td>21/04/2026</td><td>Bidfood Pty Ltd</td><td><span class="status-pending">Pending Fulfillment</span></td><td class="num" style="font-weight:bold">3,808.00</td></tr>
+        <tr class="total-row"><td colspan="4">TOTAL (13 orders)</td><td class="num">81,912.53</td></tr>
       </tbody>
     </table>
-    <p style="font-size:8pt;color:#999;margin-top:8px;padding-left:4px">Note: 42 PerfectTed orders (SOAGD1968-2069, 20/04/2026) show $0 open amount - allocated but not yet shipped/billed.</p>
+    <p style="font-size:8pt;color:#999;margin-top:8px;padding-left:4px">Note: 42 PerfectTed orders (SOAGD1968-2069, 20/04/2026) show zero open value in NS - allocated but not yet shipped/billed.</p>
   </div>
 </div>
 
@@ -223,23 +223,23 @@
   <div class="po-summary">
     <div class="po-card receipt">
       <div class="po-card-title">Oatly - Pending Receipt</div>
-      <div class="po-card-value">$2.72m</div>
+      <div class="po-card-value">1 PO</div>
       <div class="po-card-sub">Stock in transit from OATLY EMEA AB - Dec 2025 to Mar 2026 batches</div>
     </div>
     <div class="po-card bill">
       <div class="po-card-title">Oatly - Pending Bill</div>
-      <div class="po-card-value">$394k</div>
-      <div class="po-card-sub">11 POs - goods received, awaiting invoice (all Dec 2025). Action required.</div>
+      <div class="po-card-value">11 POs</div>
+      <div class="po-card-sub">Goods received, awaiting invoice (all Dec 2025). Action required.</div>
     </div>
     <div class="po-card amber">
       <div class="po-card-title">Oatly - Partial / Pending Bill</div>
-      <div class="po-card-value">$40k</div>
+      <div class="po-card-value">1 PO</div>
       <div class="po-card-sub">POAGD272 - partially received and awaiting bill</div>
     </div>
     <div class="po-card perfectted">
       <div class="po-card-title">PerfectTed - Pending Receipt</div>
-      <div class="po-card-value">$818k</div>
-      <div class="po-card-sub">4 POs (POAGD302, 327, 357, 358) - stock inbound incl. $370k raised today</div>
+      <div class="po-card-value">4 POs</div>
+      <div class="po-card-sub">POAGD302, 327, 357, 358 - stock inbound</div>
     </div>
   </div>
 
@@ -250,22 +250,22 @@
   <div class="table-wrap">
     <table class="ns-table">
       <thead>
-        <tr><th>PO Number</th><th>Date</th><th>Vendor</th><th>Status</th><th class="num">Amount</th></tr>
+        <tr><th>PO Number</th><th>Date</th><th>Vendor</th><th>Status</th><th class="num">NS Value (ref)</th></tr>
       </thead>
       <tbody>
-        <tr><td style="font-weight:bold">POAGD258</td><td>17/12/2025</td><td>OAT101 OATLY EMEA AB</td><td><span class="status-bill">Pending Bill</span></td><td class="num" style="font-weight:bold">$34,587.48</td></tr>
-        <tr><td style="font-weight:bold">POAGD259</td><td>17/12/2025</td><td>OAT101 OATLY EMEA AB</td><td><span class="status-bill">Pending Bill</span></td><td class="num" style="font-weight:bold">$34,587.48</td></tr>
-        <tr><td style="font-weight:bold">POAGD260</td><td>17/12/2025</td><td>OAT101 OATLY EMEA AB</td><td><span class="status-bill">Pending Bill</span></td><td class="num" style="font-weight:bold">$34,587.48</td></tr>
-        <tr><td style="font-weight:bold">POAGD261</td><td>17/12/2025</td><td>OAT101 OATLY EMEA AB</td><td><span class="status-bill">Pending Bill</span></td><td class="num" style="font-weight:bold">$34,587.48</td></tr>
-        <tr><td style="font-weight:bold">POAGD262</td><td>17/12/2025</td><td>OAT101 OATLY EMEA AB</td><td><span class="status-bill">Pending Bill</span></td><td class="num" style="font-weight:bold">$34,587.48</td></tr>
-        <tr><td style="font-weight:bold">POAGD263</td><td>17/12/2025</td><td>OAT101 OATLY EMEA AB</td><td><span class="status-bill">Pending Bill</span></td><td class="num" style="font-weight:bold">$34,587.48</td></tr>
-        <tr><td style="font-weight:bold">POAGD264</td><td>17/12/2025</td><td>OAT101 OATLY EMEA AB</td><td><span class="status-bill">Pending Bill</span></td><td class="num" style="font-weight:bold">$34,587.48</td></tr>
-        <tr><td style="font-weight:bold">POAGD265</td><td>17/12/2025</td><td>OAT101 OATLY EMEA AB</td><td><span class="status-bill">Pending Bill</span></td><td class="num" style="font-weight:bold">$34,587.48</td></tr>
-        <tr><td style="font-weight:bold">POAGD270</td><td>17/12/2025</td><td>OAT101 OATLY EMEA AB</td><td><span class="status-bill">Pending Bill</span></td><td class="num" style="font-weight:bold">$44,469.62</td></tr>
-        <tr><td style="font-weight:bold">POAGD276</td><td>17/12/2025</td><td>OAT101 OATLY EMEA AB</td><td><span class="status-bill">Pending Bill</span></td><td class="num" style="font-weight:bold">$36,563.91</td></tr>
-        <tr><td style="font-weight:bold">POAGD278</td><td>17/12/2025</td><td>OAT101 OATLY EMEA AB</td><td><span class="status-bill">Pending Bill</span></td><td class="num" style="font-weight:bold">$36,563.91</td></tr>
-        <tr><td style="font-weight:bold">POAGD272</td><td>17/12/2025</td><td>OAT101 OATLY EMEA AB</td><td><span class="status-partial">Pending Bill / Part Received</span></td><td class="num" style="font-weight:bold">$40,187.36</td></tr>
-        <tr class="total-row"><td colspan="4">TOTAL PENDING BILL (12 POs)</td><td class="num">$434,484.64</td></tr>
+        <tr><td style="font-weight:bold">POAGD258</td><td>17/12/2025</td><td>OAT101 OATLY EMEA AB</td><td><span class="status-bill">Pending Bill</span></td><td class="num" style="font-weight:bold">34,587.48</td></tr>
+        <tr><td style="font-weight:bold">POAGD259</td><td>17/12/2025</td><td>OAT101 OATLY EMEA AB</td><td><span class="status-bill">Pending Bill</span></td><td class="num" style="font-weight:bold">34,587.48</td></tr>
+        <tr><td style="font-weight:bold">POAGD260</td><td>17/12/2025</td><td>OAT101 OATLY EMEA AB</td><td><span class="status-bill">Pending Bill</span></td><td class="num" style="font-weight:bold">34,587.48</td></tr>
+        <tr><td style="font-weight:bold">POAGD261</td><td>17/12/2025</td><td>OAT101 OATLY EMEA AB</td><td><span class="status-bill">Pending Bill</span></td><td class="num" style="font-weight:bold">34,587.48</td></tr>
+        <tr><td style="font-weight:bold">POAGD262</td><td>17/12/2025</td><td>OAT101 OATLY EMEA AB</td><td><span class="status-bill">Pending Bill</span></td><td class="num" style="font-weight:bold">34,587.48</td></tr>
+        <tr><td style="font-weight:bold">POAGD263</td><td>17/12/2025</td><td>OAT101 OATLY EMEA AB</td><td><span class="status-bill">Pending Bill</span></td><td class="num" style="font-weight:bold">34,587.48</td></tr>
+        <tr><td style="font-weight:bold">POAGD264</td><td>17/12/2025</td><td>OAT101 OATLY EMEA AB</td><td><span class="status-bill">Pending Bill</span></td><td class="num" style="font-weight:bold">34,587.48</td></tr>
+        <tr><td style="font-weight:bold">POAGD265</td><td>17/12/2025</td><td>OAT101 OATLY EMEA AB</td><td><span class="status-bill">Pending Bill</span></td><td class="num" style="font-weight:bold">34,587.48</td></tr>
+        <tr><td style="font-weight:bold">POAGD270</td><td>17/12/2025</td><td>OAT101 OATLY EMEA AB</td><td><span class="status-bill">Pending Bill</span></td><td class="num" style="font-weight:bold">44,469.62</td></tr>
+        <tr><td style="font-weight:bold">POAGD276</td><td>17/12/2025</td><td>OAT101 OATLY EMEA AB</td><td><span class="status-bill">Pending Bill</span></td><td class="num" style="font-weight:bold">36,563.91</td></tr>
+        <tr><td style="font-weight:bold">POAGD278</td><td>17/12/2025</td><td>OAT101 OATLY EMEA AB</td><td><span class="status-bill">Pending Bill</span></td><td class="num" style="font-weight:bold">36,563.91</td></tr>
+        <tr><td style="font-weight:bold">POAGD272</td><td>17/12/2025</td><td>OAT101 OATLY EMEA AB</td><td><span class="status-partial">Pending Bill / Part Received</span></td><td class="num" style="font-weight:bold">40,187.36</td></tr>
+        <tr class="total-row"><td colspan="4">TOTAL PENDING BILL (12 POs)</td><td class="num">434,484.64</td></tr>
       </tbody>
     </table>
   </div>
