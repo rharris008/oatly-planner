@@ -12,18 +12,31 @@
   .page-header h1 { font-size:20pt; font-weight:bold; }
   .page-header .subtitle { font-size:11pt; color:#8fa8c8; margin-top:2px; }
   .header-right { text-align:right; font-size:9pt; color:#8fa8c8; }
+  /* Tab nav */
+  .tab-nav { background:var(--white); border-bottom:2px solid var(--mdgrey); padding:0 24px; display:flex; gap:0; }
+  .tab-btn { font-family:Arial,sans-serif; font-size:10pt; font-weight:bold; padding:12px 22px; border:none; background:none; color:#666; cursor:pointer; border-bottom:3px solid transparent; margin-bottom:-2px; transition:color .15s,border-color .15s; }
+  .tab-btn:hover { color:var(--navy); }
+  .tab-btn.active { color:var(--navy); border-bottom-color:var(--blue); }
+  .tab-pane { display:none; }
+  .tab-pane.active { display:block; }
+  /* NS banner */
+  .ns-banner { background:#e8f4fd; border-left:4px solid var(--blue); padding:8px 24px; font-size:8.5pt; color:#1B2A4A; }
+  /* Filter bar */
   .filter-bar { background:var(--white); border-bottom:1px solid var(--mdgrey); padding:10px 24px; display:flex; align-items:center; gap:16px; flex-wrap:wrap; }
   .filter-bar label { font-size:9pt; color:#666; margin-right:4px; }
   .filter-bar select { font-family:Arial,sans-serif; font-size:9pt; padding:5px 8px; border:1px solid var(--mdgrey); border-radius:4px; background:var(--white); color:var(--dktext); }
   .btn { font-family:Arial,sans-serif; font-size:9pt; font-weight:bold; padding:6px 14px; border:none; border-radius:4px; cursor:pointer; }
   .btn-refresh { background:var(--green); color:var(--white); }
+  /* Summary tiles */
   .summary-row { display:flex; gap:12px; padding:16px 24px; flex-wrap:wrap; }
   .tile { flex:1; min-width:160px; background:var(--white); border-radius:6px; padding:14px 16px; border-top:4px solid var(--navy); box-shadow:0 1px 4px rgba(0,0,0,.08); }
   .tile.amber{border-top-color:var(--amber)} .tile.green{border-top-color:var(--green)} .tile.red{border-top-color:var(--red)} .tile.blue{border-top-color:var(--blue)}
   .tile-label { font-size:8pt; color:#666; text-transform:uppercase; letter-spacing:.05em; margin-bottom:6px; }
   .tile-value { font-size:18pt; font-weight:bold; color:var(--dktext); line-height:1; }
   .tile-sub { font-size:8pt; color:#999; margin-top:4px; }
+  /* Section header */
   .section-header { padding:8px 24px 4px; font-size:16pt; font-weight:bold; color:var(--navy); border-bottom:2px solid var(--blue); }
+  /* SKU cards grid */
   .cards-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(380px,1fr)); gap:16px; padding:16px 24px; }
   .sku-card { background:var(--white); border-radius:8px; box-shadow:0 1px 6px rgba(0,0,0,.1); overflow:hidden; }
   .sku-card-header { background:var(--navy); color:var(--white); padding:10px 14px; display:flex; justify-content:space-between; align-items:center; }
@@ -43,6 +56,7 @@
   .gap-val { color:var(--red); font-weight:bold; } .ok-val { color:var(--green); }
   .badge { display:inline-block; padding:2px 8px; border-radius:10px; font-size:7.5pt; font-weight:bold; text-transform:uppercase; }
   .badge-ok{background:#e8f8ee;color:var(--green)} .badge-warn{background:#fef3e2;color:var(--amber)} .badge-risk{background:#fdecea;color:var(--red)}
+  /* Chart section */
   .chart-section { padding:0 24px 24px; }
   .chart-card { background:var(--white); border-radius:8px; box-shadow:0 1px 6px rgba(0,0,0,.08); padding:16px; margin-top:16px; }
   .chart-title { font-size:13pt; font-weight:bold; color:var(--navy); margin-bottom:12px; border-bottom:1px solid var(--mdgrey); padding-bottom:8px; }
@@ -51,10 +65,36 @@
   .bar-wrap { flex:1; background:var(--ltgrey); border-radius:2px; height:14px; }
   .bar-fill { height:14px; border-radius:2px; }
   .week-val { width:60px; text-align:right; flex-shrink:0; }
+  /* Loader */
   .loader { text-align:center; padding:48px 24px; color:#888; font-size:11pt; }
   .spinner { display:inline-block; width:28px; height:28px; border:3px solid var(--mdgrey); border-top-color:var(--blue); border-radius:50%; animation:spin .7s linear infinite; margin-right:10px; vertical-align:middle; }
   @keyframes spin { to{transform:rotate(360deg)} }
+  /* NS data tables */
+  .data-section { padding:16px 24px 24px; }
+  .data-table-wrap { background:var(--white); border-radius:8px; box-shadow:0 1px 6px rgba(0,0,0,.08); overflow:hidden; margin-top:16px; }
+  .data-table { width:100%; border-collapse:collapse; font-size:9pt; }
+  .data-table thead th { background:var(--navy); color:var(--white); padding:8px 12px; text-align:left; font-size:8.5pt; font-weight:bold; white-space:nowrap; }
+  .data-table thead th.num { text-align:right; }
+  .data-table tbody td { padding:7px 12px; border-bottom:1px solid var(--ltgrey); }
+  .data-table tbody tr:last-child td { border-bottom:none; }
+  .data-table tbody tr:hover { background:#f0f6ff; }
+  .data-table .num { text-align:right; font-variant-numeric:tabular-nums; }
+  .data-table tfoot td { background:#f0f0f0; font-weight:bold; padding:7px 12px; border-top:2px solid var(--mdgrey); }
+  .data-table tfoot .num { text-align:right; }
+  /* AP-specific */
+  .overdue-row td { color:var(--red); }
+  .overdue-badge { background:#fdecea; color:var(--red); padding:2px 7px; border-radius:10px; font-size:7.5pt; font-weight:bold; white-space:nowrap; }
+  .current-badge { background:#e8f8ee; color:var(--green); padding:2px 7px; border-radius:10px; font-size:7.5pt; font-weight:bold; white-space:nowrap; }
+  /* Stock bar */
+  .stock-bar-wrap { width:140px; background:var(--ltgrey); border-radius:2px; height:12px; display:inline-block; vertical-align:middle; margin-left:8px; }
+  .stock-bar { height:12px; border-radius:2px; background:var(--blue); }
+  /* Page footer */
   .page-footer { margin-top:32px; padding:10px 24px; border-top:1px solid var(--mdgrey); font-size:8pt; color:#999; display:flex; justify-content:space-between; }
+  /* AP filter */
+  .ap-filter-bar { padding:10px 24px; background:var(--white); border-bottom:1px solid var(--mdgrey); display:flex; align-items:center; gap:16px; }
+  .ap-filter-bar label { font-size:9pt; color:#666; }
+  .ap-filter-bar select { font-family:Arial,sans-serif; font-size:9pt; padding:5px 8px; border:1px solid var(--mdgrey); border-radius:4px; }
+  .negative { color:var(--red); }
 </style>
 </head>
 <body>
@@ -65,45 +105,219 @@
   </div>
   <div class="header-right">
     <div id="last-refresh">Loading...</div>
-    <div style="margin-top:4px"><button class="btn btn-refresh" onclick="loadAll()">Refresh</button></div>
+    <div style="margin-top:4px"><button class="btn btn-refresh" onclick="refreshCurrent()">Refresh</button></div>
   </div>
 </div>
-<div class="filter-bar">
-  <div><label for="sel-sku">SKU</label><select id="sel-sku" onchange="applyFilters()"><option value="">All SKUs</option></select></div>
-  <div><label for="sel-dc">DC</label><select id="sel-dc" onchange="applyFilters()"><option value="">All DCs</option></select></div>
-  <div><label for="sel-weeks">Weeks ahead</label>
-    <select id="sel-weeks" onchange="loadAll()">
-      <option value="8">8 weeks</option>
-      <option value="13" selected>13 weeks</option>
-      <option value="26">26 weeks</option>
-      <option value="52">52 weeks</option>
+
+<nav class="tab-nav">
+  <button class="tab-btn active" onclick="showTab('forecast',this)">Forecast</button>
+  <button class="tab-btn" onclick="showTab('stock',this)">Stock on Hand</button>
+  <button class="tab-btn" onclick="showTab('po',this)">Purchase Orders</button>
+  <button class="tab-btn" onclick="showTab('creditors',this)">Creditors / AP</button>
+</nav>
+
+<!-- FORECAST TAB -->
+<div id="tab-forecast" class="tab-pane active">
+  <div class="filter-bar">
+    <div><label for="sel-sku">SKU</label><select id="sel-sku" onchange="applyFilters()"><option value="">All SKUs</option></select></div>
+    <div><label for="sel-dc">DC</label><select id="sel-dc" onchange="applyFilters()"><option value="">All DCs</option></select></div>
+    <div><label for="sel-weeks">Weeks ahead</label>
+      <select id="sel-weeks" onchange="loadForecast()">
+        <option value="8">8 weeks</option>
+        <option value="13" selected>13 weeks</option>
+        <option value="26">26 weeks</option>
+        <option value="52">52 weeks</option>
+      </select>
+    </div>
+  </div>
+  <div class="summary-row" id="summary-tiles"><div class="loader"><span class="spinner"></span>Loading data...</div></div>
+  <div class="section-header" id="cards-heading" style="display:none">SKU Forecast vs Planned Orders</div>
+  <div class="cards-grid" id="cards-grid"></div>
+  <div class="chart-section">
+    <div class="chart-card" id="weekly-chart-card" style="display:none">
+      <div class="chart-title" id="weekly-chart-title">Weekly Forecast — All SKUs</div>
+      <div id="weekly-chart-body"></div>
+    </div>
+  </div>
+</div>
+
+<!-- STOCK TAB -->
+<div id="tab-stock" class="tab-pane">
+  <div class="ns-banner">NetSuite extract: 22/04/2026 — AGD Erskine Park | Inventory balance by item (all lots/bins aggregated)</div>
+  <div class="summary-row">
+    <div class="tile blue"><div class="tile-label">Active SKUs with Stock</div><div class="tile-value">7</div><div class="tile-sub">of 12 Oatly SKUs</div></div>
+    <div class="tile"><div class="tile-label">Total Units on Hand</div><div class="tile-value">76,238</div><div class="tile-sub">all SKUs combined</div></div>
+    <div class="tile amber"><div class="tile-label">Zero Stock SKUs</div><div class="tile-value">5</div><div class="tile-sub">no units at AGD EP</div></div>
+  </div>
+  <div class="data-section">
+    <div class="data-table-wrap">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>SKU Code</th>
+            <th>Description</th>
+            <th class="num">Units on Hand</th>
+            <th class="num">Available</th>
+            <th style="width:180px">Visual</th>
+          </tr>
+        </thead>
+        <tbody id="stock-tbody">
+        </tbody>
+        <tfoot>
+          <tr>
+            <td colspan="2">Total</td>
+            <td class="num">76,238</td>
+            <td class="num">76,238</td>
+            <td></td>
+          </tr>
+        </tfoot>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- PO TAB -->
+<div id="tab-po" class="tab-pane">
+  <div class="ns-banner">NetSuite extract: 22/04/2026 — Open purchase orders from Oatly EMEA AB (vendor OAT101) | Statuses: Pending Approval, Pending Receipt, Partially Received, Pending Bill | Note: quantity shown is total ordered on each PO, including units already received but pending bill</div>
+  <div class="summary-row">
+    <div class="tile blue"><div class="tile-label">SKUs on Open POs</div><div class="tile-value">12</div><div class="tile-sub">all active SKUs</div></div>
+    <div class="tile"><div class="tile-label">Total PO Lines</div><div class="tile-value">383</div><div class="tile-sub">open POs across all SKUs</div></div>
+    <div class="tile green"><div class="tile-label">Total Ordered Qty</div><div class="tile-value">1,851,400</div><div class="tile-sub">units on open POs</div></div>
+  </div>
+  <div class="data-section">
+    <div class="data-table-wrap">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>SKU Code</th>
+            <th>Description</th>
+            <th class="num">Open POs</th>
+            <th class="num">Total Qty Ordered</th>
+            <th style="width:160px">Visual</th>
+          </tr>
+        </thead>
+        <tbody id="po-tbody"></tbody>
+        <tfoot>
+          <tr>
+            <td colspan="2">Total</td>
+            <td class="num">383</td>
+            <td class="num">1,851,400</td>
+            <td></td>
+          </tr>
+        </tfoot>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- CREDITORS TAB -->
+<div id="tab-creditors" class="tab-pane">
+  <div class="ns-banner">NetSuite extract: 22/04/2026 — Outstanding bills payable to OATLY EMEA AB (vendor OAT101) | Exchange rates as recorded on each invoice in NetSuite</div>
+  <div class="ap-filter-bar">
+    <label>Show:</label>
+    <select id="ap-filter" onchange="renderAP()">
+      <option value="all">All invoices</option>
+      <option value="overdue">Overdue only</option>
+      <option value="current">Current only</option>
     </select>
   </div>
-</div>
-<div class="summary-row" id="summary-tiles"><div class="loader"><span class="spinner"></span>Loading data...</div></div>
-<div class="section-header" id="cards-heading" style="display:none">SKU Forecast vs Planned Orders</div>
-<div class="cards-grid" id="cards-grid"></div>
-<div class="chart-section">
-  <div class="chart-card" id="weekly-chart-card" style="display:none">
-    <div class="chart-title" id="weekly-chart-title">Weekly Forecast — All SKUs</div>
-    <div id="weekly-chart-body"></div>
+  <div class="summary-row">
+    <div class="tile red"><div class="tile-label">Overdue</div><div class="tile-value">EUR 2,123,077</div><div class="tile-sub">AUD $3,749,965 | 86 invoices</div></div>
+    <div class="tile green"><div class="tile-label">Current</div><div class="tile-value">EUR 570,030</div><div class="tile-sub">AUD $936,545 | 27 invoices</div></div>
+    <div class="tile amber"><div class="tile-label">Total Outstanding</div><div class="tile-value">EUR 2,693,107</div><div class="tile-sub">AUD $4,686,510 | 113 invoices</div></div>
+  </div>
+  <div class="data-section">
+    <div class="data-table-wrap">
+      <table class="data-table" id="ap-table">
+        <thead>
+          <tr>
+            <th>Invoice No.</th>
+            <th>Invoice Date</th>
+            <th>Due Date</th>
+            <th>Status</th>
+            <th class="num">Amount (EUR)</th>
+            <th class="num">Exchange Rate</th>
+            <th class="num">Amount (AUD)</th>
+          </tr>
+        </thead>
+        <tbody id="ap-tbody"></tbody>
+        <tfoot id="ap-tfoot"></tfoot>
+      </table>
+    </div>
   </div>
 </div>
+
 <div class="page-footer">
   <span>ABH Pureau — Oatly Planner | INTERNAL - NOT FOR DISTRIBUTION</span>
   <span id="footer-gen">Generated: —</span>
 </div>
+
 <script>
+// ---- Static NetSuite data (extracted 22/04/2026) ----
+const STOCK_DATA = [
+  {code:'FG 61737',desc:'Oatly Oat Milk Barista Edition 1L',soh:57689,avail:57689},
+  {code:'FG 62108',desc:'Oatly Oat Milk Full 2.8% Fat 1.0L',soh:6171,avail:6171},
+  {code:'FG 62106',desc:'Oatly Oat Milk Low Sugar 1L',soh:5329,avail:5329},
+  {code:'FG 62059',desc:'Oatly Oat Milk Barista Edition 500ml',soh:2004,avail:2004},
+  {code:'FG 62060',desc:'Oatly Oat Milk Vanilla Flavour 1L',soh:2400,avail:2400},
+  {code:'FG 61740',desc:'Oatly Oat Milk Chocolate 1L',soh:2485,avail:2485},
+  {code:'FG 61739',desc:'Oatly Oat Milk Organic 1L',soh:160,avail:160},
+  {code:'FG 61561',desc:'Oatly Oat Cream 1L',soh:0,avail:0},
+  {code:'FG 61909',desc:'Oatly Creamy Oat Organic 0.25L',soh:0,avail:0},
+  {code:'FG 62107',desc:'Oatly Oat Milk Light 1.5% fat 1L',soh:0,avail:0},
+  {code:'FG 62262',desc:'Oatly Oat Milk Barista Edition 1.5L',soh:0,avail:0},
+  {code:'FG 62322',desc:'Oatly Oat Milk Barista Organic 1L',soh:0,avail:0}
+];
+
+const PO_DATA = [
+  {code:'FG 61737',desc:'Oatly Oat Milk Barista Edition 1L',po_count:227,total_qty:1380714},
+  {code:'FG 62108',desc:'Oatly Oat Milk Full 2.8% Fat 1.0L',po_count:32,total_qty:110596},
+  {code:'FG 61739',desc:'Oatly Oat Milk Organic 1L',po_count:28,total_qty:71951},
+  {code:'FG 62322',desc:'Oatly Oat Milk Barista Organic 1L',po_count:15,total_qty:47378},
+  {code:'FG 62060',desc:'Oatly Oat Milk Vanilla Flavour 1L',po_count:18,total_qty:46148},
+  {code:'FG 62106',desc:'Oatly Oat Milk Low Sugar 1L',po_count:20,total_qty:57334},
+  {code:'FG 61740',desc:'Oatly Oat Milk Chocolate 1L',po_count:25,total_qty:62763},
+  {code:'FG 62107',desc:'Oatly Oat Milk Light 1.5% fat 1L',po_count:12,total_qty:29503},
+  {code:'FG 61909',desc:'Oatly Creamy Oat Organic 0.25L',po_count:7,total_qty:19867},
+  {code:'FG 62059',desc:'Oatly Oat Milk Barista Edition 500ml',po_count:11,total_qty:16390},
+  {code:'FG 62262',desc:'Oatly Oat Milk Barista Edition 1.5L',po_count:3,total_qty:8736},
+  {code:'FG 61561',desc:'Oatly Oat Cream 1L',po_count:1,total_qty:120}
+];
+
+const AP_DATA = [{"inv":"3010600057583","inv_date":"17/03/2025","due_date":"01/05/2025","overdue":true,"status_label":"Overdue 356d","days":356,"eur":25048,"aud":43101.67,"rate":1.720763},{"inv":"3010600057577","inv_date":"17/03/2025","due_date":"01/05/2025","overdue":true,"status_label":"Overdue 356d","days":356,"eur":25048,"aud":43101.67,"rate":1.720763},{"inv":"3010600057576","inv_date":"17/03/2025","due_date":"01/05/2025","overdue":true,"status_label":"Overdue 356d","days":356,"eur":25048,"aud":43101.67,"rate":1.720763},{"inv":"3010600057575","inv_date":"17/03/2025","due_date":"01/05/2025","overdue":true,"status_label":"Overdue 356d","days":356,"eur":25048,"aud":43101.67,"rate":1.720763},{"inv":"3010600057581","inv_date":"17/03/2025","due_date":"01/05/2025","overdue":true,"status_label":"Overdue 356d","days":356,"eur":25048,"aud":43101.67,"rate":1.720763},{"inv":"3010600057579","inv_date":"17/03/2025","due_date":"01/05/2025","overdue":true,"status_label":"Overdue 356d","days":356,"eur":25048,"aud":43101.67,"rate":1.720763},{"inv":"3010600062046","inv_date":"18/07/2025","due_date":"01/09/2025","overdue":true,"status_label":"Overdue 233d","days":233,"eur":23963,"aud":42792.19,"rate":1.785761},{"inv":"3010600069008","inv_date":"18/03/2026","due_date":"02/05/2026","overdue":false,"status_label":"Due in 10d","days":10,"eur":19530,"aud":31720.15,"rate":1.6241755},{"inv":"3010600069006","inv_date":"18/03/2026","due_date":"02/05/2026","overdue":false,"status_label":"Due in 10d","days":10,"eur":19530,"aud":31720.15,"rate":1.6241755},{"inv":"3010600069015","inv_date":"18/03/2026","due_date":"02/05/2026","overdue":false,"status_label":"Due in 10d","days":10,"eur":20646,"aud":33532.73,"rate":1.6241755},{"inv":"3010600069011","inv_date":"18/03/2026","due_date":"02/05/2026","overdue":false,"status_label":"Due in 10d","days":10,"eur":19530,"aud":31720.15,"rate":1.6241755},{"inv":"3010600059399","inv_date":"18/06/2025","due_date":"02/08/2025","overdue":true,"status_label":"Overdue 263d","days":263,"eur":23378.4,"aud":41470.56,"rate":1.7738835},{"inv":"3010600059225","inv_date":"18/06/2025","due_date":"02/08/2025","overdue":true,"status_label":"Overdue 263d","days":263,"eur":22258,"aud":39483.1,"rate":1.7738835},{"inv":"3010600059398","inv_date":"18/06/2025","due_date":"02/08/2025","overdue":true,"status_label":"Overdue 263d","days":263,"eur":20965.6,"aud":37190.53,"rate":1.7738835},{"inv":"3010600057496","inv_date":"19/03/2025","due_date":"03/05/2025","overdue":true,"status_label":"Overdue 354d","days":354,"eur":25048,"aud":43096.2,"rate":1.7205445},{"inv":"3010600057497","inv_date":"19/03/2025","due_date":"03/05/2025","overdue":true,"status_label":"Overdue 354d","days":354,"eur":25048,"aud":43096.2,"rate":1.7205445},{"inv":"3010600057492","inv_date":"19/03/2025","due_date":"03/05/2025","overdue":true,"status_label":"Overdue 354d","days":354,"eur":25048,"aud":43096.2,"rate":1.7205445},{"inv":"3010600057489","inv_date":"19/03/2025","due_date":"03/05/2025","overdue":true,"status_label":"Overdue 354d","days":354,"eur":25048,"aud":43096.2,"rate":1.7205445},{"inv":"3010600068638","inv_date":"19/03/2026","due_date":"03/05/2026","overdue":false,"status_label":"Due in 11d","days":11,"eur":19530,"aud":31786.67,"rate":1.6275815},{"inv":"3010600068643","inv_date":"19/03/2026","due_date":"03/05/2026","overdue":false,"status_label":"Due in 11d","days":11,"eur":19530,"aud":31786.67,"rate":1.6275815},{"inv":"3010600068641","inv_date":"19/03/2026","due_date":"03/05/2026","overdue":false,"status_label":"Due in 11d","days":11,"eur":19530,"aud":31786.67,"rate":1.6275815},{"inv":"3010600068467","inv_date":"19/03/2026","due_date":"03/05/2026","overdue":false,"status_label":"Due in 11d","days":11,"eur":33500.8,"aud":54525.28,"rate":1.6275815},{"inv":"3010600068645","inv_date":"19/03/2026","due_date":"03/05/2026","overdue":false,"status_label":"Due in 11d","days":11,"eur":20532.78,"aud":33418.77,"rate":1.6275815},{"inv":"3010600059227","inv_date":"19/06/2025","due_date":"03/08/2025","overdue":true,"status_label":"Overdue 262d","days":262,"eur":23963,"aud":42301.44,"rate":1.7652815},{"inv":"3010600060318","inv_date":"22/07/2025","due_date":"05/09/2025","overdue":true,"status_label":"Overdue 229d","days":229,"eur":23684,"aud":42432.03,"rate":1.7915905},{"inv":"3010600060316","inv_date":"23/07/2025","due_date":"06/09/2025","overdue":true,"status_label":"Overdue 228d","days":228,"eur":23963,"aud":42976.42,"rate":1.793449},{"inv":"3010600060315","inv_date":"23/07/2025","due_date":"06/09/2025","overdue":true,"status_label":"Overdue 228d","days":228,"eur":23963,"aud":42976.42,"rate":1.793449},{"inv":"3010600057619","inv_date":"23/04/2025","due_date":"07/06/2025","overdue":true,"status_label":"Overdue 319d","days":319,"eur":22805.4,"aud":40876.83,"rate":1.792419},{"inv":"3010600057623","inv_date":"23/04/2025","due_date":"07/06/2025","overdue":true,"status_label":"Overdue 319d","days":319,"eur":22767.2,"aud":40808.36,"rate":1.792419},{"inv":"3010600069292","inv_date":"24/03/2026","due_date":"08/05/2026","overdue":false,"status_label":"Due in 16d","days":16,"eur":19530,"aud":32338.62,"rate":1.6558435},{"inv":"3010600069340","inv_date":"24/03/2026","due_date":"08/05/2026","overdue":false,"status_label":"Due in 16d","days":16,"eur":19530,"aud":32338.62,"rate":1.6558435},{"inv":"3010600069277","inv_date":"24/03/2026","due_date":"08/05/2026","overdue":false,"status_label":"Due in 16d","days":16,"eur":19530,"aud":32338.62,"rate":1.6558435},{"inv":"3010600069280","inv_date":"24/03/2026","due_date":"08/05/2026","overdue":false,"status_label":"Due in 16d","days":16,"eur":19530,"aud":32338.62,"rate":1.6558435},{"inv":"3010600057452","inv_date":"24/04/2025","due_date":"08/06/2025","overdue":true,"status_label":"Overdue 318d","days":318,"eur":23963,"aud":42639.26,"rate":1.779379},{"inv":"3010600057454","inv_date":"24/04/2025","due_date":"08/06/2025","overdue":true,"status_label":"Overdue 318d","days":318,"eur":23963,"aud":42639.26,"rate":1.779379},{"inv":"3010600057437","inv_date":"24/04/2025","due_date":"08/06/2025","overdue":true,"status_label":"Overdue 318d","days":318,"eur":23963,"aud":42639.26,"rate":1.779379},{"inv":"3010600057449","inv_date":"24/04/2025","due_date":"08/06/2025","overdue":true,"status_label":"Overdue 318d","days":318,"eur":23963,"aud":42639.26,"rate":1.779379},{"inv":"3010600057444","inv_date":"24/04/2025","due_date":"08/06/2025","overdue":true,"status_label":"Overdue 318d","days":318,"eur":23963,"aud":42639.26,"rate":1.779379},{"inv":"3010600058299","inv_date":"27/05/2025","due_date":"11/07/2025","overdue":true,"status_label":"Overdue 285d","days":285,"eur":23684,"aud":41577.65,"rate":1.7555165},{"inv":"3010600058432","inv_date":"28/05/2025","due_date":"12/07/2025","overdue":true,"status_label":"Overdue 284d","days":284,"eur":31230.68,"aud":54926.76,"rate":1.7587435},{"inv":"3010600058570","inv_date":"28/05/2025","due_date":"12/07/2025","overdue":true,"status_label":"Overdue 284d","days":284,"eur":23684,"aud":41654.08,"rate":1.7587435},{"inv":"3010600058297","inv_date":"28/05/2025","due_date":"12/07/2025","overdue":true,"status_label":"Overdue 284d","days":284,"eur":23684,"aud":41654.08,"rate":1.7587435},{"inv":"3010600059998","inv_date":"29/07/2025","due_date":"12/09/2025","overdue":true,"status_label":"Overdue 222d","days":222,"eur":23963,"aud":42638.32,"rate":1.77934},{"inv":"3010600060552","inv_date":"30/07/2025","due_date":"13/09/2025","overdue":true,"status_label":"Overdue 221d","days":221,"eur":23963,"aud":42477.28,"rate":1.7726195},{"inv":"3010600060555","inv_date":"30/07/2025","due_date":"13/09/2025","overdue":true,"status_label":"Overdue 221d","days":221,"eur":23684,"aud":41982.72,"rate":1.7726195},{"inv":"3010600060564","inv_date":"30/07/2025","due_date":"13/09/2025","overdue":true,"status_label":"Overdue 221d","days":221,"eur":23963,"aud":42477.28,"rate":1.7726195},{"inv":"3010600060553","inv_date":"31/07/2025","due_date":"14/09/2025","overdue":true,"status_label":"Overdue 220d","days":220,"eur":22258,"aud":39539.4,"rate":1.776413},{"inv":"3010600060562","inv_date":"31/07/2025","due_date":"14/09/2025","overdue":true,"status_label":"Overdue 220d","days":220,"eur":23963,"aud":42568.18,"rate":1.776413},{"inv":"3010600060560","inv_date":"31/07/2025","due_date":"14/09/2025","overdue":true,"status_label":"Overdue 220d","days":220,"eur":23963,"aud":42568.18,"rate":1.776413},{"inv":"3010600060548","inv_date":"31/07/2025","due_date":"14/09/2025","overdue":true,"status_label":"Overdue 220d","days":220,"eur":23963,"aud":42568.18,"rate":1.776413},{"inv":"3010600060550","inv_date":"31/07/2025","due_date":"14/09/2025","overdue":true,"status_label":"Overdue 220d","days":220,"eur":23963,"aud":42568.18,"rate":1.776413},{"inv":"3010600056800","inv_date":"31/03/2025","due_date":"15/05/2025","overdue":true,"status_label":"Overdue 342d","days":342,"eur":23504.72,"aud":40458.62,"rate":1.7212975},{"inv":"3010600069680","inv_date":"31/03/2026","due_date":"15/05/2026","overdue":false,"status_label":"Due in 23d","days":23,"eur":20306.34,"aud":33964.47,"rate":1.672604},{"inv":"3010600069538","inv_date":"31/03/2026","due_date":"15/05/2026","overdue":false,"status_label":"Due in 23d","days":23,"eur":19530,"aud":32665.96,"rate":1.672604},{"inv":"3010600069540","inv_date":"01/04/2026","due_date":"16/05/2026","overdue":false,"status_label":"Due in 24d","days":24,"eur":19530,"aud":32722.77,"rate":1.675513},{"inv":"3010600069541","inv_date":"01/04/2026","due_date":"16/05/2026","overdue":false,"status_label":"Due in 24d","days":24,"eur":19530,"aud":32722.77,"rate":1.675513},{"inv":"3010600058810","inv_date":"02/06/2025","due_date":"17/07/2025","overdue":true,"status_label":"Overdue 279d","days":279,"eur":23963,"aud":42288.7,"rate":1.76475},{"inv":"2010600000289","inv_date":"19/05/2025","due_date":"17/08/2025","overdue":true,"status_label":"Overdue 248d","days":248,"eur":24886.4,"aud":43344.58,"rate":1.7416975},{"inv":"3010600059632","inv_date":"03/07/2025","due_date":"17/08/2025","overdue":true,"status_label":"Overdue 248d","days":248,"eur":23963,"aud":42954.04,"rate":1.792515},{"inv":"3010600059626","inv_date":"03/07/2025","due_date":"17/08/2025","overdue":true,"status_label":"Overdue 248d","days":248,"eur":23684,"aud":42453.93,"rate":1.792515},{"inv":"3010600059634","inv_date":"03/07/2025","due_date":"17/08/2025","overdue":true,"status_label":"Overdue 248d","days":248,"eur":23963,"aud":42954.04,"rate":1.792515},{"inv":"3010600059621","inv_date":"03/07/2025","due_date":"17/08/2025","overdue":true,"status_label":"Overdue 248d","days":248,"eur":23963,"aud":42954.04,"rate":1.792515},{"inv":"3010600058984","inv_date":"03/07/2025","due_date":"17/08/2025","overdue":true,"status_label":"Overdue 248d","days":248,"eur":28150.76,"aud":50460.66,"rate":1.792515},{"inv":"3010600059627","inv_date":"03/07/2025","due_date":"17/08/2025","overdue":true,"status_label":"Overdue 248d","days":248,"eur":23963,"aud":42954.04,"rate":1.792515},{"inv":"3010600058986","inv_date":"03/07/2025","due_date":"17/08/2025","overdue":true,"status_label":"Overdue 248d","days":248,"eur":20922.52,"aud":37503.93,"rate":1.792515},{"inv":"3010600058814","inv_date":"03/06/2025","due_date":"18/07/2025","overdue":true,"status_label":"Overdue 278d","days":278,"eur":23963,"aud":42229.46,"rate":1.7622775},{"inv":"3010600058804","inv_date":"03/06/2025","due_date":"18/07/2025","overdue":true,"status_label":"Overdue 278d","days":278,"eur":23963,"aud":42229.46,"rate":1.7622775},{"inv":"3010600058813","inv_date":"03/06/2025","due_date":"18/07/2025","overdue":true,"status_label":"Overdue 278d","days":278,"eur":23963,"aud":42229.46,"rate":1.7622775},{"inv":"3010600058806","inv_date":"03/06/2025","due_date":"18/07/2025","overdue":true,"status_label":"Overdue 278d","days":278,"eur":23963,"aud":42229.46,"rate":1.7622775},{"inv":"3010600058801","inv_date":"04/06/2025","due_date":"19/07/2025","overdue":true,"status_label":"Overdue 277d","days":277,"eur":21860.44,"aud":38443.22,"rate":1.758575},{"inv":"3010600058815","inv_date":"04/06/2025","due_date":"19/07/2025","overdue":true,"status_label":"Overdue 277d","days":277,"eur":23963,"aud":42140.73,"rate":1.758575},{"inv":"3010600057852","inv_date":"06/05/2025","due_date":"20/06/2025","overdue":true,"status_label":"Overdue 306d","days":306,"eur":71817.45,"aud":125626.85,"rate":1.7492525},{"inv":"3010600057849","inv_date":"06/05/2025","due_date":"20/06/2025","overdue":true,"status_label":"Overdue 306d","days":306,"eur":28356.24,"aud":49602.22,"rate":1.7492525},{"inv":"3010600057850","inv_date":"06/05/2025","due_date":"20/06/2025","overdue":true,"status_label":"Overdue 306d","days":306,"eur":21568.72,"aud":37729.14,"rate":1.7492525},{"inv":"3010600057688","inv_date":"08/05/2025","due_date":"22/06/2025","overdue":true,"status_label":"Overdue 304d","days":304,"eur":23963,"aud":42094.26,"rate":1.7566355},{"inv":"3010600057693","inv_date":"08/05/2025","due_date":"22/06/2025","overdue":true,"status_label":"Overdue 304d","days":304,"eur":22842.15,"aud":40125.33,"rate":1.7566355},{"inv":"3010600057686","inv_date":"08/05/2025","due_date":"22/06/2025","overdue":true,"status_label":"Overdue 304d","days":304,"eur":23963,"aud":42094.26,"rate":1.7566355},{"inv":"3010600057683","inv_date":"08/05/2025","due_date":"22/06/2025","overdue":true,"status_label":"Overdue 304d","days":304,"eur":23963,"aud":42094.26,"rate":1.7566355},{"inv":"3010600057691","inv_date":"08/05/2025","due_date":"22/06/2025","overdue":true,"status_label":"Overdue 304d","days":304,"eur":23963,"aud":42094.26,"rate":1.7566355},{"inv":"3010600069823","inv_date":"09/04/2026","due_date":"24/05/2026","overdue":false,"status_label":"Due in 32d","days":32,"eur":19344,"aud":32048.05,"rate":1.6567435},{"inv":"3010600069834","inv_date":"09/04/2026","due_date":"24/05/2026","overdue":false,"status_label":"Due in 32d","days":32,"eur":19530,"aud":32356.2,"rate":1.6567435},{"inv":"3010600059852","inv_date":"10/07/2025","due_date":"24/08/2025","overdue":true,"status_label":"Overdue 241d","days":241,"eur":23963,"aud":42936.09,"rate":1.791766},{"inv":"3010600059855","inv_date":"10/07/2025","due_date":"24/08/2025","overdue":true,"status_label":"Overdue 241d","days":241,"eur":23963,"aud":42936.09,"rate":1.791766},{"inv":"3010600059860","inv_date":"10/07/2025","due_date":"24/08/2025","overdue":true,"status_label":"Overdue 241d","days":241,"eur":23963,"aud":42936.09,"rate":1.791766},{"inv":"3010600069832","inv_date":"10/04/2026","due_date":"25/05/2026","overdue":false,"status_label":"Due in 33d","days":33,"eur":19530,"aud":32279.48,"rate":1.652815},{"inv":"3010600069819","inv_date":"10/04/2026","due_date":"25/05/2026","overdue":false,"status_label":"Due in 33d","days":33,"eur":19530,"aud":32279.48,"rate":1.652815},{"inv":"3010600059036","inv_date":"10/06/2025","due_date":"25/07/2025","overdue":true,"status_label":"Overdue 271d","days":271,"eur":23963,"aud":41968.89,"rate":1.751404},{"inv":"3010600058811","inv_date":"10/06/2025","due_date":"25/07/2025","overdue":true,"status_label":"Overdue 271d","days":271,"eur":23963,"aud":41968.89,"rate":1.751404},{"inv":"3010600059861","inv_date":"11/07/2025","due_date":"25/08/2025","overdue":true,"status_label":"Overdue 240d","days":240,"eur":23963,"aud":42557.98,"rate":1.775987},{"inv":"3010600059541","inv_date":"11/07/2025","due_date":"25/08/2025","overdue":true,"status_label":"Overdue 240d","days":240,"eur":28944.66,"aud":51405.34,"rate":1.775987},{"inv":"3010600059857","inv_date":"11/07/2025","due_date":"25/08/2025","overdue":true,"status_label":"Overdue 240d","days":240,"eur":23684,"aud":42062.48,"rate":1.775987},{"inv":"3010600059543","inv_date":"11/07/2025","due_date":"25/08/2025","overdue":true,"status_label":"Overdue 240d","days":240,"eur":21087.66,"aud":37451.41,"rate":1.775987},{"inv":"3010600059546","inv_date":"11/07/2025","due_date":"25/08/2025","overdue":true,"status_label":"Overdue 240d","days":240,"eur":23963,"aud":42557.98,"rate":1.775987},{"inv":"3010600059034","inv_date":"11/06/2025","due_date":"26/07/2025","overdue":true,"status_label":"Overdue 270d","days":270,"eur":23684,"aud":41487.27,"rate":1.7517005},{"inv":"3010600059037","inv_date":"11/06/2025","due_date":"26/07/2025","overdue":true,"status_label":"Overdue 270d","days":270,"eur":23963,"aud":41976,"rate":1.7517005},{"inv":"3010600059140","inv_date":"12/06/2025","due_date":"27/07/2025","overdue":true,"status_label":"Overdue 269d","days":269,"eur":20505.76,"aud":36191.69,"rate":1.7649525},{"inv":"3010600067971","inv_date":"16/03/2026","due_date":"30/04/2026","overdue":false,"status_label":"Due in 8d","days":8,"eur":23684,"aud":38721.61,"rate":1.634927},{"inv":"3010600068116","inv_date":"16/03/2026","due_date":"30/04/2026","overdue":false,"status_label":"Due in 8d","days":8,"eur":23684,"aud":38721.61,"rate":1.634927},{"inv":"3010600067974","inv_date":"16/03/2026","due_date":"30/04/2026","overdue":false,"status_label":"Due in 8d","days":8,"eur":23963,"aud":39177.76,"rate":1.634927},{"inv":"3010600068114","inv_date":"16/03/2026","due_date":"30/04/2026","overdue":false,"status_label":"Due in 8d","days":8,"eur":23963,"aud":39177.76,"rate":1.634927},{"inv":"3010600067977","inv_date":"16/03/2026","due_date":"30/04/2026","overdue":false,"status_label":"Due in 8d","days":8,"eur":23963,"aud":39177.76,"rate":1.634927},{"inv":"3010600067975","inv_date":"16/03/2026","due_date":"30/04/2026","overdue":false,"status_label":"Due in 8d","days":8,"eur":23963,"aud":39177.76,"rate":1.634927},{"inv":"3010600057491","inv_date":"15/04/2025","due_date":"30/05/2025","overdue":true,"status_label":"Overdue 327d","days":327,"eur":23924.35,"aud":42852.22,"rate":1.791155},{"inv":"3010600060097","inv_date":"16/07/2025","due_date":"30/08/2025","overdue":true,"status_label":"Overdue 235d","days":235,"eur":23963,"aud":42664.9,"rate":1.780449},{"inv":"3010600059864","inv_date":"16/07/2025","due_date":"30/08/2025","overdue":true,"status_label":"Overdue 235d","days":235,"eur":23963,"aud":42664.9,"rate":1.780449},{"inv":"3010600057238","inv_date":"16/04/2025","due_date":"31/05/2025","overdue":true,"status_label":"Overdue 326d","days":326,"eur":23963,"aud":42564.23,"rate":1.776248},{"inv":"3010600057241","inv_date":"16/04/2025","due_date":"31/05/2025","overdue":true,"status_label":"Overdue 326d","days":326,"eur":23963,"aud":42564.23,"rate":1.776248},{"inv":"3010600059859","inv_date":"17/07/2025","due_date":"31/08/2025","overdue":true,"status_label":"Overdue 234d","days":234,"eur":23963,"aud":42736.5,"rate":1.783437},{"inv":"3010600060269","inv_date":"17/07/2025","due_date":"31/08/2025","overdue":true,"status_label":"Overdue 234d","days":234,"eur":32828.58,"aud":58547.7,"rate":1.783437},{"inv":"3010600060094","inv_date":"17/07/2025","due_date":"31/08/2025","overdue":true,"status_label":"Overdue 234d","days":234,"eur":23963,"aud":42736.5,"rate":1.783437},{"inv":"3010600060096","inv_date":"17/07/2025","due_date":"31/08/2025","overdue":true,"status_label":"Overdue 234d","days":234,"eur":23963,"aud":42736.5,"rate":1.783437},{"inv":"3010600060090","inv_date":"17/07/2025","due_date":"31/08/2025","overdue":true,"status_label":"Overdue 234d","days":234,"eur":23963,"aud":42736.5,"rate":1.783437},{"inv":"3010600060092","inv_date":"17/07/2025","due_date":"31/08/2025","overdue":true,"status_label":"Overdue 234d","days":234,"eur":23963,"aud":42736.5,"rate":1.783437}];
+
+// ---- Supabase config ----
 const SB_URL='https://yxaebxkkclbjezffmerw.supabase.co';
 const SB_KEY='sb_publishable_yLmaFw0myJv-rHuCC2LsHw_WW7d8lJn';
 const HDR={'apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY};
 let _skus=[],_dcs=[],_fc=[],_ord=[];
-async function sb(p){const r=await fetch(SB_URL+'/rest/v1/'+p,{headers:HDR});if(!r.ok)throw new Error('SB '+r.status+': '+await r.text());return r.json();}
+
+// ---- Tab switching ----
+function showTab(id, btn) {
+  document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('tab-'+id).classList.add('active');
+  btn.classList.add('active');
+  if(id==='forecast' && !_skus.length) loadForecast();
+}
+
+function refreshCurrent() {
+  const active = document.querySelector('.tab-btn.active');
+  const tabId = active ? active.getAttribute('onclick').match(/'(\w+)'/)[1] : 'forecast';
+  if(tabId==='forecast') loadForecast();
+}
+
+// ---- Helpers ----
 function isoToday(){return new Date().toISOString().slice(0,10);}
 function weeksAhead(n){const d=new Date();d.setDate(d.getDate()+n*7);return d.toISOString().slice(0,10);}
-function fmtDate(iso){if(!iso)return'—';const[y,m,d]=iso.split('-');return d+'/'+m+'/'+String(y).slice(2);}
-function fmtNum(n){if(n===null||n===undefined)return'—';return Number(n).toLocaleString('en-AU');}
-async function loadAll(){
+function fmtDate(iso){if(!iso)return'--';const[y,m,d]=iso.split('-');return d+'/'+m+'/'+String(y).slice(2);}
+function fmtNum(n){if(n===null||n===undefined)return'--';return Number(n).toLocaleString('en-AU');}
+function fmtEur(n){return 'EUR '+Number(n).toLocaleString('en-AU',{minimumFractionDigits:0,maximumFractionDigits:0});}
+function fmtAud(n){return '$'+Number(n).toLocaleString('en-AU',{minimumFractionDigits:2,maximumFractionDigits:2});}
+async function sb(p){const r=await fetch(SB_URL+'/rest/v1/'+p,{headers:HDR});if(!r.ok)throw new Error('SB '+r.status+': '+await r.text());return r.json();}
+
+// ---- Forecast tab ----
+async function loadForecast(){
   document.getElementById('summary-tiles').innerHTML='<div class="loader"><span class="spinner"></span>Loading data...</div>';
   document.getElementById('cards-heading').style.display='none';
   document.getElementById('cards-grid').innerHTML='';
@@ -151,7 +365,7 @@ function renderSummary(skus,fc,ord){
   const cc=pct>=90?'green':pct>=70?'amber':'red';
   document.getElementById('summary-tiles').innerHTML=`
     <div class="tile blue"><div class="tile-label">Active SKUs</div><div class="tile-value">${skus.length}</div><div class="tile-sub">Oatly via AGD/WW</div></div>
-    <div class="tile"><div class="tile-label">Total Forecast</div><div class="tile-value">${fmtNum(tFc)}</div><div class="tile-sub">${weeks} weeks · cases</div></div>
+    <div class="tile"><div class="tile-label">Total Forecast</div><div class="tile-value">${fmtNum(tFc)}</div><div class="tile-sub">${weeks} weeks &middot; cases</div></div>
     <div class="tile"><div class="tile-label">Planned Orders</div><div class="tile-value">${fmtNum(tOrd)}</div><div class="tile-sub">cases in period</div></div>
     <div class="tile ${cc}"><div class="tile-label">Coverage</div><div class="tile-value">${pct}%</div><div class="tile-sub">${gap>=0?'Gap: '+fmtNum(gap):'Surplus: '+fmtNum(-gap)} cases</div></div>
     <div class="tile ${gap>0?'red':'green'}"><div class="tile-label">${gap>0?'Unfilled':'Surplus'}</div><div class="tile-value">${fmtNum(Math.abs(gap))}</div><div class="tile-sub">cases ${gap>0?'not ordered':'over forecast'}</div></div>`;
@@ -179,7 +393,7 @@ function renderCards(skus,fc,ord,fd){
     }).join('');
     return`<div class="sku-card">
       <div class="sku-card-header">
-        <div><div class="sku-name">${sku.description}</div><div class="sku-code">${sku.sku_code} | ${sku.pack_group||'—'}</div></div>
+        <div><div class="sku-name">${sku.description}</div><div class="sku-code">${sku.sku_code} | ${sku.pack_group||'--'}</div></div>
         <span class="badge ${bc}">${bt}</span>
       </div>
       <div class="sku-card-body">
@@ -209,13 +423,88 @@ function renderWeeklyChart(fc,ord){
   </div>`+weeks.map(w=>{
     const d=wm[w],fp=Math.round(d.fc/maxV*100),op=Math.round(d.ord/maxV*100),gap=d.fc-d.ord;
     return`<div style="margin-bottom:8px">
-      <div style="font-size:8pt;color:#555;margin-bottom:2px;font-weight:bold">w/c ${fmtDate(w)} <span style="font-weight:normal;color:${gap>0?'var(--red)':'var(--green)'}">— ${gap>0?'Gap '+fmtNum(gap):'Covered +'+fmtNum(-gap)}</span></div>
+      <div style="font-size:8pt;color:#555;margin-bottom:2px;font-weight:bold">w/c ${fmtDate(w)} <span style="font-weight:normal;color:${gap>0?'var(--red)':'var(--green)'}"> ${gap>0?'Gap '+fmtNum(gap):'Covered +'+fmtNum(-gap)}</span></div>
       <div class="week-row"><div class="week-label" style="font-size:7.5pt">Forecast</div><div class="bar-wrap"><div class="bar-fill" style="width:${fp}%;background:var(--blue)"></div></div><div class="week-val">${fmtNum(d.fc)}</div></div>
       <div class="week-row"><div class="week-label" style="font-size:7.5pt">Ordered</div><div class="bar-wrap"><div class="bar-fill" style="width:${op}%;background:var(--green)"></div></div><div class="week-val">${fmtNum(d.ord)}</div></div>
     </div>`;
   }).join('');
 }
-document.addEventListener('DOMContentLoaded',loadAll);
+
+// ---- Stock tab ----
+function renderStock(){
+  const maxSoh=Math.max(...STOCK_DATA.map(s=>s.soh),1);
+  const tbody=document.getElementById('stock-tbody');
+  tbody.innerHTML=STOCK_DATA.map(s=>{
+    const pct=Math.round(s.soh/maxSoh*100);
+    const cls=s.soh===0?'style="color:#aaa"':'';
+    return`<tr>
+      <td ${cls}>${s.code}</td>
+      <td ${cls}>${s.desc}</td>
+      <td class="num" ${cls}>${s.soh>0?fmtNum(s.soh):'--'}</td>
+      <td class="num" ${cls}>${s.avail>0?fmtNum(s.avail):'--'}</td>
+      <td>${s.soh>0?`<span class="stock-bar-wrap"><span class="stock-bar" style="width:${pct}%"></span></span>`:'<span style="font-size:8pt;color:#ccc">no stock</span>'}</td>
+    </tr>`;
+  }).join('');
+}
+
+// ---- PO tab ----
+function renderPO(){
+  const maxQty=Math.max(...PO_DATA.map(p=>p.total_qty),1);
+  const tbody=document.getElementById('po-tbody');
+  tbody.innerHTML=PO_DATA.map(p=>{
+    const pct=Math.round(p.total_qty/maxQty*100);
+    return`<tr>
+      <td>${p.code}</td>
+      <td>${p.desc}</td>
+      <td class="num">${fmtNum(p.po_count)}</td>
+      <td class="num">${fmtNum(p.total_qty)}</td>
+      <td><span class="stock-bar-wrap"><span class="stock-bar" style="width:${pct}%;background:var(--amber)"></span></span></td>
+    </tr>`;
+  }).join('');
+}
+
+// ---- AP tab ----
+function renderAP(){
+  const filter=document.getElementById('ap-filter').value;
+  const filtered=AP_DATA.filter(b=>{
+    if(filter==='overdue') return b.overdue;
+    if(filter==='current') return !b.overdue;
+    return true;
+  });
+  const tbody=document.getElementById('ap-tbody');
+  const tfoot=document.getElementById('ap-tfoot');
+  tbody.innerHTML=filtered.map(b=>{
+    const rowCls=b.overdue?'overdue-row':'';
+    const badge=b.overdue?`<span class="overdue-badge">${b.status_label}</span>`:`<span class="current-badge">${b.status_label}</span>`;
+    return`<tr class="${rowCls}">
+      <td style="font-size:8.5pt">${b.inv}</td>
+      <td>${b.inv_date}</td>
+      <td>${b.due_date}</td>
+      <td>${badge}</td>
+      <td class="num">${fmtNum(b.eur)}</td>
+      <td class="num">${b.rate.toFixed(6)}</td>
+      <td class="num">${fmtAud(b.aud)}</td>
+    </tr>`;
+  }).join('');
+  const totEur=filtered.reduce((s,b)=>s+b.eur,0);
+  const totAud=filtered.reduce((s,b)=>s+b.aud,0);
+  tfoot.innerHTML=`<tr>
+    <td colspan="4">Total (${filtered.length} invoices)</td>
+    <td class="num">${fmtNum(Math.round(totEur))}</td>
+    <td class="num"></td>
+    <td class="num">${fmtAud(totAud)}</td>
+  </tr>`;
+}
+
+// ---- Init ----
+document.addEventListener('DOMContentLoaded',()=>{
+  renderStock();
+  renderPO();
+  renderAP();
+  loadForecast();
+  const now=new Date().toLocaleString('en-AU',{timeZone:'Australia/Brisbane',hour12:false});
+  document.getElementById('footer-gen').textContent='Generated: '+now;
+});
 </script>
 </body>
 </html>
