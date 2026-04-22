@@ -3,370 +3,219 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>AGD - Oatly Planner</title>
-<link rel="icon" type="image/jpeg" href="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQEAkACQAAD/4QKyRXhpZgAATU0AKgAAAAgAAodpAAQAAAABAAABMuocAAcAAAEMAAAAJgAAAAAc6gAAAAEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAWQAwACAAAAFAAAAoCQBAACAAAAFAAAApSSkQACAAAAAzAxAACSkgACAAAAAzAxAADqHAAHAAABDAAAAXQAAAAAHOoAAAABAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADIwMjQ6MTA6MDEgMTk6NDk6NTUAMjAyNDoxMDowMSAxOTo0OTo1NQAAAP/hAqBodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvADw/eHBhY2tldCBiZWdpbj0n77u/JyBpZD0nVzVNME1wQ2VoaUh6cmVTek5UY3prYzlkJz8+DQo8eDp4bXBtZXRhIHhtbG5zOng9ImFkb2JlOm5zOm1ldGEvIj48cmRmOlJERiB4bWxuczpyZGY9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkvMDIvMjItcmRmLXN5bnRheC1ucyMiPjxyZGY6RGVzY3JpcHRpb24gcmRmOmFib3V0PSJ1dWlkOmZhZjViZGQ1LWJhM2QtMTFkYS1hZDMxLWQzM2Q3NTE4MmYxYiIgeG1sbnM6eG1wPSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvIj48eG1wOkNyZWF0ZURhdGU+MjAyNC0xMC0wMVQxOTo0OTo1NS4wMTA8L3htcDpDcmVhdGVEYXRlPjwvcmRmOkRlc2NyaXB0aW9uPjwvcmRmOlJERj48L3g6eG1wbWV0YT4NCiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAKICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIAogICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA8P3hwYWNrZXQgZW5kPSd3Jz8+/9sAQwADAgIDAgIDAwMDBAMDBAUIBQUEBAUKBwcGCAwKDAwLCgsLDQ4SEA0OEQ4LCxAWEBETFBUVFQwPFxgWFBgSFBUU/9sAQwEDBAQFBAUJBQUJFA0LDRQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQU/8AAEQgAcwCaAwEiAAIRAQMRAf/EAB8AAAEFAQEBAQEBAAAAAAAAAAABAgMEBQYHCAkKC//EALUQAAIBAwMCBAMFBQQEAAABfQECAwAEEQUSITFBBhNRYQcicRQygZGhCCNCscEVUtHwJDNicoIJChYXGBkaJSYnKCkqNDU2Nzg5OkNERUZHSElKU1RVVldYWVpjZGVmZ2hpanN0dXZ3eHl6g4SFhoeIiYqSk5SVlpeYmZqio6Slpqeoqaqys7S1tre4ubrCw8TFxsfIycrS09TV1tfY2drh4uPk5ebn6Onq8fLz9PX29/j5+v/EAB8BAAMBAQEBAQEBAQEAAAAAAAABAgMEBQYHCAkKC//EALURAAIB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">
+<title>ABH — Oatly Planner</title>
 <style>
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
   body { font-family: Arial, sans-serif; background: #F5F5F5; color: #333; font-size: 10pt; min-height: 100vh; }
   :root { --navy:#1B2A4A; --red:#C0392B; --amber:#E67E22; --green:#27AE60; --blue:#0E7CCE; --white:#FFFFFF; --ltgrey:#F5F5F5; --mdgrey:#CCCCCC; --dktext:#333333; }
-
-  /* Header */
-  .page-header { background:var(--navy); color:var(--white); padding:14px 24px; display:flex; align-items:center; justify-content:space-between; border-bottom:4px solid var(--blue); }
-  .header-left { display:flex; align-items:center; gap:14px; }
-  .header-logo { height:44px; width:auto; border-radius:4px; background:#fff; padding:3px 6px; }
+  .page-header { background:var(--navy); color:var(--white); padding:16px 24px; display:flex; align-items:center; justify-content:space-between; border-bottom:4px solid var(--blue); }
   .page-header h1 { font-size:20pt; font-weight:bold; }
-  .page-header .subtitle { font-size:9pt; color:#8fa8c8; margin-top:3px; }
+  .page-header .subtitle { font-size:11pt; color:#8fa8c8; margin-top:2px; }
   .header-right { text-align:right; font-size:9pt; color:#8fa8c8; }
-  .live-badge { display:inline-block; background:var(--green); color:var(--white); font-size:7.5pt; padding:2px 8px; border-radius:10px; font-weight:bold; margin-left:8px; vertical-align:middle; }
-
-  /* Tab navigation */
-  .tab-nav { background:var(--white); border-bottom:2px solid var(--blue); display:flex; gap:0; padding:0 16px; overflow-x:auto; }
-  .tab-btn { padding:11px 20px; font-size:9.5pt; font-weight:bold; color:#666; border:none; background:transparent; cursor:pointer; border-bottom:3px solid transparent; margin-bottom:-2px; white-space:nowrap; transition:color .15s,border-color .15s; }
-  .tab-btn:hover { color:var(--navy); }
-  .tab-btn.active { color:var(--navy); border-bottom-color:var(--blue); }
-
-  /* Tab content */
-  .tab-pane { display:none; }
-  .tab-pane.active { display:block; }
-
-  /* Summary tiles */
-  .summary-row { display:flex; gap:12px; padding:20px 24px; flex-wrap:wrap; }
-  .tile { flex:1; min-width:170px; background:var(--white); border-radius:6px; padding:16px 18px; border-top:4px solid var(--navy); box-shadow:0 1px 4px rgba(0,0,0,.08); cursor:pointer; transition:transform .12s,box-shadow .12s; text-decoration:none; display:block; }
-  .tile:hover { transform:translateY(-2px); box-shadow:0 4px 12px rgba(0,0,0,.14); }
+  .filter-bar { background:var(--white); border-bottom:1px solid var(--mdgrey); padding:10px 24px; display:flex; align-items:center; gap:16px; flex-wrap:wrap; }
+  .filter-bar label { font-size:9pt; color:#666; margin-right:4px; }
+  .filter-bar select { font-family:Arial,sans-serif; font-size:9pt; padding:5px 8px; border:1px solid var(--mdgrey); border-radius:4px; background:var(--white); color:var(--dktext); }
+  .btn { font-family:Arial,sans-serif; font-size:9pt; font-weight:bold; padding:6px 14px; border:none; border-radius:4px; cursor:pointer; }
+  .btn-refresh { background:var(--green); color:var(--white); }
+  .summary-row { display:flex; gap:12px; padding:16px 24px; flex-wrap:wrap; }
+  .tile { flex:1; min-width:160px; background:var(--white); border-radius:6px; padding:14px 16px; border-top:4px solid var(--navy); box-shadow:0 1px 4px rgba(0,0,0,.08); }
   .tile.amber{border-top-color:var(--amber)} .tile.green{border-top-color:var(--green)} .tile.red{border-top-color:var(--red)} .tile.blue{border-top-color:var(--blue)}
   .tile-label { font-size:8pt; color:#666; text-transform:uppercase; letter-spacing:.05em; margin-bottom:6px; }
-  .tile-value { font-size:20pt; font-weight:bold; color:var(--dktext); line-height:1; }
-  .tile-sub { font-size:8pt; color:#999; margin-top:6px; }
-  .tile-cta { font-size:7.5pt; color:var(--blue); margin-top:8px; font-weight:bold; }
-
-  /* Alert */
-  .alert-box { margin:0 24px 16px; padding:10px 14px; background:#fef3e2; border-left:4px solid var(--amber); border-radius:4px; font-size:8.5pt; color:#7a4f00; }
-  .alert-box a { color:var(--blue); }
-
-  /* Section headers */
-  .section-header { padding:14px 24px 8px; font-size:13pt; font-weight:bold; color:var(--navy); border-bottom:2px solid var(--blue); margin-bottom:0; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:6px; }
-  .ns-badge { font-size:7pt; background:var(--blue); color:var(--white); padding:2px 7px; border-radius:8px; margin-left:8px; font-weight:bold; }
-  .api-note { font-size:8pt; color:#999; font-weight:normal; font-style:italic; }
-
-  /* Tables */
-  .table-wrap { padding:12px 24px 20px; overflow-x:auto; }
-  .ns-table { width:100%; border-collapse:collapse; font-size:8.5pt; background:var(--white); border-radius:8px; overflow:hidden; box-shadow:0 1px 6px rgba(0,0,0,.08); }
-  .ns-table th { background:var(--navy); color:var(--white); padding:8px 10px; text-align:left; font-size:8pt; font-weight:bold; }
-  .ns-table td { padding:8px 10px; border-bottom:1px solid var(--ltgrey); }
-  .ns-table tr:last-child td { border-bottom:none; }
-  .ns-table tbody tr:hover { background:#f0f4ff; }
+  .tile-value { font-size:18pt; font-weight:bold; color:var(--dktext); line-height:1; }
+  .tile-sub { font-size:8pt; color:#999; margin-top:4px; }
+  .section-header { padding:8px 24px 4px; font-size:16pt; font-weight:bold; color:var(--navy); border-bottom:2px solid var(--blue); }
+  .cards-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(380px,1fr)); gap:16px; padding:16px 24px; }
+  .sku-card { background:var(--white); border-radius:8px; box-shadow:0 1px 6px rgba(0,0,0,.1); overflow:hidden; }
+  .sku-card-header { background:var(--navy); color:var(--white); padding:10px 14px; display:flex; justify-content:space-between; align-items:center; }
+  .sku-card-header .sku-name { font-size:10pt; font-weight:bold; }
+  .sku-card-header .sku-code { font-size:8pt; color:#8fa8c8; }
+  .sku-card-body { padding:12px 14px; }
+  .sku-metrics { display:flex; gap:12px; margin-bottom:12px; }
+  .metric-box { flex:1; text-align:center; padding:8px 4px; border-radius:4px; background:var(--ltgrey); }
+  .metric-box .m-val { font-size:14pt; font-weight:bold; color:var(--dktext); display:block; }
+  .metric-box .m-lbl { font-size:7.5pt; color:#888; text-transform:uppercase; }
+  .metric-box.ok{background:#e8f8ee} .metric-box.warn{background:#fef3e2} .metric-box.risk{background:#fdecea}
+  .dc-table { width:100%; border-collapse:collapse; font-size:8.5pt; margin-top:4px; }
+  .dc-table th { background:var(--navy); color:var(--white); padding:4px 8px; text-align:left; font-size:8pt; font-weight:bold; }
+  .dc-table td { padding:4px 8px; border-bottom:1px solid var(--ltgrey); }
+  .dc-table tr:last-child td { border-bottom:none; }
   .num { text-align:right; font-variant-numeric:tabular-nums; }
-  .total-row td { font-weight:bold; background:#f0f4ff; border-top:2px solid var(--navy); }
-
-  /* Status badges */
-  .status-partial { display:inline-block; padding:2px 8px; border-radius:10px; font-size:7.5pt; font-weight:bold; background:#fef3e2; color:var(--amber); }
-  .status-pending { display:inline-block; padding:2px 8px; border-radius:10px; font-size:7.5pt; font-weight:bold; background:#e8f8ee; color:var(--green); }
-  .status-bill { display:inline-block; padding:2px 8px; border-radius:10px; font-size:7.5pt; font-weight:bold; background:#fdecea; color:var(--red); }
-
-  /* PO summary cards */
-  .po-summary { display:flex; gap:14px; padding:12px 24px 20px; flex-wrap:wrap; }
-  .po-card { flex:1; min-width:200px; background:var(--white); border-radius:8px; box-shadow:0 1px 6px rgba(0,0,0,.08); padding:14px 16px; border-left:5px solid var(--navy); }
-  .po-card.receipt { border-left-color:var(--green); }
-  .po-card.bill { border-left-color:var(--red); }
-  .po-card.amber { border-left-color:var(--amber); }
-  .po-card.perfectted { border-left-color:var(--blue); }
-  .po-card-title { font-size:9pt; color:#666; text-transform:uppercase; letter-spacing:.05em; margin-bottom:6px; }
-  .po-card-value { font-size:20pt; font-weight:bold; color:var(--dktext); }
-  .po-card-sub { font-size:8pt; color:#999; margin-top:4px; }
-
-  /* Summary callout boxes */
-  .summary-stats { display:flex; gap:12px; padding:0 24px 16px; flex-wrap:wrap; }
-  .stat-box { flex:1; min-width:140px; background:var(--white); border-radius:6px; padding:12px 14px; border-left:4px solid var(--navy); box-shadow:0 1px 4px rgba(0,0,0,.06); }
-  .stat-label { font-size:8pt; color:#666; margin-bottom:4px; }
-  .stat-value { font-size:14pt; font-weight:bold; color:var(--dktext); }
-  .stat-sub { font-size:7.5pt; color:#999; margin-top:3px; }
-
-  /* Footer */
-  .page-footer { margin-top:24px; padding:10px 24px; border-top:1px solid var(--mdgrey); font-size:8pt; color:#999; display:flex; justify-content:space-between; flex-wrap:wrap; gap:4px; }
+  .gap-val { color:var(--red); font-weight:bold; } .ok-val { color:var(--green); }
+  .badge { display:inline-block; padding:2px 8px; border-radius:10px; font-size:7.5pt; font-weight:bold; text-transform:uppercase; }
+  .badge-ok{background:#e8f8ee;color:var(--green)} .badge-warn{background:#fef3e2;color:var(--amber)} .badge-risk{background:#fdecea;color:var(--red)}
+  .chart-section { padding:0 24px 24px; }
+  .chart-card { background:var(--white); border-radius:8px; box-shadow:0 1px 6px rgba(0,0,0,.08); padding:16px; margin-top:16px; }
+  .chart-title { font-size:13pt; font-weight:bold; color:var(--navy); margin-bottom:12px; border-bottom:1px solid var(--mdgrey); padding-bottom:8px; }
+  .week-row { display:flex; align-items:center; gap:8px; margin-bottom:4px; font-size:8.5pt; }
+  .week-label { width:90px; color:#666; flex-shrink:0; }
+  .bar-wrap { flex:1; background:var(--ltgrey); border-radius:2px; height:14px; }
+  .bar-fill { height:14px; border-radius:2px; }
+  .week-val { width:60px; text-align:right; flex-shrink:0; }
+  .loader { text-align:center; padding:48px 24px; color:#888; font-size:11pt; }
+  .spinner { display:inline-block; width:28px; height:28px; border:3px solid var(--mdgrey); border-top-color:var(--blue); border-radius:50%; animation:spin .7s linear infinite; margin-right:10px; vertical-align:middle; }
+  @keyframes spin { to{transform:rotate(360deg)} }
+  .page-footer { margin-top:32px; padding:10px 24px; border-top:1px solid var(--mdgrey); font-size:8pt; color:#999; display:flex; justify-content:space-between; }
 </style>
 </head>
 <body>
-
 <div class="page-header">
-  <div class="header-left">
-    <img class="header-logo" src="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQEAkACQAAD/4QKyRXhpZgAATU0AKgAAAAgAAodpAAQAAAABAAABMuocAAcAAAEMAAAAJgAAAAAc6gAAAAEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAWQAwACAAAAFAAAAoCQBAACAAAAFAAAApSSkQACAAAAAzAxAACSkgACAAAAAzAxAADqHAAHAAABDAAAAXQAAAAAHOoAAAABAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADIwMjQ6MTA6MDEgMTk6NDk6NTUAMjAyNDoxMDowMSAxOTo0OTo1NQAAAP/hAqBodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvADw/eHBhY2tldCBiZWdpbj0n77u/JyBpZD0nVzVNME1wQ2VoaUh6cmVTek5UY3prYzlkJz8+DQo8eDp4bXBtZXRhIHhtbG5zOng9ImFkb2JlOm5zOm1ldGEvIj48cmRmOlJERiB4bWxuczpyZGY9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkvMDIvMjItcmRmLXN5bnRheC1ucyMiPjxyZGY6RGVzY3JpcHRpb24gcmRmOmFib3V0PSJ1dWlkOmZhZjViZGQ1LWJhM2QtMTFkYS1hZDMxLWQzM2Q3NTE4MmYxYiIgeG1sbnM6eG1wPSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvIj48eG1wOkNyZWF0ZURhdGU+MjAyNC0xMC0wMVQxOTo0OTo1NS4wMTA8L3htcDpDcmVhdGVEYXRlPjwvcmRmOkRlc2NyaXB0aW9uPjwvcmRmOlJERj48L3g6eG1wbWV0YT4NCiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAKICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIAogICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA8P3hwYWNrZXQgZW5kPSd3Jz8+/9sAQwADAgIDAgIDAwMDBAMDBAUIBQUEBAUKBwcGCAwKDAwLCgsLDQ4SEA0OEQ4LCxAWEBETFBUVFQwPFxgWFBgSFBUU/9sAQwEDBAQFBAUJBQUJFA0LDRQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQU/8AAEQgAcwCaAwEiAAIRAQMRAf/EAB8AAAEFAQEBAQEBAAAAAAAAAAABAgMEBQYHCAkKC//EALUQAAIBAwMCBAMFBQQEAAABfQECAwAEEQUSITFBBhNRYQcicRQygZGhCCNCscEVUtHwJDNicoIJChYXGBkaJSYnKCkqNDU2Nzg5OkNERUZHSElKU1RVVldYWVpjZGVmZ2hpanN0dXZ3eHl6g4SFhoeIiYqSk5SVlpeYmZqio6Slpqeoqaqys7S1tre4ubrCw8TFxsfIycrS09TV1tfY2drh4uPk5ebn6Onq8fLz9PX29/j5+v/EAB8BAAMBAQEBAQEBAQEAAAAAAAABAgMEBQYHCAkKC//EALURAAIB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" alt="AGD">
-    <div>
-      <h1>Oatly Planner <span class="live-badge">LIVE NS</span></h1>
-      <div class="subtitle">Australian Grocery Distributors (AGD) | Subsidiary 46</div>
-    </div>
+  <div>
+    <h1>Oatly Planner</h1>
+    <div class="subtitle">ABH — Australian Grocery Distributors | Woolworths Channel</div>
   </div>
   <div class="header-right">
-    <div>Generated: 22/04/2026 12:05 AEST</div>
-    <div style="margin-top:3px">Source: NetSuite cr=243, cr=180, cr=274, cr=277</div>
+    <div id="last-refresh">Loading...</div>
+    <div style="margin-top:4px"><button class="btn btn-refresh" onclick="loadAll()">Refresh</button></div>
   </div>
 </div>
-
-<nav class="tab-nav">
-  <button class="tab-btn active" onclick="showTab('summary',this)">Summary</button>
-  <button class="tab-btn" onclick="showTab('orders',this)">Open Sales Orders</button>
-  <button class="tab-btn" onclick="showTab('pos',this)">Purchase Orders</button>
-  <button class="tab-btn" onclick="showTab('stock',this)">Stock on Hand</button>
-  <button class="tab-btn" onclick="showTab('debtors',this)">Debtors</button>
-</nav>
-
-<!-- ===== SUMMARY TAB ===== -->
-<div id="tab-summary" class="tab-pane active">
-  <div class="summary-row">
-    <a class="tile blue" onclick="showTab('orders',null)" href="javascript:void(0)">
-      <div class="tile-label">Open Sales Orders</div>
-      <div class="tile-value">13 Orders</div>
-      <div class="tile-sub">5 customers partially fulfilled</div>
-      <div class="tile-cta">View all orders →</div>
-    </a>
-    <a class="tile red" onclick="showTab('pos',null)" href="javascript:void(0)">
-      <div class="tile-label">POs - Pending Bill</div>
-      <div class="tile-value">12 POs</div>
-      <div class="tile-sub">Oatly - goods received, invoice outstanding</div>
-      <div class="tile-cta">View purchase orders →</div>
-    </a>
-    <a class="tile green" onclick="showTab('pos',null)" href="javascript:void(0)">
-      <div class="tile-label">POs - Pending Receipt</div>
-      <div class="tile-value">5 POs</div>
-      <div class="tile-sub">Oatly (1) + PerfectTed (4) inbound</div>
-      <div class="tile-cta">View purchase orders →</div>
-    </a>
-    <a class="tile" onclick="showTab('stock',null)" href="javascript:void(0)" style="border-top-color:#0E7CCE">
-      <div class="tile-label">Stock on Hand</div>
-      <div class="tile-value">11 SKUs</div>
-      <div class="tile-sub">Quantities not available via NS API - view in NS directly</div>
-      <div class="tile-cta">View inventory →</div>
-    </a>
-    <a class="tile amber" onclick="showTab('debtors',null)" href="javascript:void(0)">
-      <div class="tile-label">Debtors (A/R)</div>
-      <div class="tile-value">20 Customers</div>
-      <div class="tile-sub">Ageing amounts not available via NS API - open NS for buckets</div>
-      <div class="tile-cta">View debtors →</div>
-    </a>
-  </div>
-
-  <div class="alert-box">
-    Inventory quantities (cr=243) and AR ageing amounts (cr=274) are not returned by the NetSuite report API. Open NS directly:
-    <a href="https://8688068.app.netsuite.com/app/reporting/reportrunner.nl?cr=243" target="_blank">Stock on Hand</a> |
-    <a href="https://8688068.app.netsuite.com/app/reporting/reportrunner.nl?cr=274" target="_blank">AR Ageing</a>
-  </div>
-
-  <div class="section-header">Key Stats - 22/04/2026</div>
-  <div class="summary-stats">
-    <div class="stat-box" style="border-left-color:var(--blue)">
-      <div class="stat-label">Total PO Pipeline</div>
-      <div class="stat-value">17 POs</div>
-      <div class="stat-sub">All vendors - open POs (12 pending bill + 1 partial + 4 PerfectTed)</div>
-    </div>
-    <div class="stat-box" style="border-left-color:var(--green)">
-      <div class="stat-label">Oatly - In Transit</div>
-      <div class="stat-value">1 PO</div>
-      <div class="stat-sub">Dec 2025 - Mar 2026 batches pending receipt</div>
-    </div>
-    <div class="stat-box" style="border-left-color:var(--red)">
-      <div class="stat-label">Oatly - Pending Bill</div>
-      <div class="stat-value">12 POs</div>
-      <div class="stat-sub">Goods received, invoice not yet raised - action required</div>
-    </div>
-    <div class="stat-box" style="border-left-color:var(--blue)">
-      <div class="stat-label">PerfectTed Inbound</div>
-      <div class="stat-value">4 POs</div>
-      <div class="stat-sub">POAGD302, 327, 357, 358 - stock inbound</div>
-    </div>
-    <div class="stat-box" style="border-left-color:var(--amber)">
-      <div class="stat-label">Sales Orders Open</div>
-      <div class="stat-value">13</div>
-      <div class="stat-sub">WW Perth largest order - view orders tab for detail</div>
-    </div>
+<div class="filter-bar">
+  <div><label for="sel-sku">SKU</label><select id="sel-sku" onchange="applyFilters()"><option value="">All SKUs</option></select></div>
+  <div><label for="sel-dc">DC</label><select id="sel-dc" onchange="applyFilters()"><option value="">All DCs</option></select></div>
+  <div><label for="sel-weeks">Weeks ahead</label>
+    <select id="sel-weeks" onchange="loadAll()">
+      <option value="8">8 weeks</option>
+      <option value="13" selected>13 weeks</option>
+      <option value="26">26 weeks</option>
+      <option value="52">52 weeks</option>
+    </select>
   </div>
 </div>
-
-<!-- ===== OPEN SALES ORDERS TAB ===== -->
-<div id="tab-orders" class="tab-pane">
-  <div class="section-header">
-    Open Sales Orders <span class="ns-badge">NS LIVE</span>
-    <span class="api-note">cr=180 | AGD subsidiary | as at 22/04/2026 12:05 AEST</span>
-  </div>
-  <div class="table-wrap">
-    <table class="ns-table">
-      <thead>
-        <tr>
-          <th>Document</th><th>Date</th><th>Customer</th><th>Status</th><th class="num">Open Value (NS)</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr><td style="font-weight:bold">SOAGD1880</td><td>27/03/2026</td><td>WW Moorebank NDC (7951)</td><td><span class="status-partial">Partially Fulfilled</span></td><td class="num" style="font-weight:bold">14,313.60</td></tr>
-        <tr><td style="font-weight:bold">SOAGD1912</td><td>08/04/2026</td><td>Coles Edinburgh Parks (9521)</td><td><span class="status-partial">Partially Fulfilled</span></td><td class="num" style="font-weight:bold">1,683.00</td></tr>
-        <tr><td style="font-weight:bold">SOAGD1920</td><td>09/04/2026</td><td>Maloneys Grocer</td><td><span class="status-pending">Pending Fulfillment</span></td><td class="num" style="font-weight:bold">1,632.40</td></tr>
-        <tr><td style="font-weight:bold">SOAGD1927</td><td>10/04/2026</td><td>The Cheesecake Shop</td><td><span class="status-pending">Pending Fulfillment</span></td><td class="num" style="font-weight:bold">11,492.00</td></tr>
-        <tr><td style="font-weight:bold">SOAGD1928</td><td>13/04/2026</td><td>Coles Kemps Creek (9274)</td><td><span class="status-partial">Partially Fulfilled</span></td><td class="num" style="font-weight:bold">5,544.00</td></tr>
-        <tr><td style="font-weight:bold">SOAGD1931</td><td>13/04/2026</td><td>Coles Redbank (9462)</td><td><span class="status-partial">Partially Fulfilled</span></td><td class="num" style="font-weight:bold">2,772.00</td></tr>
-        <tr><td style="font-weight:bold">SOAGD1932</td><td>13/04/2026</td><td>Coles Somerton NDC (9321)</td><td><span class="status-partial">Partially Fulfilled</span></td><td class="num" style="font-weight:bold">5,544.00</td></tr>
-        <tr><td style="font-weight:bold">SOAGD1942</td><td>16/04/2026</td><td>Better Food Distribution</td><td><span class="status-pending">Pending Fulfillment</span></td><td class="num" style="font-weight:bold">2,346.40</td></tr>
-        <tr><td style="font-weight:bold">SOAGD1946</td><td>17/04/2026</td><td>WW Perth (4933)</td><td><span class="status-pending">Pending Fulfillment</span></td><td class="num" style="font-weight:bold">26,891.20</td></tr>
-        <tr><td style="font-weight:bold">SOAGD1950</td><td>18/04/2026</td><td>PerfectTed (MAD101)</td><td><span class="status-pending">Pending Fulfillment</span></td><td class="num" style="font-weight:bold">338.73</td></tr>
-        <tr><td style="font-weight:bold">SOAGD1961</td><td>20/04/2026</td><td>Amazon Lytton BNE1</td><td><span class="status-pending">Pending Fulfillment</span></td><td class="num" style="font-weight:bold">3,643.20</td></tr>
-        <tr><td style="font-weight:bold">SOAGD1964</td><td>21/04/2026</td><td>Socrates Distributors</td><td><span class="status-pending">Pending Fulfillment</span></td><td class="num" style="font-weight:bold">1,904.00</td></tr>
-        <tr><td style="font-weight:bold">SOAGD1965</td><td>21/04/2026</td><td>Bidfood Pty Ltd</td><td><span class="status-pending">Pending Fulfillment</span></td><td class="num" style="font-weight:bold">3,808.00</td></tr>
-        <tr class="total-row"><td colspan="4">TOTAL (13 orders)</td><td class="num">81,912.53</td></tr>
-      </tbody>
-    </table>
-    <p style="font-size:8pt;color:#999;margin-top:8px;padding-left:4px">Note: 42 PerfectTed orders (SOAGD1968-2069, 20/04/2026) show zero open value in NS - allocated but not yet shipped/billed.</p>
+<div class="summary-row" id="summary-tiles"><div class="loader"><span class="spinner"></span>Loading data...</div></div>
+<div class="section-header" id="cards-heading" style="display:none">SKU Forecast vs Planned Orders</div>
+<div class="cards-grid" id="cards-grid"></div>
+<div class="chart-section">
+  <div class="chart-card" id="weekly-chart-card" style="display:none">
+    <div class="chart-title" id="weekly-chart-title">Weekly Forecast — All SKUs</div>
+    <div id="weekly-chart-body"></div>
   </div>
 </div>
-
-<!-- ===== PURCHASE ORDERS TAB ===== -->
-<div id="tab-pos" class="tab-pane">
-  <div class="section-header">
-    Purchase Orders - Overview <span class="ns-badge">NS LIVE</span>
-    <span class="api-note">cr=277 | All vendors | as at 22/04/2026</span>
-  </div>
-  <div class="po-summary">
-    <div class="po-card receipt">
-      <div class="po-card-title">Oatly - Pending Receipt</div>
-      <div class="po-card-value">1 PO</div>
-      <div class="po-card-sub">Stock in transit from OATLY EMEA AB - Dec 2025 to Mar 2026 batches</div>
-    </div>
-    <div class="po-card bill">
-      <div class="po-card-title">Oatly - Pending Bill</div>
-      <div class="po-card-value">11 POs</div>
-      <div class="po-card-sub">Goods received, awaiting invoice (all Dec 2025). Action required.</div>
-    </div>
-    <div class="po-card amber">
-      <div class="po-card-title">Oatly - Partial / Pending Bill</div>
-      <div class="po-card-value">1 PO</div>
-      <div class="po-card-sub">POAGD272 - partially received and awaiting bill</div>
-    </div>
-    <div class="po-card perfectted">
-      <div class="po-card-title">PerfectTed - Pending Receipt</div>
-      <div class="po-card-value">4 POs</div>
-      <div class="po-card-sub">POAGD302, 327, 357, 358 - stock inbound</div>
-    </div>
-  </div>
-
-  <div class="section-header">
-    Pending Bill - Detail <span class="ns-badge">Action Required</span>
-    <span class="api-note">Goods received, invoice not yet raised</span>
-  </div>
-  <div class="table-wrap">
-    <table class="ns-table">
-      <thead>
-        <tr><th>PO Number</th><th>Date</th><th>Vendor</th><th>Status</th><th class="num">NS Value (ref)</th></tr>
-      </thead>
-      <tbody>
-        <tr><td style="font-weight:bold">POAGD258</td><td>17/12/2025</td><td>OAT101 OATLY EMEA AB</td><td><span class="status-bill">Pending Bill</span></td><td class="num" style="font-weight:bold">34,587.48</td></tr>
-        <tr><td style="font-weight:bold">POAGD259</td><td>17/12/2025</td><td>OAT101 OATLY EMEA AB</td><td><span class="status-bill">Pending Bill</span></td><td class="num" style="font-weight:bold">34,587.48</td></tr>
-        <tr><td style="font-weight:bold">POAGD260</td><td>17/12/2025</td><td>OAT101 OATLY EMEA AB</td><td><span class="status-bill">Pending Bill</span></td><td class="num" style="font-weight:bold">34,587.48</td></tr>
-        <tr><td style="font-weight:bold">POAGD261</td><td>17/12/2025</td><td>OAT101 OATLY EMEA AB</td><td><span class="status-bill">Pending Bill</span></td><td class="num" style="font-weight:bold">34,587.48</td></tr>
-        <tr><td style="font-weight:bold">POAGD262</td><td>17/12/2025</td><td>OAT101 OATLY EMEA AB</td><td><span class="status-bill">Pending Bill</span></td><td class="num" style="font-weight:bold">34,587.48</td></tr>
-        <tr><td style="font-weight:bold">POAGD263</td><td>17/12/2025</td><td>OAT101 OATLY EMEA AB</td><td><span class="status-bill">Pending Bill</span></td><td class="num" style="font-weight:bold">34,587.48</td></tr>
-        <tr><td style="font-weight:bold">POAGD264</td><td>17/12/2025</td><td>OAT101 OATLY EMEA AB</td><td><span class="status-bill">Pending Bill</span></td><td class="num" style="font-weight:bold">34,587.48</td></tr>
-        <tr><td style="font-weight:bold">POAGD265</td><td>17/12/2025</td><td>OAT101 OATLY EMEA AB</td><td><span class="status-bill">Pending Bill</span></td><td class="num" style="font-weight:bold">34,587.48</td></tr>
-        <tr><td style="font-weight:bold">POAGD270</td><td>17/12/2025</td><td>OAT101 OATLY EMEA AB</td><td><span class="status-bill">Pending Bill</span></td><td class="num" style="font-weight:bold">44,469.62</td></tr>
-        <tr><td style="font-weight:bold">POAGD276</td><td>17/12/2025</td><td>OAT101 OATLY EMEA AB</td><td><span class="status-bill">Pending Bill</span></td><td class="num" style="font-weight:bold">36,563.91</td></tr>
-        <tr><td style="font-weight:bold">POAGD278</td><td>17/12/2025</td><td>OAT101 OATLY EMEA AB</td><td><span class="status-bill">Pending Bill</span></td><td class="num" style="font-weight:bold">36,563.91</td></tr>
-        <tr><td style="font-weight:bold">POAGD272</td><td>17/12/2025</td><td>OAT101 OATLY EMEA AB</td><td><span class="status-partial">Pending Bill / Part Received</span></td><td class="num" style="font-weight:bold">40,187.36</td></tr>
-        <tr class="total-row"><td colspan="4">TOTAL PENDING BILL (12 POs)</td><td class="num">434,484.64</td></tr>
-      </tbody>
-    </table>
-  </div>
-</div>
-
-<!-- ===== STOCK ON HAND TAB ===== -->
-<div id="tab-stock" class="tab-pane">
-  <div class="section-header">
-    Stock on Hand - Oatly SKUs <span class="ns-badge">NS cr=243</span>
-    <span class="api-note">11 SKUs confirmed in AGD inventory</span>
-  </div>
-  <div class="alert-box">
-    Quantities are not returned by the NetSuite report API for this endpoint.
-    <a href="https://8688068.app.netsuite.com/app/reporting/reportrunner.nl?cr=243" target="_blank">Open in NetSuite to view quantities and locations</a>.
-  </div>
-  <div class="table-wrap">
-    <table class="ns-table">
-      <thead>
-        <tr><th>Item Code</th><th>Description</th><th class="num">Stock on Hand</th></tr>
-      </thead>
-      <tbody>
-        <tr><td style="font-weight:bold;color:#1B2A4A">FG 61561</td><td>Oatly Oat Cream 1L</td><td class="num" style="color:#888;font-style:italic">View in NS</td></tr>
-        <tr><td style="font-weight:bold;color:#1B2A4A">FG 61737</td><td>Oatly Barista Edition 1L</td><td class="num" style="color:#888;font-style:italic">View in NS</td></tr>
-        <tr><td style="font-weight:bold;color:#1B2A4A">FG 61739</td><td>Oatly Organic 1L</td><td class="num" style="color:#888;font-style:italic">View in NS</td></tr>
-        <tr><td style="font-weight:bold;color:#1B2A4A">FG 61740</td><td>Oatly Chocolate 1L</td><td class="num" style="color:#888;font-style:italic">View in NS</td></tr>
-        <tr><td style="font-weight:bold;color:#1B2A4A">FG 61909</td><td>Oatly Creamy Oat Organic 0.25L</td><td class="num" style="color:#888;font-style:italic">View in NS</td></tr>
-        <tr><td style="font-weight:bold;color:#1B2A4A">FG 62059</td><td>Oatly Barista Edition 0.5L</td><td class="num" style="color:#888;font-style:italic">View in NS</td></tr>
-        <tr><td style="font-weight:bold;color:#1B2A4A">FG 62060</td><td>Oatly Vanilla Flavour 1L</td><td class="num" style="color:#888;font-style:italic">View in NS</td></tr>
-        <tr><td style="font-weight:bold;color:#1B2A4A">FG 62106</td><td>Oatly Low Sugar 1L</td><td class="num" style="color:#888;font-style:italic">View in NS</td></tr>
-        <tr><td style="font-weight:bold;color:#1B2A4A">FG 62108</td><td>Oatly Full 2.8% Fat 1L</td><td class="num" style="color:#888;font-style:italic">View in NS</td></tr>
-        <tr><td style="font-weight:bold;color:#1B2A4A">FG 62262</td><td>Oatly Barista Edition 1.5L</td><td class="num" style="color:#888;font-style:italic">View in NS</td></tr>
-        <tr><td style="font-weight:bold;color:#1B2A4A">FG 62322</td><td>Oatly Barista Organic 1L</td><td class="num" style="color:#888;font-style:italic">View in NS</td></tr>
-      </tbody>
-    </table>
-  </div>
-  <div style="padding:0 24px 16px">
-    <p style="font-size:8.5pt;color:#555">The NetSuite inventory report (cr=243) returns item names and codes for the 11 active Oatly SKUs in the AGD subsidiary but does not return quantity values via the report API. The quantities and warehouse locations are visible when the report is run directly in NetSuite. If a different report ID is available that exposes quantities, updating the planner to show live stock levels is a one-step change.</p>
-  </div>
-</div>
-
-<!-- ===== DEBTORS TAB ===== -->
-<div id="tab-debtors" class="tab-pane">
-  <div class="section-header">
-    A/R Ageing - Debtors <span class="ns-badge">NS cr=274</span>
-    <span class="api-note">AGD subsidiary | Ageing amounts not returned via API</span>
-  </div>
-  <div class="alert-box">
-    Ageing bucket amounts are not returned by the NetSuite report API for cr=274.
-    <a href="https://8688068.app.netsuite.com/app/reporting/reportrunner.nl?cr=274" target="_blank">Open in NetSuite to view current, 1-30, 31-60, and 61+ day balances</a>.
-  </div>
-  <div class="table-wrap">
-    <table class="ns-table">
-      <thead>
-        <tr><th>Customer</th><th class="num">Current</th><th class="num">1-30 Days</th><th class="num">31-60 Days</th><th class="num">61+ Days</th></tr>
-      </thead>
-      <tbody>
-        <tr><td>Woolworths (Oatly) - multiple DCs</td><td class="num" style="color:#888">-</td><td class="num" style="color:#888">-</td><td class="num" style="color:#888">-</td><td class="num" style="color:#888">-</td></tr>
-        <tr><td>GH-AGD / Coles - multiple DCs</td><td class="num" style="color:#888">-</td><td class="num" style="color:#888">-</td><td class="num" style="color:#888">-</td><td class="num" style="color:#888">-</td></tr>
-        <tr><td>Amazon AGD - multiple FCs</td><td class="num" style="color:#888">-</td><td class="num" style="color:#888">-</td><td class="num" style="color:#888">-</td><td class="num" style="color:#888">-</td></tr>
-        <tr><td>Oatly Australia (OAT001)</td><td class="num" style="color:#888">-</td><td class="num" style="color:#888">-</td><td class="num" style="color:#888">-</td><td class="num" style="color:#888">-</td></tr>
-        <tr><td>Socrates Distributors</td><td class="num" style="color:#888">-</td><td class="num" style="color:#888">-</td><td class="num" style="color:#888">-</td><td class="num" style="color:#888">-</td></tr>
-        <tr><td>Bidfood Pty Ltd</td><td class="num" style="color:#888">-</td><td class="num" style="color:#888">-</td><td class="num" style="color:#888">-</td><td class="num" style="color:#888">-</td></tr>
-        <tr><td>Harris Farm Markets</td><td class="num" style="color:#888">-</td><td class="num" style="color:#888">-</td><td class="num" style="color:#888">-</td><td class="num" style="color:#888">-</td></tr>
-        <tr><td>The Cheesecake Shop</td><td class="num" style="color:#888">-</td><td class="num" style="color:#888">-</td><td class="num" style="color:#888">-</td><td class="num" style="color:#888">-</td></tr>
-        <tr><td>Maloneys Grocer</td><td class="num" style="color:#888">-</td><td class="num" style="color:#888">-</td><td class="num" style="color:#888">-</td><td class="num" style="color:#888">-</td></tr>
-        <tr><td>Better Food Distribution</td><td class="num" style="color:#888">-</td><td class="num" style="color:#888">-</td><td class="num" style="color:#888">-</td><td class="num" style="color:#888">-</td></tr>
-        <tr><td>Drakes Supermarkets</td><td class="num" style="color:#888">-</td><td class="num" style="color:#888">-</td><td class="num" style="color:#888">-</td><td class="num" style="color:#888">-</td></tr>
-        <tr><td>SPAR Australia</td><td class="num" style="color:#888">-</td><td class="num" style="color:#888">-</td><td class="num" style="color:#888">-</td><td class="num" style="color:#888">-</td></tr>
-        <tr><td>Riverina Fresh</td><td class="num" style="color:#888">-</td><td class="num" style="color:#888">-</td><td class="num" style="color:#888">-</td><td class="num" style="color:#888">-</td></tr>
-        <tr><td>Kellys Distributors</td><td class="num" style="color:#888">-</td><td class="num" style="color:#888">-</td><td class="num" style="color:#888">-</td><td class="num" style="color:#888">-</td></tr>
-        <tr><td>Coast and Plateau Fine Foods</td><td class="num" style="color:#888">-</td><td class="num" style="color:#888">-</td><td class="num" style="color:#888">-</td><td class="num" style="color:#888">-</td></tr>
-        <tr><td>City Fine Foods</td><td class="num" style="color:#888">-</td><td class="num" style="color:#888">-</td><td class="num" style="color:#888">-</td><td class="num" style="color:#888">-</td></tr>
-        <tr><td>The Forage Company</td><td class="num" style="color:#888">-</td><td class="num" style="color:#888">-</td><td class="num" style="color:#888">-</td><td class="num" style="color:#888">-</td></tr>
-        <tr><td>The Milkmen Supply Co</td><td class="num" style="color:#888">-</td><td class="num" style="color:#888">-</td><td class="num" style="color:#888">-</td><td class="num" style="color:#888">-</td></tr>
-        <tr><td>Food and Dairy Company</td><td class="num" style="color:#888">-</td><td class="num" style="color:#888">-</td><td class="num" style="color:#888">-</td><td class="num" style="color:#888">-</td></tr>
-        <tr><td>Homebush Bay Foods</td><td class="num" style="color:#888">-</td><td class="num" style="color:#888">-</td><td class="num" style="color:#888">-</td><td class="num" style="color:#888">-</td></tr>
-      </tbody>
-    </table>
-  </div>
-  <div style="padding:0 24px 16px">
-    <p style="font-size:8.5pt;color:#555">The AR ageing report (cr=274) returns customer names for 20 active debtors but does not expose ageing bucket amounts via the report API. If a saved search or a different report ID is available with balance data, those figures can be pulled directly into this tab.</p>
-  </div>
-</div>
-
 <div class="page-footer">
-  <span>AGD - Oatly Planner | Australian Grocery Distributors (Subsidiary 46) | Generated: 22/04/2026 12:05 AEST | INTERNAL - NOT FOR DISTRIBUTION</span>
-  <span>NS Reports: cr=243 cr=180 cr=274 cr=277 | Part of the Mann &amp; Noble Group</span>
+  <span>ABH Pureau — Oatly Planner | INTERNAL - NOT FOR DISTRIBUTION</span>
+  <span id="footer-gen">Generated: —</span>
 </div>
-
 <script>
-function showTab(id, btn) {
-  document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
-  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-  document.getElementById('tab-' + id).classList.add('active');
-  if (btn) { btn.classList.add('active'); }
-  else {
-    var btns = document.querySelectorAll('.tab-btn');
-    var map = {summary:0, orders:1, pos:2, stock:3, debtors:4};
-    if (map[id] !== undefined) btns[map[id]].classList.add('active');
+const SB_URL='https://yxaebxkkclbjezffmerw.supabase.co';
+const SB_KEY='sb_publishable_yLmaFw0myJv-rHuCC2LsHw_WW7d8lJn';
+const HDR={'apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY};
+let _skus=[],_dcs=[],_fc=[],_ord=[];
+async function sb(p){const r=await fetch(SB_URL+'/rest/v1/'+p,{headers:HDR});if(!r.ok)throw new Error('SB '+r.status+': '+await r.text());return r.json();}
+function isoToday(){return new Date().toISOString().slice(0,10);}
+function weeksAhead(n){const d=new Date();d.setDate(d.getDate()+n*7);return d.toISOString().slice(0,10);}
+function fmtDate(iso){if(!iso)return'—';const[y,m,d]=iso.split('-');return d+'/'+m+'/'+String(y).slice(2);}
+function fmtNum(n){if(n===null||n===undefined)return'—';return Number(n).toLocaleString('en-AU');}
+async function loadAll(){
+  document.getElementById('summary-tiles').innerHTML='<div class="loader"><span class="spinner"></span>Loading data...</div>';
+  document.getElementById('cards-heading').style.display='none';
+  document.getElementById('cards-grid').innerHTML='';
+  document.getElementById('weekly-chart-card').style.display='none';
+  try{
+    const today=isoToday();
+    const horizon=weeksAhead(parseInt(document.getElementById('sel-weeks').value)||13);
+    [_skus,_dcs,_fc,_ord]=await Promise.all([
+      sb('oatly_skus?select=*&active=eq.true&order=pack_group,sku_code'),
+      sb('oatly_dcs?select=*&active=eq.true&order=dc_code'),
+      sb('oatly_forecasts?select=*&week_commencing=gte.'+today+'&week_commencing=lte.'+horizon+'&order=sku_code,dc_code,week_commencing&limit=10000'),
+      sb('oatly_planned_orders?select=*&week_commencing=gte.'+today+'&week_commencing=lte.'+horizon+'&order=sku_code,dc_code,week_commencing&limit=10000'),
+    ]);
+    populateFilters();
+    applyFilters();
+    const now=new Date().toLocaleString('en-AU',{timeZone:'Australia/Brisbane',hour12:false});
+    document.getElementById('last-refresh').textContent='Refreshed: '+now+' AEST';
+    document.getElementById('footer-gen').textContent='Generated: '+now;
+  }catch(err){
+    document.getElementById('summary-tiles').innerHTML='<div class="loader" style="color:var(--red)">Error: '+err.message+'</div>';
   }
 }
+function populateFilters(){
+  const ss=document.getElementById('sel-sku'),sd=document.getElementById('sel-dc');
+  const ps=ss.value,pd=sd.value;
+  ss.innerHTML='<option value="">All SKUs</option>'+_skus.map(s=>'<option value="'+s.sku_code+'">'+s.description+' ('+s.sku_code+')</option>').join('');
+  sd.innerHTML='<option value="">All DCs</option>'+_dcs.map(d=>'<option value="'+d.dc_code+'">'+d.dc_name+' ('+d.dc_code+')</option>').join('');
+  if(ps)ss.value=ps; if(pd)sd.value=pd;
+}
+function applyFilters(){
+  const fs=document.getElementById('sel-sku').value,fd=document.getElementById('sel-dc').value;
+  const skus=_skus.filter(s=>!fs||s.sku_code===fs);
+  const fc=_fc.filter(f=>(!fs||f.sku_code===fs)&&(!fd||String(f.dc_code)===String(fd)));
+  const ord=_ord.filter(o=>(!fs||o.sku_code===fs)&&(!fd||String(o.dc_code)===String(fd)));
+  renderSummary(skus,fc,ord);
+  renderCards(skus,fc,ord,fd);
+  renderWeeklyChart(fc,ord);
+}
+function renderSummary(skus,fc,ord){
+  const tFc=fc.reduce((s,f)=>s+(f.forecast_qty||0),0);
+  const tOrd=ord.reduce((s,o)=>s+(o.planned_qty||0),0);
+  const gap=tFc-tOrd;
+  const weeks=[...new Set(fc.map(f=>f.week_commencing))].length;
+  const pct=tFc>0?Math.round(tOrd/tFc*100):0;
+  const cc=pct>=90?'green':pct>=70?'amber':'red';
+  document.getElementById('summary-tiles').innerHTML=`
+    <div class="tile blue"><div class="tile-label">Active SKUs</div><div class="tile-value">${skus.length}</div><div class="tile-sub">Oatly via AGD/WW</div></div>
+    <div class="tile"><div class="tile-label">Total Forecast</div><div class="tile-value">${fmtNum(tFc)}</div><div class="tile-sub">${weeks} weeks · cases</div></div>
+    <div class="tile"><div class="tile-label">Planned Orders</div><div class="tile-value">${fmtNum(tOrd)}</div><div class="tile-sub">cases in period</div></div>
+    <div class="tile ${cc}"><div class="tile-label">Coverage</div><div class="tile-value">${pct}%</div><div class="tile-sub">${gap>=0?'Gap: '+fmtNum(gap):'Surplus: '+fmtNum(-gap)} cases</div></div>
+    <div class="tile ${gap>0?'red':'green'}"><div class="tile-label">${gap>0?'Unfilled':'Surplus'}</div><div class="tile-value">${fmtNum(Math.abs(gap))}</div><div class="tile-sub">cases ${gap>0?'not ordered':'over forecast'}</div></div>`;
+}
+function renderCards(skus,fc,ord,fd){
+  const heading=document.getElementById('cards-heading'),grid=document.getElementById('cards-grid');
+  if(!skus.length){heading.style.display='none';grid.innerHTML='<div class="loader">No data for selected filters.</div>';return;}
+  heading.style.display='block';
+  const dcs=fd?_dcs.filter(d=>String(d.dc_code)===String(fd)):_dcs;
+  grid.innerHTML=skus.map(sku=>{
+    const sfc=fc.filter(f=>f.sku_code===sku.sku_code);
+    const sord=ord.filter(o=>o.sku_code===sku.sku_code);
+    const tFc=sfc.reduce((s,f)=>s+(f.forecast_qty||0),0);
+    const tOrd=sord.reduce((s,o)=>s+(o.planned_qty||0),0);
+    const gap=tFc-tOrd;
+    const pct=tFc>0?Math.round(tOrd/tFc*100):0;
+    const bc=pct>=90?'badge-ok':pct>=70?'badge-warn':'badge-risk';
+    const bt=pct>=90?'On Track':pct>=70?'At Risk':'Gap';
+    const dcRows=dcs.map(dc=>{
+      const dcFc=sfc.filter(f=>String(f.dc_code)===String(dc.dc_code)).reduce((s,f)=>s+(f.forecast_qty||0),0);
+      const dcOrd=sord.filter(o=>String(o.dc_code)===String(dc.dc_code)).reduce((s,o)=>s+(o.planned_qty||0),0);
+      if(!dcFc&&!dcOrd)return'';
+      const dcGap=dcFc-dcOrd;
+      return`<tr><td>${dc.dc_name}</td><td class="num">${fmtNum(dcFc)}</td><td class="num">${fmtNum(dcOrd)}</td><td class="num ${dcGap>0?'gap-val':'ok-val'}">${dcGap>0?'('+fmtNum(dcGap)+')':'+'+fmtNum(-dcGap)}</td></tr>`;
+    }).join('');
+    return`<div class="sku-card">
+      <div class="sku-card-header">
+        <div><div class="sku-name">${sku.description}</div><div class="sku-code">${sku.sku_code} | ${sku.pack_group||'—'}</div></div>
+        <span class="badge ${bc}">${bt}</span>
+      </div>
+      <div class="sku-card-body">
+        <div class="sku-metrics">
+          <div class="metric-box"><span class="m-val">${fmtNum(tFc)}</span><span class="m-lbl">Forecast</span></div>
+          <div class="metric-box ${pct>=90?'ok':pct>=70?'warn':'risk'}"><span class="m-val">${fmtNum(tOrd)}</span><span class="m-lbl">Ordered</span></div>
+          <div class="metric-box ${gap>0?'risk':'ok'}"><span class="m-val">${gap>0?'('+fmtNum(gap)+')':fmtNum(-gap)}</span><span class="m-lbl">${gap>0?'Gap':'Surplus'}</span></div>
+          <div class="metric-box"><span class="m-val">${pct}%</span><span class="m-lbl">Coverage</span></div>
+        </div>
+        ${dcRows?`<table class="dc-table"><thead><tr><th>DC</th><th class="num">Forecast</th><th class="num">Ordered</th><th class="num">Gap/Sur</th></tr></thead><tbody>${dcRows}</tbody></table>`:'<div style="color:#999;font-size:8pt;text-align:center;padding:8px">No DC data in range</div>'}
+      </div></div>`;
+  }).join('');
+}
+function renderWeeklyChart(fc,ord){
+  const card=document.getElementById('weekly-chart-card'),body=document.getElementById('weekly-chart-body');
+  if(!fc.length){card.style.display='none';return;}
+  card.style.display='block';
+  const wm={};
+  fc.forEach(f=>{if(!wm[f.week_commencing])wm[f.week_commencing]={fc:0,ord:0};wm[f.week_commencing].fc+=(f.forecast_qty||0);});
+  ord.forEach(o=>{if(!wm[o.week_commencing])wm[o.week_commencing]={fc:0,ord:0};wm[o.week_commencing].ord+=(o.planned_qty||0);});
+  const weeks=Object.keys(wm).sort().slice(0,26);
+  const maxV=Math.max(...weeks.map(w=>Math.max(wm[w].fc,wm[w].ord)),1);
+  document.getElementById('weekly-chart-title').textContent='Weekly Forecast vs Planned Orders ('+weeks.length+' weeks)';
+  body.innerHTML=`<div style="font-size:8pt;color:#666;margin-bottom:8px;display:flex;gap:16px">
+    <span style="display:inline-flex;align-items:center;gap:4px"><span style="width:12px;height:12px;background:var(--blue);border-radius:2px;display:inline-block"></span> Forecast</span>
+    <span style="display:inline-flex;align-items:center;gap:4px"><span style="width:12px;height:12px;background:var(--green);border-radius:2px;display:inline-block"></span> Planned Orders</span>
+  </div>`+weeks.map(w=>{
+    const d=wm[w],fp=Math.round(d.fc/maxV*100),op=Math.round(d.ord/maxV*100),gap=d.fc-d.ord;
+    return`<div style="margin-bottom:8px">
+      <div style="font-size:8pt;color:#555;margin-bottom:2px;font-weight:bold">w/c ${fmtDate(w)} <span style="font-weight:normal;color:${gap>0?'var(--red)':'var(--green)'}">— ${gap>0?'Gap '+fmtNum(gap):'Covered +'+fmtNum(-gap)}</span></div>
+      <div class="week-row"><div class="week-label" style="font-size:7.5pt">Forecast</div><div class="bar-wrap"><div class="bar-fill" style="width:${fp}%;background:var(--blue)"></div></div><div class="week-val">${fmtNum(d.fc)}</div></div>
+      <div class="week-row"><div class="week-label" style="font-size:7.5pt">Ordered</div><div class="bar-wrap"><div class="bar-fill" style="width:${op}%;background:var(--green)"></div></div><div class="week-val">${fmtNum(d.ord)}</div></div>
+    </div>`;
+  }).join('');
+}
+document.addEventListener('DOMContentLoaded',loadAll);
 </script>
 </body>
 </html>
