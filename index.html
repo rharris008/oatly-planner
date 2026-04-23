@@ -112,6 +112,7 @@
 <nav class="tab-nav">
   <button class="tab-btn active" onclick="showTab('forecast',this)">Forecast</button>
   <button class="tab-btn" onclick="showTab('stock',this)">Stock on Hand</button>
+  <button class="tab-btn" onclick="showTab('customer_orders',this)">Customer Orders</button>
   <button class="tab-btn" onclick="showTab('po',this)">Purchase Orders</button>
   <button class="tab-btn" onclick="showTab('creditors',this)">Creditors / AP</button>
 </nav>
@@ -173,6 +174,27 @@
         </tfoot>
       </table>
     </div>
+  </div>
+</div>
+
+<!-- CUSTOMER ORDERS TAB -->
+<div id="tab-customer_orders" class="tab-pane">
+  <div class="filter-bar">
+    <div><label for="co-sku">SKU</label><select id="co-sku" onchange="renderCustomerOrders()"><option value="">All SKUs</option></select></div>
+    <div><label for="co-dc">DC / Location</label><select id="co-dc" onchange="renderCustomerOrders()"><option value="">All DCs</option></select></div>
+    <div><label for="co-weeks">Weeks ahead</label>
+      <select id="co-weeks" onchange="renderCustomerOrders()">
+        <option value="8">8 weeks</option>
+        <option value="13" selected>13 weeks</option>
+        <option value="26">26 weeks</option>
+      </select>
+    </div>
+  </div>
+  <div class="summary-row" id="co-summary-tiles">
+    <div class="tile blue"><div class="tile-label">Source</div><div class="tile-value" style="font-size:12pt">AGD File</div><div class="tile-sub">WW replenishment orders via AGD</div></div>
+  </div>
+  <div class="data-section">
+    <div id="co-content"><div class="loader"><span class="spinner"></span>Loading orders...</div></div>
   </div>
 </div>
 
@@ -299,6 +321,7 @@ function showTab(id, btn) {
   document.getElementById('tab-'+id).classList.add('active');
   btn.classList.add('active');
   if(id==='forecast' && !_skus.length) loadForecast();
+  if(id==='customer_orders') { if(!_skus.length) loadForecast().then(renderCustomerOrders); else renderCustomerOrders(); }
 }
 
 function refreshCurrent() {
@@ -363,12 +386,14 @@ function renderSummary(skus,fc,ord){
   const weeks=[...new Set(fc.map(f=>f.week_commencing))].length;
   const pct=tFc>0?Math.round(tOrd/tFc*100):0;
   const cc=pct>=90?'green':pct>=70?'amber':'red';
+  const totalSoh=STOCK_DATA.reduce((s,d)=>s+d.soh,0);
+  const sohSkus=STOCK_DATA.filter(d=>d.soh>0).length;
   document.getElementById('summary-tiles').innerHTML=`
     <div class="tile blue"><div class="tile-label">Active SKUs</div><div class="tile-value">${skus.length}</div><div class="tile-sub">Oatly via AGD/WW</div></div>
     <div class="tile"><div class="tile-label">Total Forecast</div><div class="tile-value">${fmtNum(tFc)}</div><div class="tile-sub">${weeks} weeks &middot; cases</div></div>
-    <div class="tile"><div class="tile-label">Planned Orders</div><div class="tile-value">${fmtNum(tOrd)}</div><div class="tile-sub">cases in period</div></div>
+    <div class="tile"><div class="tile-label">Customer Orders</div><div class="tile-value">${fmtNum(tOrd)}</div><div class="tile-sub">cases placed in period</div></div>
     <div class="tile ${cc}"><div class="tile-label">Coverage</div><div class="tile-value">${pct}%</div><div class="tile-sub">${gap>=0?'Gap: '+fmtNum(gap):'Surplus: '+fmtNum(-gap)} cases</div></div>
-    <div class="tile ${gap>0?'red':'green'}"><div class="tile-label">${gap>0?'Unfilled':'Surplus'}</div><div class="tile-value">${fmtNum(Math.abs(gap))}</div><div class="tile-sub">cases ${gap>0?'not ordered':'over forecast'}</div></div>`;
+    <div class="tile blue" style="cursor:pointer" onclick="document.querySelectorAll('.tab-btn')[1].click()"><div class="tile-label">Stock on Hand</div><div class="tile-value">${fmtNum(totalSoh)}</div><div class="tile-sub">${sohSkus} of ${STOCK_DATA.length} SKUs with stock &rarr;</div></div>`;
 }
 function renderCards(skus,fc,ord,fd){
   const heading=document.getElementById('cards-heading'),grid=document.getElementById('cards-grid');
@@ -428,6 +453,79 @@ function renderWeeklyChart(fc,ord){
       <div class="week-row"><div class="week-label" style="font-size:7.5pt">Ordered</div><div class="bar-wrap"><div class="bar-fill" style="width:${op}%;background:var(--green)"></div></div><div class="week-val">${fmtNum(d.ord)}</div></div>
     </div>`;
   }).join('');
+}
+
+// ---- Customer Orders tab ----
+function renderCustomerOrders() {
+  // Populate filters if empty
+  const csku=document.getElementById('co-sku'), cdc=document.getElementById('co-dc');
+  if(csku && csku.options.length===1 && _skus.length) {
+    csku.innerHTML='<option value="">All SKUs</option>'+_skus.map(s=>'<option value="'+s.sku_code+'">'+s.description+' ('+s.sku_code+')</option>').join('');
+    cdc.innerHTML='<option value="">All DCs</option>'+_dcs.map(d=>'<option value="'+d.dc_code+'">'+d.dc_name+'</option>').join('');
+  }
+  const fs=csku?csku.value:'', fd=cdc?cdc.value:'';
+  const weeks=parseInt(document.getElementById('co-weeks')?.value||13);
+  const today=isoToday(), horizon=weeksAhead(weeks);
+  const ord=_ord.filter(o=>
+    (!fs||o.sku_code===fs)&&
+    (!fd||String(o.dc_code)===String(fd))&&
+    o.week_commencing>=today&&o.week_commencing<=horizon
+  );
+  const coDiv=document.getElementById('co-content');
+  if(!_ord.length){coDiv.innerHTML='<div class="loader">Load forecast tab first, then return here.</div>';return;}
+  if(!ord.length){coDiv.innerHTML='<div class="loader" style="color:#888">No orders found for the selected filters and period.</div>';return;}
+
+  // Update summary tiles
+  const totOrd=ord.reduce((s,o)=>s+(o.planned_qty||0),0);
+  const skuCount=[...new Set(ord.map(o=>o.sku_code))].length;
+  const dcCount=[...new Set(ord.map(o=>String(o.dc_code)))].length;
+  document.getElementById('co-summary-tiles').innerHTML=`
+    <div class="tile blue"><div class="tile-label">SKUs with Orders</div><div class="tile-value">${skuCount}</div><div class="tile-sub">in selected period</div></div>
+    <div class="tile"><div class="tile-label">DC Locations</div><div class="tile-value">${dcCount}</div><div class="tile-sub">receiving Oatly</div></div>
+    <div class="tile green"><div class="tile-label">Total Cases Ordered</div><div class="tile-value">${fmtNum(totOrd)}</div><div class="tile-sub">${weeks} weeks · all SKUs</div></div>`;
+
+  // Build weekly pivot
+  const weeks_list=[...new Set(ord.map(o=>o.week_commencing))].sort();
+  const skus_in=fs?[_skus.find(s=>s.sku_code===fs)].filter(Boolean):_skus.filter(s=>ord.some(o=>o.sku_code===s.sku_code));
+  const dcs_in=fd?_dcs.filter(d=>String(d.dc_code)===String(fd)):_dcs.filter(d=>ord.some(o=>String(o.dc_code)===String(d.dc_code)));
+
+  let html='<div class="data-table-wrap" style="overflow-x:auto"><table class="data-table" style="min-width:600px"><thead><tr>';
+  html+='<th>SKU / Description</th><th>DC / Location</th>';
+  weeks_list.forEach(w=>html+='<th class="num">w/c '+fmtDate(w)+'</th>');
+  html+='<th class="num">Total</th></tr></thead><tbody>';
+
+  skus_in.forEach(sku=>{
+    const skuOrd=ord.filter(o=>o.sku_code===sku.sku_code);
+    const skuDcs=dcs_in.filter(d=>skuOrd.some(o=>String(o.dc_code)===String(d.dc_code)));
+    const skuTotal=skuOrd.reduce((s,o)=>s+(o.planned_qty||0),0);
+    html+=`<tr style="background:#f0f4f8"><td colspan="${2+weeks_list.length+1}" style="font-weight:bold;color:var(--navy);padding:7px 12px">${sku.description} <span style="font-weight:normal;color:#999;font-size:8pt">${sku.sku_code} &middot; ${sku.pack_group||''}</span></td></tr>`;
+    skuDcs.forEach(dc=>{
+      const dcOrd=skuOrd.filter(o=>String(o.dc_code)===String(dc.dc_code));
+      const dcTotal=dcOrd.reduce((s,o)=>s+(o.planned_qty||0),0);
+      html+=`<tr><td style="padding-left:20px;font-size:8.5pt">${dc.dc_name}</td><td style="font-size:8pt;color:#888">WW</td>`;
+      weeks_list.forEach(w=>{
+        const qty=dcOrd.filter(o=>o.week_commencing===w).reduce((s,o)=>s+(o.planned_qty||0),0);
+        html+=`<td class="num" style="font-size:8.5pt">${qty>0?fmtNum(qty):'—'}</td>`;
+      });
+      html+=`<td class="num" style="font-weight:bold">${fmtNum(dcTotal)}</td></tr>`;
+    });
+    html+=`<tr style="border-top:2px solid var(--mdgrey)"><td colspan="2" style="text-align:right;font-weight:bold;font-size:8.5pt;padding-right:12px">SKU Total</td>`;
+    weeks_list.forEach(w=>{
+      const wTotal=skuOrd.filter(o=>o.week_commencing===w).reduce((s,o)=>s+(o.planned_qty||0),0);
+      html+=`<td class="num" style="font-weight:bold">${wTotal>0?fmtNum(wTotal):'—'}</td>`;
+    });
+    html+=`<td class="num" style="font-weight:bold;color:var(--navy)">${fmtNum(skuTotal)}</td></tr>`;
+  });
+
+  // Grand total row
+  html+=`<tr style="background:var(--navy);color:var(--white)"><td colspan="2" style="font-weight:bold;padding:7px 12px">TOTAL — All SKUs</td>`;
+  weeks_list.forEach(w=>{
+    const wT=ord.filter(o=>o.week_commencing===w).reduce((s,o)=>s+(o.planned_qty||0),0);
+    html+=`<td class="num" style="font-weight:bold">${fmtNum(wT)}</td>`;
+  });
+  html+=`<td class="num" style="font-weight:bold">${fmtNum(totOrd)}</td></tr>`;
+  html+='</tbody></table></div>';
+  coDiv.innerHTML=html;
 }
 
 // ---- Stock tab ----
