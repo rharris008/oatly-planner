@@ -417,7 +417,7 @@ function renderSummary(skus,fc,ord){
   const sohLabel=totalSoh>0?fmtNum(totalSoh):'Pending sync';
   const sohSub=totalSoh>0?sohSkus+' of '+STOCK_DATA.length+' SKUs with stock →':'Stock on hand: Pending NetSuite sync';
   document.getElementById('summary-tiles').innerHTML=`
-    <div class="tile blue"><div class="tile-label">Active SKUs</div><div class="tile-value">${skus.length}</div><div class="tile-sub">from Supabase (oatly_skus)</div></div>
+    <div class="tile blue"><div class="tile-label">Active SKUs</div><div class="tile-value">${STOCK_DATA.length}</div><div class="tile-sub">from NetSuite extract 22/04/2026</div></div>
     <div class="tile"><div class="tile-label">Retailer Forecast</div><div class="tile-value">${fmtNum(tFc)}</div><div class="tile-sub">${weeks} weeks &middot; cases</div></div>
     <div class="tile"><div class="tile-label">Planned Orders</div><div class="tile-value">${fmtNum(tOrd)}</div><div class="tile-sub">cases in AGD replenishment plan</div></div>
     <div class="tile ${cc}"><div class="tile-label">Coverage</div><div class="tile-value">${coverageVal}</div><div class="tile-sub">${coverageSub}</div></div>
