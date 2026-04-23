@@ -3,7 +3,11 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>AGD — Oatly Planner</title>
+<title>AGD Oatly Planner</title>
+<link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
+<link rel="shortcut icon" href="favicon.ico">
 <style>
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
   body { font-family: Arial, sans-serif; background: #F5F5F5; color: #333; font-size: 10pt; min-height: 100vh; }
@@ -11,7 +15,10 @@
   .page-header { background:var(--navy); color:var(--white); padding:16px 24px; display:flex; align-items:center; justify-content:space-between; border-bottom:4px solid var(--blue); }
   .page-header h1 { font-size:20pt; font-weight:bold; }
   .page-header .subtitle { font-size:11pt; color:#8fa8c8; margin-top:2px; }
+  .header-logo { height:38px; margin-right:12px; }
   .header-right { text-align:right; font-size:9pt; color:#8fa8c8; }
+  .tile-link { cursor:pointer; transition:transform .1s,box-shadow .1s; }
+  .tile-link:hover { transform:translateY(-2px); box-shadow:0 4px 12px rgba(0,0,0,.15); }
   /* Tab nav */
   .tab-nav { background:var(--white); border-bottom:2px solid var(--mdgrey); padding:0 24px; display:flex; gap:0; }
   .tab-btn { font-family:Arial,sans-serif; font-size:10pt; font-weight:bold; padding:12px 22px; border:none; background:none; color:#666; cursor:pointer; border-bottom:3px solid transparent; margin-bottom:-2px; transition:color .15s,border-color .15s; }
@@ -99,9 +106,12 @@
 </head>
 <body>
 <div class="page-header">
-  <div>
-    <h1>Oatly Planner</h1>
-    <div class="subtitle">Australian Grocery Distributors</div>
+  <div style="display:flex;align-items:center">
+    <img src="agd-logo.png" alt="AGD" class="header-logo">
+    <div>
+      <h1>Oatly Planner</h1>
+      <div class="subtitle">Australian Grocery Distributors</div>
+    </div>
   </div>
   <div class="header-right">
     <div id="last-refresh">Loading...</div>
@@ -110,16 +120,23 @@
 </div>
 
 <nav class="tab-nav">
-  <button class="tab-btn active" onclick="showTab('forecast',this)">Forecast</button>
+  <button class="tab-btn active" onclick="showTab('front',this)">Front Page</button>
   <button class="tab-btn" onclick="showTab('stock',this)">Stock on Hand</button>
-  <button class="tab-btn" onclick="showTab('planned_orders',this)">Planned Orders</button>
-  <button class="tab-btn" onclick="showTab('sales_orders',this)">Sales Orders</button>
-  <button class="tab-btn" onclick="showTab('po',this)">Purchase Orders</button>
-  <button class="tab-btn" onclick="showTab('creditors',this)">Creditors / AP</button>
+  <button class="tab-btn" onclick="showTab('sales_orders',this)">Customer Sales Orders</button>
+  <button class="tab-btn" onclick="showTab('po',this)">PO Quantities</button>
+  <button class="tab-btn" onclick="showTab('forecast',this)">Demand / Forecast</button>
+  <button class="tab-btn" onclick="showTab('creditors',this)">Creditors</button>
 </nav>
 
-<!-- FORECAST TAB -->
-<div id="tab-forecast" class="tab-pane active">
+<!-- FRONT PAGE TAB -->
+<div id="tab-front" class="tab-pane active">
+  <div class="summary-row" id="front-tiles">
+    <div class="loader"><span class="spinner"></span>Loading data...</div>
+  </div>
+</div>
+
+<!-- FORECAST TAB (Demand / Forecast) -->
+<div id="tab-forecast" class="tab-pane">
   <div class="filter-bar">
     <div><label for="sel-sku">SKU</label><select id="sel-sku" onchange="applyFilters()"><option value="">All SKUs</option></select></div>
     <div><label for="sel-dc">DC</label><select id="sel-dc" onchange="applyFilters()"><option value="">All DCs</option></select></div>
@@ -137,15 +154,19 @@
   <div class="cards-grid" id="cards-grid"></div>
   <div class="chart-section">
     <div class="chart-card" id="weekly-chart-card" style="display:none">
-      <div class="chart-title" id="weekly-chart-title">Weekly Forecast — All SKUs</div>
+      <div class="chart-title" id="weekly-chart-title">Weekly Forecast, All SKUs</div>
       <div id="weekly-chart-body"></div>
     </div>
+  </div>
+  <div class="data-section">
+    <div class="section-header" style="margin-bottom:8px">Detailed Demand by DC</div>
+    <div id="co-content"><div class="loader"><span class="spinner"></span>Loading demand forecast...</div></div>
   </div>
 </div>
 
 <!-- STOCK TAB -->
 <div id="tab-stock" class="tab-pane">
-  <div class="ns-banner">NetSuite extract: 22/04/2026 — AGD Erskine Park | Inventory balance by item (all lots/bins aggregated)</div>
+  <div class="ns-banner">NetSuite extract: 22/04/2026 | AGD Erskine Park | Inventory balance by item (all lots/bins aggregated)</div>
   <div class="summary-row" id="stock-summary-tiles">
     <!-- Populated dynamically by renderStock() — reads STOCK_DATA (same source as front-page tile) -->
   </div>
@@ -163,66 +184,37 @@
         </thead>
         <tbody id="stock-tbody">
         </tbody>
-        <tfoot>
-          <tr>
-            <td colspan="2">Total</td>
-            <td class="num">76,238</td>
-            <td class="num">76,238</td>
-            <td></td>
-          </tr>
+        <tfoot id="stock-tfoot">
         </tfoot>
       </table>
     </div>
   </div>
 </div>
 
-<!-- PLANNED ORDERS TAB (retailer forecasts / planned replenishment — NOT confirmed NetSuite sales orders) -->
-<div id="tab-planned_orders" class="tab-pane">
-  <div class="ns-banner" style="background:#fff8e1;border-left-color:var(--amber);color:#7a5700">
-    <strong>These are retailer forecasts, not confirmed sales orders.</strong>
-    Data source: AGD replenishment planning file (Woolworths channel). Rows represent planned/forecast demand by DC and week — they have not been validated against NetSuite confirmed orders.
-  </div>
-  <div class="filter-bar">
-    <div><label for="co-sku">SKU</label><select id="co-sku" onchange="renderPlannedOrders()"><option value="">All SKUs</option></select></div>
-    <div><label for="co-dc">DC / Location</label><select id="co-dc" onchange="renderPlannedOrders()"><option value="">All DCs</option></select></div>
-    <div><label for="co-weeks">Weeks ahead</label>
-      <select id="co-weeks" onchange="renderPlannedOrders()">
-        <option value="8">8 weeks</option>
-        <option value="13" selected>13 weeks</option>
-        <option value="26">26 weeks</option>
-      </select>
-    </div>
-  </div>
-  <div class="summary-row" id="co-summary-tiles">
-    <div class="tile amber"><div class="tile-label">Source</div><div class="tile-value" style="font-size:12pt">AGD File</div><div class="tile-sub">Retailer forecast — not confirmed orders</div></div>
-  </div>
-  <div class="data-section">
-    <div id="co-content"><div class="loader"><span class="spinner"></span>Loading planned orders...</div></div>
-  </div>
-</div>
+<!-- Planned orders pane removed: content merged into Demand / Forecast tab above -->
 
-<!-- SALES ORDERS TAB (NetSuite confirmed sales orders — pending configuration) -->
+<!-- CUSTOMER SALES ORDERS TAB (NetSuite confirmed sales orders, pending configuration) -->
 <div id="tab-sales_orders" class="tab-pane">
   <div class="ns-banner" style="background:#fdecea;border-left-color:var(--red);color:#7a1500">
     <strong>NetSuite sales orders not yet configured.</strong>
-    This view will show confirmed sales orders from NetSuite once the Oatly SKU list and customer IDs are provided.
+    This view will show confirmed customer sales orders from NetSuite (all retailers) once the Oatly SKU list and customer IDs are provided.
   </div>
   <div class="summary-row">
     <div class="tile" style="border-top-color:var(--mdgrey);min-width:100%">
       <div class="tile-label">Status</div>
       <div class="tile-value" style="font-size:13pt;color:#999">Pending configuration</div>
       <div class="tile-sub" style="margin-top:8px;line-height:1.6">
-        Sales orders from NetSuite will appear here once the Oatly SKU list and Woolworths customer ID are confirmed.<br>
-        Contact Rob to provide: (1) Oatly NetSuite item IDs, (2) WW / AGD customer record IDs.
+        Customer sales orders from NetSuite will appear here once the Oatly SKU list and customer IDs are confirmed.<br>
+        Contact Rob to provide: (1) Oatly NetSuite item IDs, (2) AGD customer record IDs (WW, Coles, Metcash).
       </div>
     </div>
   </div>
-  <!-- TODO: Wire to NetSuite Report 757 — need Oatly SKU list and customer IDs from Rob -->
+  <!-- TODO: Wire to NetSuite Report 757, need Oatly SKU list and customer IDs from Rob -->
 </div>
 
 <!-- PO TAB -->
 <div id="tab-po" class="tab-pane">
-  <div class="ns-banner">NetSuite extract: 22/04/2026 — Open purchase orders from Oatly EMEA AB (vendor OAT101) | Statuses: Pending Approval, Pending Receipt, Partially Received, Pending Bill | Note: quantity shown is total ordered on each PO, including units already received but pending bill</div>
+  <div class="ns-banner">NetSuite extract: 22/04/2026 | Open purchase orders from Oatly EMEA AB (vendor OAT101) | Statuses: Pending Approval, Pending Receipt, Partially Received, Pending Bill | Note: quantity shown is total ordered on each PO, including units already received but pending bill</div>
   <div class="summary-row">
     <div class="tile blue"><div class="tile-label">SKUs on Open POs</div><div class="tile-value">12</div><div class="tile-sub">all active SKUs</div></div>
     <div class="tile"><div class="tile-label">Total PO Lines</div><div class="tile-value">383</div><div class="tile-sub">open POs across all SKUs</div></div>
@@ -256,7 +248,7 @@
 
 <!-- CREDITORS TAB -->
 <div id="tab-creditors" class="tab-pane">
-  <div class="ns-banner">NetSuite extract: 22/04/2026 — Outstanding bills payable to OATLY EMEA AB (vendor OAT101) | Exchange rates as recorded on each invoice in NetSuite</div>
+  <div class="ns-banner">NetSuite extract: 22/04/2026 | Outstanding bills payable to OATLY EMEA AB (vendor OAT101) | Exchange rates as recorded on each invoice in NetSuite</div>
   <div class="ap-filter-bar">
     <label>Show:</label>
     <select id="ap-filter" onchange="renderAP()">
@@ -266,9 +258,9 @@
     </select>
   </div>
   <div class="summary-row">
-    <div class="tile red"><div class="tile-label">Overdue</div><div class="tile-value">EUR 2,123,077</div><div class="tile-sub">AUD $3,749,965 | 86 invoices</div></div>
-    <div class="tile green"><div class="tile-label">Current</div><div class="tile-value">EUR 570,030</div><div class="tile-sub">AUD $936,545 | 27 invoices</div></div>
-    <div class="tile amber"><div class="tile-label">Total Outstanding</div><div class="tile-value">EUR 2,693,107</div><div class="tile-sub">AUD $4,686,510 | 113 invoices</div></div>
+    <div class="tile red"><div class="tile-label">Overdue</div><div class="tile-value" id="ap-overdue-val">86 invoices</div><div class="tile-sub" id="ap-overdue-sub">EUR 2,123,077</div></div>
+    <div class="tile green"><div class="tile-label">Current</div><div class="tile-value" id="ap-current-val">27 invoices</div><div class="tile-sub" id="ap-current-sub">EUR 570,030</div></div>
+    <div class="tile amber"><div class="tile-label">Total Outstanding</div><div class="tile-value" id="ap-total-val">113 invoices</div><div class="tile-sub" id="ap-total-sub">EUR 2,693,107</div></div>
   </div>
   <div class="data-section">
     <div class="data-table-wrap">
@@ -292,8 +284,8 @@
 </div>
 
 <div class="page-footer">
-  <span>ABH Pureau — Oatly Planner | INTERNAL - NOT FOR DISTRIBUTION</span>
-  <span id="footer-gen">Generated: —</span>
+  <span>AGD Oatly Planner | INTERNAL - NOT FOR DISTRIBUTION</span>
+  <span id="footer-gen">Generated: --</span>
 </div>
 
 <script>
@@ -340,10 +332,13 @@ let _skus=[],_dcs=[],_fc=[],_ord=[];
 function showTab(id, btn) {
   document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
   document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-  document.getElementById('tab-'+id).classList.add('active');
-  btn.classList.add('active');
+  // Map forecast tab clicks to the demand/forecast pane (which uses planned_orders internally)
+  const paneId = id==='forecast' ? 'forecast' : id;
+  document.getElementById('tab-'+paneId).classList.add('active');
+  if(btn) btn.classList.add('active');
+  if(id==='front') renderFrontPage();
   if(id==='forecast' && !_skus.length) loadForecast();
-  if(id==='planned_orders') { if(!_skus.length) loadForecast().then(renderPlannedOrders); else renderPlannedOrders(); }
+  if(id==='forecast' && _skus.length) { applyFilters(); renderPlannedOrders(); }
 }
 
 function refreshCurrent() {
@@ -358,7 +353,7 @@ function weeksAhead(n){const d=new Date();d.setDate(d.getDate()+n*7);return d.to
 function fmtDate(iso){if(!iso)return'--';const[y,m,d]=iso.split('-');return d+'/'+m+'/'+String(y).slice(2);}
 function fmtNum(n){if(n===null||n===undefined)return'--';return Number(n).toLocaleString('en-AU');}
 function fmtEur(n){return 'EUR '+Number(n).toLocaleString('en-AU',{minimumFractionDigits:0,maximumFractionDigits:0});}
-function fmtAud(n){return '$'+Number(n).toLocaleString('en-AU',{minimumFractionDigits:2,maximumFractionDigits:2});}
+function fmtAud(n){return 'AUD '+Number(n).toLocaleString('en-AU',{minimumFractionDigits:2,maximumFractionDigits:2});}
 async function sb(p){const r=await fetch(SB_URL+'/rest/v1/'+p,{headers:HDR});if(!r.ok)throw new Error('SB '+r.status+': '+await r.text());return r.json();}
 
 // ---- Forecast tab ----
@@ -400,6 +395,7 @@ function applyFilters(){
   renderSummary(skus,fc,ord);
   renderCards(skus,fc,ord,fd);
   renderWeeklyChart(fc,ord);
+  renderPlannedOrders();
 }
 function renderSummary(skus,fc,ord){
   const tFc=fc.reduce((s,f)=>s+(f.forecast_qty||0),0);
@@ -409,7 +405,7 @@ function renderSummary(skus,fc,ord){
   // Coverage = planned orders vs retailer forecast (not stock-based)
   const pct=tFc>0?Math.round(tOrd/tFc*100):null;
   const cc=pct===null?'':pct>=90?'green':pct>=70?'amber':'red';
-  const coverageVal=pct===null?'—':pct+'%';
+  const coverageVal=pct===null?'--':pct+'%';
   const coverageSub=pct===null?'No forecast data loaded':gap>=0?'Gap: '+fmtNum(gap)+' cases':'Surplus: '+fmtNum(-gap)+' cases';
   // Stock on hand — read from STOCK_DATA (same source as Stock tab tiles)
   const totalSoh=STOCK_DATA.reduce((s,d)=>s+d.soh,0);
@@ -417,11 +413,11 @@ function renderSummary(skus,fc,ord){
   const sohLabel=totalSoh>0?fmtNum(totalSoh):'Pending sync';
   const sohSub=totalSoh>0?sohSkus+' of '+STOCK_DATA.length+' SKUs with stock →':'Stock on hand: Pending NetSuite sync';
   document.getElementById('summary-tiles').innerHTML=`
-    <div class="tile blue"><div class="tile-label">Active SKUs</div><div class="tile-value">${STOCK_DATA.length}</div><div class="tile-sub">from NetSuite extract 22/04/2026</div></div>
-    <div class="tile"><div class="tile-label">Retailer Forecast</div><div class="tile-value">${fmtNum(tFc)}</div><div class="tile-sub">${weeks} weeks &middot; cases</div></div>
+    <div class="tile blue"><div class="tile-label">Active SKUs (with stock)</div><div class="tile-value">${sohSkus}</div><div class="tile-sub">${sohSkus} of ${STOCK_DATA.length} SKUs have stock</div></div>
+    <div class="tile"><div class="tile-label">Retailer Forecast</div><div class="tile-value">${fmtNum(tFc)}</div><div class="tile-sub">${weeks} weeks, cases</div></div>
     <div class="tile"><div class="tile-label">Planned Orders</div><div class="tile-value">${fmtNum(tOrd)}</div><div class="tile-sub">cases in AGD replenishment plan</div></div>
     <div class="tile ${cc}"><div class="tile-label">Coverage</div><div class="tile-value">${coverageVal}</div><div class="tile-sub">${coverageSub}</div></div>
-    <div class="tile blue" style="cursor:pointer" onclick="document.querySelectorAll('.tab-btn')[1].click()"><div class="tile-label">Stock on Hand</div><div class="tile-value" style="${totalSoh===0?'font-size:11pt;color:#999':''}">${sohLabel}</div><div class="tile-sub">${sohSub}</div></div>`;
+    <div class="tile blue tile-link" onclick="document.querySelectorAll('.tab-btn')[1].click()"><div class="tile-label">Stock on Hand</div><div class="tile-value" style="${totalSoh===0?'font-size:11pt;color:#999':''}">${sohLabel}</div><div class="tile-sub">${sohSub}</div></div>`;
 }
 function renderCards(skus,fc,ord,fd){
   const heading=document.getElementById('cards-heading'),grid=document.getElementById('cards-grid');
@@ -483,16 +479,11 @@ function renderWeeklyChart(fc,ord){
   }).join('');
 }
 
-// ---- Planned Orders tab (retailer forecast / replenishment planning — NOT NetSuite sales orders) ----
+// ---- Demand detail table (retailer forecast / replenishment planning, NOT NetSuite sales orders) ----
 function renderPlannedOrders() {
-  // Populate filters if empty
-  const csku=document.getElementById('co-sku'), cdc=document.getElementById('co-dc');
-  if(csku && csku.options.length===1 && _skus.length) {
-    csku.innerHTML='<option value="">All SKUs</option>'+_skus.map(s=>'<option value="'+s.sku_code+'">'+s.description+' ('+s.sku_code+')</option>').join('');
-    cdc.innerHTML='<option value="">All DCs</option>'+_dcs.map(d=>'<option value="'+d.dc_code+'">'+d.dc_name+'</option>').join('');
-  }
-  const fs=csku?csku.value:'', fd=cdc?cdc.value:'';
-  const weeks=parseInt(document.getElementById('co-weeks')?.value||13);
+  const fs=document.getElementById('sel-sku')?.value||'';
+  const fd=document.getElementById('sel-dc')?.value||'';
+  const weeks=parseInt(document.getElementById('sel-weeks')?.value||13);
   const today=isoToday(), horizon=weeksAhead(weeks);
   const ord=_ord.filter(o=>
     (!fs||o.sku_code===fs)&&
@@ -503,15 +494,7 @@ function renderPlannedOrders() {
   if(!_ord.length){coDiv.innerHTML='<div class="loader">Load forecast tab first, then return here.</div>';return;}
   if(!ord.length){coDiv.innerHTML='<div class="loader" style="color:#888">No planned orders found for the selected filters and period.</div>';return;}
 
-  // Update summary tiles
   const totOrd=ord.reduce((s,o)=>s+(o.planned_qty||0),0);
-  const skuCount=[...new Set(ord.map(o=>o.sku_code))].length;
-  const dcCount=[...new Set(ord.map(o=>String(o.dc_code)))].length;
-  document.getElementById('co-summary-tiles').innerHTML=`
-    <div class="tile amber"><div class="tile-label">Source</div><div class="tile-value" style="font-size:12pt">AGD File</div><div class="tile-sub">Retailer forecast — not confirmed orders</div></div>
-    <div class="tile blue"><div class="tile-label">SKUs in Forecast</div><div class="tile-value">${skuCount}</div><div class="tile-sub">in selected period</div></div>
-    <div class="tile"><div class="tile-label">DC Locations</div><div class="tile-value">${dcCount}</div><div class="tile-sub">receiving Oatly</div></div>
-    <div class="tile green"><div class="tile-label">Total Cases (Forecast)</div><div class="tile-value">${fmtNum(totOrd)}</div><div class="tile-sub">${weeks} weeks · all SKUs</div></div>`;
 
   // Build weekly pivot
   const weeks_list=[...new Set(ord.map(o=>o.week_commencing))].sort();
@@ -531,23 +514,24 @@ function renderPlannedOrders() {
     skuDcs.forEach(dc=>{
       const dcOrd=skuOrd.filter(o=>String(o.dc_code)===String(dc.dc_code));
       const dcTotal=dcOrd.reduce((s,o)=>s+(o.planned_qty||0),0);
-      html+=`<tr><td style="padding-left:20px;font-size:8.5pt">${dc.dc_name}</td><td style="font-size:8pt;color:#888">WW</td>`;
+      const retailer=dcOrd.length>0&&dcOrd[0].retailer?dcOrd[0].retailer:'--';
+      html+=`<tr><td style="padding-left:20px;font-size:8.5pt">${dc.dc_name}</td><td style="font-size:8pt;color:#888">${retailer}</td>`;
       weeks_list.forEach(w=>{
         const qty=dcOrd.filter(o=>o.week_commencing===w).reduce((s,o)=>s+(o.planned_qty||0),0);
-        html+=`<td class="num" style="font-size:8.5pt">${qty>0?fmtNum(qty):'—'}</td>`;
+        html+=`<td class="num" style="font-size:8.5pt">${qty>0?fmtNum(qty):'--'}</td>`;
       });
       html+=`<td class="num" style="font-weight:bold">${fmtNum(dcTotal)}</td></tr>`;
     });
     html+=`<tr style="border-top:2px solid var(--mdgrey)"><td colspan="2" style="text-align:right;font-weight:bold;font-size:8.5pt;padding-right:12px">SKU Total</td>`;
     weeks_list.forEach(w=>{
       const wTotal=skuOrd.filter(o=>o.week_commencing===w).reduce((s,o)=>s+(o.planned_qty||0),0);
-      html+=`<td class="num" style="font-weight:bold">${wTotal>0?fmtNum(wTotal):'—'}</td>`;
+      html+=`<td class="num" style="font-weight:bold">${wTotal>0?fmtNum(wTotal):'--'}</td>`;
     });
     html+=`<td class="num" style="font-weight:bold;color:var(--navy)">${fmtNum(skuTotal)}</td></tr>`;
   });
 
   // Grand total row
-  html+=`<tr style="background:var(--navy);color:var(--white)"><td colspan="2" style="font-weight:bold;padding:7px 12px">TOTAL — All SKUs</td>`;
+  html+=`<tr style="background:var(--navy);color:var(--white)"><td colspan="2" style="font-weight:bold;padding:7px 12px">TOTAL, All SKUs</td>`;
   weeks_list.forEach(w=>{
     const wT=ord.filter(o=>o.week_commencing===w).reduce((s,o)=>s+(o.planned_qty||0),0);
     html+=`<td class="num" style="font-weight:bold">${fmtNum(wT)}</td>`;
@@ -567,6 +551,9 @@ function renderStock(){
     <div class="tile blue"><div class="tile-label">SKUs with Stock</div><div class="tile-value">${withStock.length}</div><div class="tile-sub">of ${STOCK_DATA.length} Oatly SKUs on this extract</div></div>
     <div class="tile"><div class="tile-label">Total Units on Hand</div><div class="tile-value">${fmtNum(totalSoh)}</div><div class="tile-sub">all SKUs combined</div></div>
     <div class="tile amber"><div class="tile-label">Zero Stock SKUs</div><div class="tile-value">${zeroStock.length}</div><div class="tile-sub">no units at AGD EP</div></div>`;
+
+  const totalAvail=STOCK_DATA.reduce((s,d)=>s+d.avail,0);
+  document.getElementById('stock-tfoot').innerHTML=`<tr><td colspan="2">Total</td><td class="num">${fmtNum(totalSoh)}</td><td class="num">${fmtNum(totalAvail)}</td><td></td></tr>`;
 
   const maxSoh=Math.max(...STOCK_DATA.map(s=>s.soh),1);
   const tbody=document.getElementById('stock-tbody');
@@ -632,12 +619,59 @@ function renderAP(){
   </tr>`;
 }
 
+// ---- Front Page (executive summary tiles with click-through) ----
+function renderFrontPage(){
+  const sohSkus=STOCK_DATA.filter(d=>d.soh>0).length;
+  const totalSoh=STOCK_DATA.reduce((s,d)=>s+d.soh,0);
+  const totalPOQty=PO_DATA.reduce((s,p)=>s+p.total_qty,0);
+  const overdueCount=AP_DATA.filter(b=>b.overdue).length;
+  const currentCount=AP_DATA.filter(b=>!b.overdue).length;
+  const totalInvoices=AP_DATA.length;
+  document.getElementById('front-tiles').innerHTML=`
+    <div class="tile blue tile-link" onclick="document.querySelectorAll('.tab-btn')[1].click()">
+      <div class="tile-label">Stock on Hand</div>
+      <div class="tile-value">${fmtNum(totalSoh)}</div>
+      <div class="tile-sub">${sohSkus} of ${STOCK_DATA.length} SKUs with stock</div>
+    </div>
+    <div class="tile tile-link" onclick="document.querySelectorAll('.tab-btn')[2].click()">
+      <div class="tile-label">Customer Sales Orders</div>
+      <div class="tile-value" style="font-size:13pt;color:#999">Pending</div>
+      <div class="tile-sub">Awaiting NetSuite configuration</div>
+    </div>
+    <div class="tile green tile-link" onclick="document.querySelectorAll('.tab-btn')[3].click()">
+      <div class="tile-label">PO Quantities</div>
+      <div class="tile-value">${fmtNum(totalPOQty)}</div>
+      <div class="tile-sub">${PO_DATA.length} SKUs on open POs</div>
+    </div>
+    <div class="tile amber tile-link" onclick="document.querySelectorAll('.tab-btn')[4].click()">
+      <div class="tile-label">Demand / Forecast</div>
+      <div class="tile-value" id="front-fc-val">Loading...</div>
+      <div class="tile-sub" id="front-fc-sub">retailer forecasts</div>
+    </div>
+    <div class="tile ${overdueCount>0?'red':''} tile-link" onclick="document.querySelectorAll('.tab-btn')[5].click()">
+      <div class="tile-label">Creditors</div>
+      <div class="tile-value">${totalInvoices} invoices</div>
+      <div class="tile-sub">${overdueCount} overdue, ${currentCount} current</div>
+    </div>`;
+}
+function updateFrontForecastTile(){
+  const el=document.getElementById('front-fc-val');
+  const sub=document.getElementById('front-fc-sub');
+  if(!el)return;
+  const tFc=_fc.reduce((s,f)=>s+(f.forecast_qty||0),0);
+  const tOrd=_ord.reduce((s,o)=>s+(o.planned_qty||0),0);
+  el.textContent=tFc>0?fmtNum(tFc)+' cases':'No data';
+  const pct=tFc>0?Math.round(tOrd/tFc*100):0;
+  sub.textContent=tFc>0?pct+'% covered by planned orders':'Load Demand/Forecast tab';
+}
+
 // ---- Init ----
 document.addEventListener('DOMContentLoaded',()=>{
+  renderFrontPage();
   renderStock();
   renderPO();
   renderAP();
-  loadForecast();
+  loadForecast().then(()=>updateFrontForecastTile());
   const now=new Date().toLocaleString('en-AU',{timeZone:'Australia/Brisbane',hour12:false});
   document.getElementById('footer-gen').textContent='Generated: '+now;
 });
