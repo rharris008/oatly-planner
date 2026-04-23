@@ -154,6 +154,12 @@
 
 <!-- FORECAST TAB (Demand / Forecast) — default landing tab -->
 <div id="tab-forecast" class="tab-pane active">
+  <div class="ns-banner" style="background:#fef3e2;border-left-color:var(--amber)">Sales orders and forecast data: pending NetSuite MCP re-authorisation and retailer forecast upload. Stock and PO data from NetSuite extract 22/04/2026.</div>
+  <div class="section-header" style="margin-top:8px">Planning Position by SKU</div>
+  <div class="front-cards-grid" id="front-cards">
+    <div class="loader"><span class="spinner"></span>Loading planning data...</div>
+  </div>
+  <div class="section-header" style="margin-top:16px">Retailer Forecast vs Actual Orders</div>
   <div class="filter-bar">
     <div><label for="sel-sku">SKU</label><select id="sel-sku" onchange="applyFilters()"><option value="">All SKUs</option></select></div>
     <div><label for="sel-dc">DC</label><select id="sel-dc" onchange="applyFilters()"><option value="">All DCs</option></select></div>
@@ -166,12 +172,7 @@
       </select>
     </div>
   </div>
-  <div class="ns-banner" style="background:#fef3e2;border-left-color:var(--amber)">Sales orders data: pending NetSuite MCP re-authorisation. Once connected, this will pull live open sales orders from NetSuite Report 757 (AGD subsidiary).</div>
-  <div class="summary-row" id="summary-tiles"><div class="loader"><span class="spinner"></span>Loading data...</div></div>
-  <div class="section-header" style="margin-top:8px">Per-SKU Planning Position</div>
-  <div class="front-cards-grid" id="front-cards">
-    <div class="loader"><span class="spinner"></span>Loading planning data...</div>
-  </div>
+  <div class="summary-row" id="summary-tiles"></div>
   <div class="section-header" id="cards-heading" style="display:none">SKU Forecast vs Actual Orders</div>
   <div class="cards-grid" id="cards-grid"></div>
   <div class="chart-section">
