@@ -112,7 +112,8 @@
 <nav class="tab-nav">
   <button class="tab-btn active" onclick="showTab('forecast',this)">Forecast</button>
   <button class="tab-btn" onclick="showTab('stock',this)">Stock on Hand</button>
-  <button class="tab-btn" onclick="showTab('customer_orders',this)">Customer Orders</button>
+  <button class="tab-btn" onclick="showTab('planned_orders',this)">Planned Orders</button>
+  <button class="tab-btn" onclick="showTab('sales_orders',this)">Sales Orders</button>
   <button class="tab-btn" onclick="showTab('po',this)">Purchase Orders</button>
   <button class="tab-btn" onclick="showTab('creditors',this)">Creditors / AP</button>
 </nav>
@@ -145,10 +146,8 @@
 <!-- STOCK TAB -->
 <div id="tab-stock" class="tab-pane">
   <div class="ns-banner">NetSuite extract: 22/04/2026 — AGD Erskine Park | Inventory balance by item (all lots/bins aggregated)</div>
-  <div class="summary-row">
-    <div class="tile blue"><div class="tile-label">Active SKUs with Stock</div><div class="tile-value">7</div><div class="tile-sub">of 12 Oatly SKUs</div></div>
-    <div class="tile"><div class="tile-label">Total Units on Hand</div><div class="tile-value">76,238</div><div class="tile-sub">all SKUs combined</div></div>
-    <div class="tile amber"><div class="tile-label">Zero Stock SKUs</div><div class="tile-value">5</div><div class="tile-sub">no units at AGD EP</div></div>
+  <div class="summary-row" id="stock-summary-tiles">
+    <!-- Populated dynamically by renderStock() — reads STOCK_DATA (same source as front-page tile) -->
   </div>
   <div class="data-section">
     <div class="data-table-wrap">
@@ -177,13 +176,17 @@
   </div>
 </div>
 
-<!-- CUSTOMER ORDERS TAB -->
-<div id="tab-customer_orders" class="tab-pane">
+<!-- PLANNED ORDERS TAB (retailer forecasts / planned replenishment — NOT confirmed NetSuite sales orders) -->
+<div id="tab-planned_orders" class="tab-pane">
+  <div class="ns-banner" style="background:#fff8e1;border-left-color:var(--amber);color:#7a5700">
+    <strong>These are retailer forecasts, not confirmed sales orders.</strong>
+    Data source: AGD replenishment planning file (Woolworths channel). Rows represent planned/forecast demand by DC and week — they have not been validated against NetSuite confirmed orders.
+  </div>
   <div class="filter-bar">
-    <div><label for="co-sku">SKU</label><select id="co-sku" onchange="renderCustomerOrders()"><option value="">All SKUs</option></select></div>
-    <div><label for="co-dc">DC / Location</label><select id="co-dc" onchange="renderCustomerOrders()"><option value="">All DCs</option></select></div>
+    <div><label for="co-sku">SKU</label><select id="co-sku" onchange="renderPlannedOrders()"><option value="">All SKUs</option></select></div>
+    <div><label for="co-dc">DC / Location</label><select id="co-dc" onchange="renderPlannedOrders()"><option value="">All DCs</option></select></div>
     <div><label for="co-weeks">Weeks ahead</label>
-      <select id="co-weeks" onchange="renderCustomerOrders()">
+      <select id="co-weeks" onchange="renderPlannedOrders()">
         <option value="8">8 weeks</option>
         <option value="13" selected>13 weeks</option>
         <option value="26">26 weeks</option>
@@ -191,11 +194,30 @@
     </div>
   </div>
   <div class="summary-row" id="co-summary-tiles">
-    <div class="tile blue"><div class="tile-label">Source</div><div class="tile-value" style="font-size:12pt">AGD File</div><div class="tile-sub">WW replenishment orders via AGD</div></div>
+    <div class="tile amber"><div class="tile-label">Source</div><div class="tile-value" style="font-size:12pt">AGD File</div><div class="tile-sub">Retailer forecast — not confirmed orders</div></div>
   </div>
   <div class="data-section">
-    <div id="co-content"><div class="loader"><span class="spinner"></span>Loading orders...</div></div>
+    <div id="co-content"><div class="loader"><span class="spinner"></span>Loading planned orders...</div></div>
   </div>
+</div>
+
+<!-- SALES ORDERS TAB (NetSuite confirmed sales orders — pending configuration) -->
+<div id="tab-sales_orders" class="tab-pane">
+  <div class="ns-banner" style="background:#fdecea;border-left-color:var(--red);color:#7a1500">
+    <strong>NetSuite sales orders not yet configured.</strong>
+    This view will show confirmed sales orders from NetSuite once the Oatly SKU list and customer IDs are provided.
+  </div>
+  <div class="summary-row">
+    <div class="tile" style="border-top-color:var(--mdgrey);min-width:100%">
+      <div class="tile-label">Status</div>
+      <div class="tile-value" style="font-size:13pt;color:#999">Pending configuration</div>
+      <div class="tile-sub" style="margin-top:8px;line-height:1.6">
+        Sales orders from NetSuite will appear here once the Oatly SKU list and Woolworths customer ID are confirmed.<br>
+        Contact Rob to provide: (1) Oatly NetSuite item IDs, (2) WW / AGD customer record IDs.
+      </div>
+    </div>
+  </div>
+  <!-- TODO: Wire to NetSuite Report 757 — need Oatly SKU list and customer IDs from Rob -->
 </div>
 
 <!-- PO TAB -->
@@ -321,7 +343,7 @@ function showTab(id, btn) {
   document.getElementById('tab-'+id).classList.add('active');
   btn.classList.add('active');
   if(id==='forecast' && !_skus.length) loadForecast();
-  if(id==='customer_orders') { if(!_skus.length) loadForecast().then(renderCustomerOrders); else renderCustomerOrders(); }
+  if(id==='planned_orders') { if(!_skus.length) loadForecast().then(renderPlannedOrders); else renderPlannedOrders(); }
 }
 
 function refreshCurrent() {
@@ -384,16 +406,22 @@ function renderSummary(skus,fc,ord){
   const tOrd=ord.reduce((s,o)=>s+(o.planned_qty||0),0);
   const gap=tFc-tOrd;
   const weeks=[...new Set(fc.map(f=>f.week_commencing))].length;
-  const pct=tFc>0?Math.round(tOrd/tFc*100):0;
-  const cc=pct>=90?'green':pct>=70?'amber':'red';
+  // Coverage = planned orders vs retailer forecast (not stock-based)
+  const pct=tFc>0?Math.round(tOrd/tFc*100):null;
+  const cc=pct===null?'':pct>=90?'green':pct>=70?'amber':'red';
+  const coverageVal=pct===null?'—':pct+'%';
+  const coverageSub=pct===null?'No forecast data loaded':gap>=0?'Gap: '+fmtNum(gap)+' cases':'Surplus: '+fmtNum(-gap)+' cases';
+  // Stock on hand — read from STOCK_DATA (same source as Stock tab tiles)
   const totalSoh=STOCK_DATA.reduce((s,d)=>s+d.soh,0);
   const sohSkus=STOCK_DATA.filter(d=>d.soh>0).length;
+  const sohLabel=totalSoh>0?fmtNum(totalSoh):'Pending sync';
+  const sohSub=totalSoh>0?sohSkus+' of '+STOCK_DATA.length+' SKUs with stock →':'Stock on hand: Pending NetSuite sync';
   document.getElementById('summary-tiles').innerHTML=`
-    <div class="tile blue"><div class="tile-label">Active SKUs</div><div class="tile-value">${skus.length}</div><div class="tile-sub">Oatly via AGD/WW</div></div>
-    <div class="tile"><div class="tile-label">Total Forecast</div><div class="tile-value">${fmtNum(tFc)}</div><div class="tile-sub">${weeks} weeks &middot; cases</div></div>
-    <div class="tile"><div class="tile-label">Customer Orders</div><div class="tile-value">${fmtNum(tOrd)}</div><div class="tile-sub">cases placed in period</div></div>
-    <div class="tile ${cc}"><div class="tile-label">Coverage</div><div class="tile-value">${pct}%</div><div class="tile-sub">${gap>=0?'Gap: '+fmtNum(gap):'Surplus: '+fmtNum(-gap)} cases</div></div>
-    <div class="tile blue" style="cursor:pointer" onclick="document.querySelectorAll('.tab-btn')[1].click()"><div class="tile-label">Stock on Hand</div><div class="tile-value">${fmtNum(totalSoh)}</div><div class="tile-sub">${sohSkus} of ${STOCK_DATA.length} SKUs with stock &rarr;</div></div>`;
+    <div class="tile blue"><div class="tile-label">Active SKUs</div><div class="tile-value">${skus.length}</div><div class="tile-sub">from Supabase (oatly_skus)</div></div>
+    <div class="tile"><div class="tile-label">Retailer Forecast</div><div class="tile-value">${fmtNum(tFc)}</div><div class="tile-sub">${weeks} weeks &middot; cases</div></div>
+    <div class="tile"><div class="tile-label">Planned Orders</div><div class="tile-value">${fmtNum(tOrd)}</div><div class="tile-sub">cases in AGD replenishment plan</div></div>
+    <div class="tile ${cc}"><div class="tile-label">Coverage</div><div class="tile-value">${coverageVal}</div><div class="tile-sub">${coverageSub}</div></div>
+    <div class="tile blue" style="cursor:pointer" onclick="document.querySelectorAll('.tab-btn')[1].click()"><div class="tile-label">Stock on Hand</div><div class="tile-value" style="${totalSoh===0?'font-size:11pt;color:#999':''}">${sohLabel}</div><div class="tile-sub">${sohSub}</div></div>`;
 }
 function renderCards(skus,fc,ord,fd){
   const heading=document.getElementById('cards-heading'),grid=document.getElementById('cards-grid');
@@ -455,8 +483,8 @@ function renderWeeklyChart(fc,ord){
   }).join('');
 }
 
-// ---- Customer Orders tab ----
-function renderCustomerOrders() {
+// ---- Planned Orders tab (retailer forecast / replenishment planning — NOT NetSuite sales orders) ----
+function renderPlannedOrders() {
   // Populate filters if empty
   const csku=document.getElementById('co-sku'), cdc=document.getElementById('co-dc');
   if(csku && csku.options.length===1 && _skus.length) {
@@ -473,16 +501,17 @@ function renderCustomerOrders() {
   );
   const coDiv=document.getElementById('co-content');
   if(!_ord.length){coDiv.innerHTML='<div class="loader">Load forecast tab first, then return here.</div>';return;}
-  if(!ord.length){coDiv.innerHTML='<div class="loader" style="color:#888">No orders found for the selected filters and period.</div>';return;}
+  if(!ord.length){coDiv.innerHTML='<div class="loader" style="color:#888">No planned orders found for the selected filters and period.</div>';return;}
 
   // Update summary tiles
   const totOrd=ord.reduce((s,o)=>s+(o.planned_qty||0),0);
   const skuCount=[...new Set(ord.map(o=>o.sku_code))].length;
   const dcCount=[...new Set(ord.map(o=>String(o.dc_code)))].length;
   document.getElementById('co-summary-tiles').innerHTML=`
-    <div class="tile blue"><div class="tile-label">SKUs with Orders</div><div class="tile-value">${skuCount}</div><div class="tile-sub">in selected period</div></div>
+    <div class="tile amber"><div class="tile-label">Source</div><div class="tile-value" style="font-size:12pt">AGD File</div><div class="tile-sub">Retailer forecast — not confirmed orders</div></div>
+    <div class="tile blue"><div class="tile-label">SKUs in Forecast</div><div class="tile-value">${skuCount}</div><div class="tile-sub">in selected period</div></div>
     <div class="tile"><div class="tile-label">DC Locations</div><div class="tile-value">${dcCount}</div><div class="tile-sub">receiving Oatly</div></div>
-    <div class="tile green"><div class="tile-label">Total Cases Ordered</div><div class="tile-value">${fmtNum(totOrd)}</div><div class="tile-sub">${weeks} weeks · all SKUs</div></div>`;
+    <div class="tile green"><div class="tile-label">Total Cases (Forecast)</div><div class="tile-value">${fmtNum(totOrd)}</div><div class="tile-sub">${weeks} weeks · all SKUs</div></div>`;
 
   // Build weekly pivot
   const weeks_list=[...new Set(ord.map(o=>o.week_commencing))].sort();
@@ -530,6 +559,15 @@ function renderCustomerOrders() {
 
 // ---- Stock tab ----
 function renderStock(){
+  // Compute counts from STOCK_DATA — same array used by front-page summary tile (single source of truth)
+  const withStock=STOCK_DATA.filter(s=>s.soh>0);
+  const zeroStock=STOCK_DATA.filter(s=>s.soh===0);
+  const totalSoh=STOCK_DATA.reduce((s,d)=>s+d.soh,0);
+  document.getElementById('stock-summary-tiles').innerHTML=`
+    <div class="tile blue"><div class="tile-label">SKUs with Stock</div><div class="tile-value">${withStock.length}</div><div class="tile-sub">of ${STOCK_DATA.length} Oatly SKUs on this extract</div></div>
+    <div class="tile"><div class="tile-label">Total Units on Hand</div><div class="tile-value">${fmtNum(totalSoh)}</div><div class="tile-sub">all SKUs combined</div></div>
+    <div class="tile amber"><div class="tile-label">Zero Stock SKUs</div><div class="tile-value">${zeroStock.length}</div><div class="tile-sub">no units at AGD EP</div></div>`;
+
   const maxSoh=Math.max(...STOCK_DATA.map(s=>s.soh),1);
   const tbody=document.getElementById('stock-tbody');
   tbody.innerHTML=STOCK_DATA.map(s=>{
