@@ -154,7 +154,7 @@
 
 <!-- FORECAST TAB (Demand / Forecast) — default landing tab -->
 <div id="tab-forecast" class="tab-pane active">
-  <div class="ns-banner" style="background:#e8f4fd;border-left-color:var(--blue)">Sales orders: NetSuite Report 246, 23/04/2026 (351 units pending fulfilment). PO quantities by SKU: not available from standard reports (Report 277 gives $ only, custom reports access-denied). Need access to Report 567 or 665 for per-SKU PO quantities. Forecast data from retailer uploads. Stock data from NetSuite extract 22/04/2026.</div>
+  <div class="ns-banner" style="background:#e8f4fd;border-left-color:var(--blue)">Sales orders: NetSuite Report 246, 23/04/2026 (350 units pending fulfilment, Oatly only). PO quantities by SKU: not available from standard reports (Report 277 gives $ only, custom reports access-denied). Need access to Report 567 or 665 for per-SKU PO quantities. Forecast data from retailer uploads. Stock data from NetSuite extract 22/04/2026.</div>
   <div class="section-header" style="margin-top:8px">Planning Position by SKU</div>
   <div class="front-cards-grid" id="front-cards">
     <div class="loader"><span class="spinner"></span>Loading planning data...</div>
@@ -218,7 +218,7 @@
 
 <!-- PO TAB -->
 <div id="tab-po" class="tab-pane">
-  <div class="ns-banner">NetSuite extract: 23/04/2026 | Open Purchase Orders (Report 277) | AGD subsidiary | 93 open POs | Total AUD 3,934,477</div>
+  <div class="ns-banner">NetSuite extract: 23/04/2026 | Oatly Open Purchase Orders (Report 277, filtered to Oatly only) | 89 open POs | Total AUD 3,116,654</div>
   <div class="summary-row" id="po-summary-tiles"></div>
   <div style="background:#e8f4fd;border-left:4px solid var(--blue);padding:10px 24px;font-size:9pt;color:#1B2A4A;margin:0;font-weight:bold">
     This tab shows PO values in AUD. Per-SKU unit quantities are not available from the accessible NetSuite reports. Request access to Custom Open Purchase Orders - AGD (Report 567) for SKU-level quantity breakdowns.
@@ -247,7 +247,7 @@
 
 <!-- CREDITORS TAB -->
 <div id="tab-creditors" class="tab-pane">
-  <div class="ns-banner">NetSuite extract: 23/04/2026 | AGD Open Bills (Report 557) | Total: AUD 885,033 | 54 open bills</div>
+  <div class="ns-banner">NetSuite extract: 23/04/2026 | Oatly Open Bills (Report 557, filtered to OAT101 only) | Total: AUD 529,797 | 30 open bills</div>
   <div class="ap-filter-bar">
     <label>Show:</label>
     <select id="ap-filter" onchange="renderAP()">
@@ -309,7 +309,6 @@ const STOCK_DATA = [
 const SALES_ORDERS_DATA = [
   {sku:'FG 61737',desc:'Oatly Barista Edition 1L',so:'SOAGD1965',customer:'Bidfood',date:'21/04/2026',qty:280,fulfilled:0},
   {sku:'FG 61737',desc:'Oatly Barista Edition 1L',so:'SOAGD2073',customer:'Bidfood',date:'23/04/2026',qty:70,fulfilled:0},
-  {sku:'FG PerfectTed VML Promo Pack',desc:'PerfectTed VML Promo Pack',so:'SOAGD1998',customer:'PerfectTed',date:'20/04/2026',qty:1,fulfilled:0},
 ];
 
 // Helper: get total pending fulfilment qty for a given SKU code from SALES_ORDERS_DATA
@@ -357,7 +356,6 @@ const PO_DATA_RAW = [
   {po:"POAGD298",vendor:"OATLY EMEA AB",date:"15/01/2026",status:"Pending Receipt",aud:33708.74},
   {po:"POAGD299",vendor:"OATLY EMEA AB",date:"15/01/2026",status:"Pending Receipt",aud:35977.60},
   {po:"POAGD300",vendor:"OATLY EMEA AB",date:"15/01/2026",status:"Pending Receipt",aud:35977.60},
-  {po:"POAGD302",vendor:"PerfectTed",date:"02/02/2026",status:"Pending Receipt",aud:59988.34},
   {po:"POAGD303",vendor:"OATLY EMEA AB",date:"05/02/2026",status:"Pending Receipt",aud:95992.77},
   {po:"POAGD305",vendor:"OATLY EMEA AB",date:"16/02/2026",status:"Pending Receipt",aud:32785.43},
   {po:"POAGD306",vendor:"OATLY EMEA AB",date:"16/02/2026",status:"Pending Receipt",aud:32785.43},
@@ -379,7 +377,6 @@ const PO_DATA_RAW = [
   {po:"POAGD322",vendor:"OATLY EMEA AB",date:"16/02/2026",status:"Pending Receipt",aud:34658.88},
   {po:"POAGD323",vendor:"OATLY EMEA AB",date:"16/02/2026",status:"Pending Receipt",aud:32785.43},
   {po:"POAGD324",vendor:"OATLY EMEA AB",date:"16/02/2026",status:"Pending Receipt",aud:32785.43},
-  {po:"POAGD327",vendor:"PerfectTed",date:"25/03/2026",status:"Pending Receipt",aud:318675.94},
   {po:"POAGD328",vendor:"OATLY EMEA AB",date:"25/03/2026",status:"Pending Receipt",aud:32471.36},
   {po:"POAGD329",vendor:"OATLY EMEA AB",date:"25/03/2026",status:"Pending Receipt",aud:32471.36},
   {po:"POAGD330",vendor:"OATLY EMEA AB",date:"25/03/2026",status:"Pending Receipt",aud:32471.36},
@@ -409,19 +406,12 @@ const PO_DATA_RAW = [
   {po:"POAGD354",vendor:"OATLY EMEA AB",date:"25/03/2026",status:"Pending Receipt",aud:32471.36},
   {po:"POAGD355",vendor:"OATLY EMEA AB",date:"25/03/2026",status:"Pending Receipt",aud:32471.36},
   {po:"POAGD356",vendor:"OATLY EMEA AB",date:"25/03/2026",status:"Pending Receipt",aud:32471.36},
-  {po:"POAGD357",vendor:"PerfectTed",date:"01/04/2026",status:"Pending Receipt",aud:69132.26},
-  {po:"POAGD358",vendor:"PerfectTed",date:"22/04/2026",status:"Pending Receipt",aud:370026.26},
 ];
 
 const AP_DATA = [
   {inv:"Promo Support QE Sept 25",vendor:"OAT101 OATLY EMEA AB",bill_date:"30/09/2025",due_date:null,aud:-229059.26,auth:"Richard Carlick",memo:null},
   {inv:"Oatly Promo Support QE Dec 25",vendor:"OAT101 OATLY EMEA AB",bill_date:"31/12/2025",due_date:null,aud:-162107.72,auth:"Richard Carlick",memo:null},
-  {inv:"AGD NOV25 BAS",vendor:"ATO101 Australian Taxation Office",bill_date:"15/01/2026",due_date:null,aud:-35503,auth:"Richard Carlick",memo:null},
-  {inv:"AGD DEC25 BAS",vendor:"ATO101 Australian Taxation Office",bill_date:"09/02/2026",due_date:null,aud:-13869,auth:"Richard Carlick",memo:"AGD DEC25 BAS"},
-  {inv:"SI-00009875/2",vendor:"MAD101 Made Beverages Ltd T/A PerfectTed",bill_date:"12/02/2026",due_date:null,aud:605.70,auth:"Richard Carlick",memo:"POAGD233"},
   {inv:"Promo Support Jan 26",vendor:"OAT101 OATLY EMEA AB",bill_date:"28/02/2026",due_date:null,aud:-15581.51,auth:"Richard Carlick",memo:null},
-  {inv:"00230011",vendor:"IDS102 International Delivery Service",bill_date:"04/03/2026",due_date:null,aud:368.50,auth:"Sharon",memo:"Weight amendment fee - POAGD218"},
-  {inv:"00230721",vendor:"IDS102 International Delivery Service",bill_date:"15/03/2026",due_date:null,aud:5741.90,auth:"Sharon",memo:"Landed Costs - POAGD226, 226"},
   {inv:"3010600067971",vendor:"OAT101 OATLY EMEA AB",bill_date:"16/03/2026",due_date:null,aud:38721.61,auth:"Richard Carlick",memo:"POAGD219"},
   {inv:"3010600068116",vendor:"OAT101 OATLY EMEA AB",bill_date:"16/03/2026",due_date:null,aud:38721.61,auth:"Richard Carlick",memo:"POAGD229"},
   {inv:"3010600068114",vendor:"OAT101 OATLY EMEA AB",bill_date:"16/03/2026",due_date:null,aud:39177.76,auth:"Richard Carlick",memo:"POAGD226"},
@@ -430,7 +420,6 @@ const AP_DATA = [
   {inv:"3010600067974",vendor:"OAT101 OATLY EMEA AB",bill_date:"16/03/2026",due_date:null,aud:39177.76,auth:"Richard Carlick",memo:"POAGD216"},
   {inv:"3010600069011",vendor:"OAT101 OATLY EMEA AB",bill_date:"18/03/2026",due_date:"05/02/2026",aud:31720.15,auth:"Richard Carlick",memo:"POAGD245"},
   {inv:"3010600069006",vendor:"OAT101 OATLY EMEA AB",bill_date:"18/03/2026",due_date:"05/02/2026",aud:31720.15,auth:"Richard Carlick",memo:"POAGD243"},
-  {inv:"00230939",vendor:"IDS102 International Delivery Service",bill_date:"18/03/2026",due_date:null,aud:11045.29,auth:"Sharon",memo:"Landed Costs - POAGD216,219,222-223"},
   {inv:"3010600069015",vendor:"OAT101 OATLY EMEA AB",bill_date:"18/03/2026",due_date:"05/02/2026",aud:33532.73,auth:"Richard Carlick",memo:"POAGD277"},
   {inv:"3010600069008",vendor:"OAT101 OATLY EMEA AB",bill_date:"18/03/2026",due_date:"05/02/2026",aud:31720.15,auth:"Richard Carlick",memo:"POAGD244"},
   {inv:"3010600068638",vendor:"OAT101 OATLY EMEA AB",bill_date:"19/03/2026",due_date:"05/03/2026",aud:31786.67,auth:"Richard Carlick",memo:"POAGD239"},
@@ -438,36 +427,18 @@ const AP_DATA = [
   {inv:"3010600068467",vendor:"OAT101 OATLY EMEA AB",bill_date:"19/03/2026",due_date:"05/03/2026",aud:54525.28,auth:"Richard Carlick",memo:"POAGD246"},
   {inv:"3010600068643",vendor:"OAT101 OATLY EMEA AB",bill_date:"19/03/2026",due_date:"05/03/2026",aud:31786.67,auth:"Richard Carlick",memo:"POAGD242"},
   {inv:"3010600068645",vendor:"OAT101 OATLY EMEA AB",bill_date:"19/03/2026",due_date:"05/03/2026",aud:33418.77,auth:"Richard Carlick",memo:"POAGD240"},
-  {inv:"00231330",vendor:"IDS102 International Delivery Service",bill_date:"24/03/2026",due_date:null,aud:10510.79,auth:"Sharon",memo:"Landed Costs - POAGD247-250"},
   {inv:"3010600069340",vendor:"OAT101 OATLY EMEA AB",bill_date:"24/03/2026",due_date:"05/08/2026",aud:32338.62,auth:"Richard Carlick",memo:"POAGD247"},
-  {inv:"00231328",vendor:"IDS102 International Delivery Service",bill_date:"24/03/2026",due_date:null,aud:3094.95,auth:"Sharon",memo:"Landed Costs - POAGD246"},
   {inv:"3010600069292",vendor:"OAT101 OATLY EMEA AB",bill_date:"24/03/2026",due_date:"05/08/2026",aud:32338.62,auth:"Richard Carlick",memo:"POAGD248"},
   {inv:"3010600069277",vendor:"OAT101 OATLY EMEA AB",bill_date:"24/03/2026",due_date:"05/08/2026",aud:32338.62,auth:"Richard Carlick",memo:"POAGD249"},
   {inv:"3010600069280",vendor:"OAT101 OATLY EMEA AB",bill_date:"24/03/2026",due_date:"05/08/2026",aud:32338.62,auth:"Richard Carlick",memo:"POAGD250"},
-  {inv:"00231264",vendor:"IDS102 International Delivery Service",bill_date:"24/03/2026",due_date:null,aud:10792.29,auth:"Sharon",memo:"Landed Costs - POAGD243-245, 277"},
-  {inv:"00231329",vendor:"IDS102 International Delivery Service",bill_date:"24/03/2026",due_date:null,aud:10510.79,auth:"Sharon",memo:"Landed Costs - POAGD239-242"},
-  {inv:"00231701",vendor:"IDS102 International Delivery Service",bill_date:"30/03/2026",due_date:null,aud:10326.14,auth:"Sharon",memo:"Landed Costs - POAGD280"},
-  {inv:"00231646",vendor:"IDS102 International Delivery Service",bill_date:"30/03/2026",due_date:null,aud:10785.79,auth:"Sharon",memo:"Landed Costs - POAGD251-253 / 275"},
-  {inv:"1019399067",vendor:"CAM004 DHL Supply Chain",bill_date:"31/03/2026",due_date:null,aud:2738.08,auth:"Kate Harris",memo:"Freight w/e 29.03.26"},
   {inv:"3010600069538",vendor:"OAT101 OATLY EMEA AB",bill_date:"31/03/2026",due_date:null,aud:32665.96,auth:"Richard Carlick",memo:"w/c 06.04.26"},
   {inv:"3010600069680",vendor:"OAT101 OATLY EMEA AB",bill_date:"31/03/2026",due_date:null,aud:33964.47,auth:"Richard Carlick",memo:"POAGD275"},
-  {inv:"S00002103",vendor:"INT101 Inter World Shipping",bill_date:"31/03/2026",due_date:null,aud:17013.94,auth:"Sharon",memo:"Airfreight Landed Costs POAGD326 Matcha Latte"},
-  {inv:"S00002103/A",vendor:"INT101 Inter World Shipping",bill_date:"01/04/2026",due_date:"04/01/2026",aud:89.50,auth:"Sharon",memo:"Airfreight Quarantine Fees - POAGD326"},
   {inv:"3010600069540",vendor:"OAT101 OATLY EMEA AB",bill_date:"01/04/2026",due_date:null,aud:32722.77,auth:"Richard Carlick",memo:"POAGD252"},
   {inv:"3010600069541",vendor:"OAT101 OATLY EMEA AB",bill_date:"01/04/2026",due_date:null,aud:32722.77,auth:"Richard Carlick",memo:"POAGD253"},
-  {inv:"CI-00012533/1",vendor:"MAD101 Made Beverages Ltd T/A PerfectTed",bill_date:"02/04/2026",due_date:"05/02/2026",aud:103815.95,auth:"Richard Carlick",memo:"POAGD280"},
-  {inv:"CI-00015007",vendor:"MAD101 Made Beverages Ltd T/A PerfectTed",bill_date:"02/04/2026",due_date:"05/02/2026",aud:167516.70,auth:"Richard Carlick",memo:"POAGD326 Airfreight"},
-  {inv:"00231991",vendor:"IDS102 International Delivery Service",bill_date:"07/04/2026",due_date:null,aud:10510.79,auth:"Sharon",memo:"Landed Costs - POAGD254-256_274"},
   {inv:"3010600069823",vendor:"OAT101 OATLY EMEA AB",bill_date:"09/04/2026",due_date:"24/05/2026",aud:32048.05,auth:"Richard Carlick",memo:null},
   {inv:"3010600069834",vendor:"OAT101 OATLY EMEA AB",bill_date:"09/04/2026",due_date:"24/05/2026",aud:32356.20,auth:"Richard Carlick",memo:null},
   {inv:"3010600069832",vendor:"OAT101 OATLY EMEA AB",bill_date:"10/04/2026",due_date:"25/05/2026",aud:32279.48,auth:"Richard Carlick",memo:null},
   {inv:"3010600069819",vendor:"OAT101 OATLY EMEA AB",bill_date:"10/04/2026",due_date:"25/05/2026",aud:32279.48,auth:"Richard Carlick",memo:null},
-  {inv:"4673",vendor:"SCH002 Schaeffer's Transport",bill_date:"13/04/2026",due_date:null,aud:10221.98,auth:"Kate Harris",memo:"Freight w/e 13.04.26"},
-  {inv:"00232254",vendor:"IDS102 International Delivery Service",bill_date:"13/04/2026",due_date:null,aud:3652.16,auth:"Sharon",memo:"Customs Duty - POAGD260-261/278"},
-  {inv:"00232463",vendor:"IDS102 International Delivery Service",bill_date:"15/04/2026",due_date:null,aud:2702.05,auth:"Sharon",memo:"Customs Duty - POAGD270/272"},
-  {inv:"1019411216",vendor:"CAM004 DHL Supply Chain",bill_date:"16/04/2026",due_date:null,aud:5764.84,auth:"Kate Harris",memo:"Freight w/e 12.04.26"},
-  {inv:"327914",vendor:"BUD001 Budget Courier Systems",bill_date:"17/04/2026",due_date:"05/01/2026",aud:1182.97,auth:"Kate Harris",memo:"Freight w/e 17.04.26"},
-  {inv:"4694",vendor:"SCH002 Schaeffer's Transport",bill_date:"20/04/2026",due_date:"05/04/2026",aud:4706.50,auth:"Kate Harris",memo:"Freight w/e 20.04.26"},
 ];
 
 // ---- Supabase config ----
