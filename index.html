@@ -146,24 +146,15 @@
 </div>
 
 <nav class="tab-nav">
-  <button class="tab-btn active" onclick="showTab('front',this)">Front Page</button>
+  <button class="tab-btn active" onclick="showTab('forecast',this)">Demand / Forecast</button>
   <button class="tab-btn" onclick="showTab('stock',this)">Stock on Hand</button>
   <button class="tab-btn" onclick="showTab('sales_orders',this)">Customer Sales Orders</button>
   <button class="tab-btn" onclick="showTab('po',this)">PO Quantities</button>
-  <button class="tab-btn" onclick="showTab('forecast',this)">Demand / Forecast</button>
   <button class="tab-btn" onclick="showTab('creditors',this)">Creditors</button>
 </nav>
 
-<!-- FRONT PAGE TAB -->
-<div id="tab-front" class="tab-pane active">
-  <div class="summary-row" id="front-tiles"></div>
-  <div class="front-cards-grid" id="front-cards">
-    <div class="loader"><span class="spinner"></span>Loading planning data...</div>
-  </div>
-</div>
-
-<!-- FORECAST TAB (Demand / Forecast) -->
-<div id="tab-forecast" class="tab-pane">
+<!-- FORECAST TAB (Demand / Forecast) — default landing tab -->
+<div id="tab-forecast" class="tab-pane active">
   <div class="filter-bar">
     <div><label for="sel-sku">SKU</label><select id="sel-sku" onchange="applyFilters()"><option value="">All SKUs</option></select></div>
     <div><label for="sel-dc">DC</label><select id="sel-dc" onchange="applyFilters()"><option value="">All DCs</option></select></div>
@@ -177,6 +168,10 @@
     </div>
   </div>
   <div class="summary-row" id="summary-tiles"><div class="loader"><span class="spinner"></span>Loading data...</div></div>
+  <div class="section-header" style="margin-top:8px">Per-SKU Planning Position</div>
+  <div class="front-cards-grid" id="front-cards">
+    <div class="loader"><span class="spinner"></span>Loading planning data...</div>
+  </div>
   <div class="section-header" id="cards-heading" style="display:none">SKU Forecast vs Planned Orders</div>
   <div class="cards-grid" id="cards-grid"></div>
   <div class="chart-section">
@@ -367,9 +362,8 @@ function showTab(id, btn) {
   const paneId = id==='forecast' ? 'forecast' : id;
   document.getElementById('tab-'+paneId).classList.add('active');
   if(btn) btn.classList.add('active');
-  if(id==='front') renderFrontPage();
   if(id==='forecast' && !_skus.length) loadForecast();
-  if(id==='forecast' && _skus.length) { applyFilters(); renderPlannedOrders(); }
+  if(id==='forecast' && _skus.length) { applyFilters(); renderPlannedOrders(); renderSkuCards(); }
 }
 
 function refreshCurrent() {
@@ -404,6 +398,7 @@ async function loadForecast(){
     ]);
     populateFilters();
     applyFilters();
+    renderSkuCards();
     const now=new Date().toLocaleString('en-AU',{timeZone:'Australia/Brisbane',hour12:false});
     document.getElementById('last-refresh').textContent='Refreshed: '+now+' AEST';
     document.getElementById('footer-gen').textContent='Generated: '+now;
@@ -650,40 +645,13 @@ function renderAP(){
   </tr>`;
 }
 
-// ---- Front Page (per-SKU planning cards) ----
+// ---- Per-SKU planning position cards (shown in Demand/Forecast tab) ----
 function fmtSigned(n){
   if(n===null||n===undefined)return'--';
   if(n<0)return'('+fmtNum(Math.abs(n))+')';
   return fmtNum(n);
 }
-function renderFrontPage(){
-  // Summary tiles row
-  const totalSoh=STOCK_DATA.reduce((s,d)=>s+d.soh,0);
-  const sohSkus=STOCK_DATA.filter(d=>d.soh>0).length;
-  const totalFc=_fc.reduce((s,f)=>s+(f.forecast_qty||0),0);
-  const totalPOQty=PO_DATA.reduce((s,p)=>s+p.total_qty,0);
-  const redCount=STOCK_DATA.filter(d=>{
-    const po=PO_DATA.find(p=>p.code===d.code);
-    const poQty=po?po.total_qty:0;
-    const fcQty=_fc.filter(f=>f.sku_code===d.code).reduce((s,f)=>s+(f.forecast_qty||0),0);
-    const net=d.soh+poQty-fcQty;
-    return net<0;
-  }).length;
-  const greenCount=STOCK_DATA.filter(d=>{
-    const po=PO_DATA.find(p=>p.code===d.code);
-    const poQty=po?po.total_qty:0;
-    const fcQty=_fc.filter(f=>f.sku_code===d.code).reduce((s,f)=>s+(f.forecast_qty||0),0);
-    const net=d.soh+poQty-fcQty;
-    return net>0;
-  }).length;
-
-  document.getElementById('front-tiles').innerHTML=`
-    <div class="tile blue"><div class="tile-label">Total Stock on Hand</div><div class="tile-value">${fmtNum(totalSoh)}</div><div class="tile-sub">${sohSkus} of ${STOCK_DATA.length} SKUs with stock</div></div>
-    <div class="tile"><div class="tile-label">Forecast Demand (13 wk)</div><div class="tile-value">${totalFc>0?fmtNum(totalFc):'Pending'}</div><div class="tile-sub">${totalFc>0?'units across all SKUs':'Load Demand/Forecast tab'}</div></div>
-    <div class="tile ${redCount>0?'red':'green'}"><div class="tile-label">Supply Issues</div><div class="tile-value">${redCount}</div><div class="tile-sub">${redCount>0?redCount+' SKUs with negative net position':'All SKUs covered'}</div></div>
-    <div class="tile green"><div class="tile-label">Healthy SKUs</div><div class="tile-value">${greenCount}</div><div class="tile-sub">positive net position</div></div>`;
-
-  // Per-SKU cards
+function renderSkuCards(){
   const cardsDiv=document.getElementById('front-cards');
   const cards=STOCK_DATA.map(s=>{
     const po=PO_DATA.find(p=>p.code===s.code);
@@ -724,20 +692,12 @@ function renderFrontPage(){
   }).join('');
   cardsDiv.innerHTML=cards;
 }
-function updateFrontForecastTile(){
-  // Re-render front page cards with forecast data now loaded
-  if(document.getElementById('tab-front').classList.contains('active')){
-    renderFrontPage();
-  }
-}
-
 // ---- Init ----
 document.addEventListener('DOMContentLoaded',()=>{
-  renderFrontPage();
   renderStock();
   renderPO();
   renderAP();
-  loadForecast().then(()=>updateFrontForecastTile());
+  loadForecast().then(()=>renderSkuCards());
   const now=new Date().toLocaleString('en-AU',{timeZone:'Australia/Brisbane',hour12:false});
   document.getElementById('footer-gen').textContent='Generated: '+now;
 });
