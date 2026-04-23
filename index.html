@@ -135,8 +135,11 @@
   .fp-overdue-badge { display:inline-block; padding:2px 8px; border-radius:10px; font-size:7.5pt; font-weight:bold; text-transform:uppercase; background:#fdecea; color:var(--red); margin-left:6px; }
   .po-status-badge { display:inline-block; padding:2px 8px; border-radius:10px; font-size:7.5pt; font-weight:bold; text-transform:uppercase; }
   .po-status-overdue { background:#fdecea; color:var(--red); }
+  .po-status-unreceipted { background:#fef3e2; color:var(--amber); }
   .po-status-due-soon { background:#fef3e2; color:var(--amber); }
   .po-status-on-track { background:#e8f8ee; color:var(--green); }
+  .fp-datagap-badge { display:inline-block; padding:2px 8px; border-radius:10px; font-size:7.5pt; font-weight:bold; text-transform:uppercase; background:#fef3e2; color:var(--amber); margin-left:6px; }
+  .fp-card.fp-datagap { border:2px solid var(--amber); border-left-width:5px; }
 </style>
 </head>
 <body>
@@ -586,7 +589,9 @@ function renderSkuCards(){
     const netCls=net<0?'fp-neg':net===0?'fp-tight':'fp-pos';
 
     // Overdue badge in header
-    const overdueBadge = hasOverdue ? '<span class="fp-overdue-badge">OVERDUE</span>' : '';
+    // >90 days = data gap (likely received but not receipted in NS), 60-90 = genuinely overdue
+    const oldestOverdueDays = overdueCount > 0 ? Math.max(...overduePOs.map(l => daysSinceOrder(l.date))) : 0;
+    const overdueBadge = oldestOverdueDays > 90 ? '<span class="fp-overdue-badge" style="background:var(--amber);color:#fff">DATA GAP</span>' : hasOverdue ? '<span class="fp-overdue-badge">OVERDUE</span>' : '';
 
     return`<div class="fp-card ${cls}${overdueCls}">
       <div class="fp-card-header">
@@ -600,7 +605,7 @@ function renderSkuCards(){
         <div class="fp-metric-row"><span class="fp-metric-label">Stock on Hand</span><span class="fp-metric-value${s.soh===0?' fp-neg':''}">${s.soh>0?fmtNum(s.soh):'0'}</span></div>
         <div class="fp-metric-row"><span class="fp-metric-label">POs Awaiting Receipt</span><span class="fp-metric-value">${poQty>0?fmtNum(poQty)+' units ('+poCount+' POs)':'None'}</span></div>
         <div class="fp-metric-row"><span class="fp-metric-label">Sales Orders</span><span class="fp-metric-value${ordersQty>0?' fp-neg':''}">${ordersQty>0?fmtNum(ordersQty):'0'}</span></div>
-        ${hasOverdue?'<div class="fp-metric-row"><span class="fp-metric-label" style="color:var(--red);font-weight:bold">Overdue POs</span><span class="fp-metric-value" style="color:var(--red)">' + overdueCount + ' POs / ' + fmtNum(overdueQty) + ' units</span></div>':''}
+        ${hasOverdue?'<div class="fp-metric-row"><span class="fp-metric-label" style="color:'+(oldestOverdueDays>90?'var(--amber)':'var(--red)')+';font-weight:bold">'+(oldestOverdueDays>90?'Unreceipted in NS':'Overdue POs')+'</span><span class="fp-metric-value" style="color:'+(oldestOverdueDays>90?'var(--amber)':'var(--red)')+'">' + overdueCount + ' POs / ' + fmtNum(overdueQty) + ' units</span></div>':''}
         ${pendingBillQty>0?'<div class="fp-metric-row"><span class="fp-metric-label" style="color:#888">Received, Pending Invoice</span><span class="fp-metric-value fp-pending">' + fmtNum(pendingBillQty) + ' units (' + pendingBillCount + ' POs)</span></div>':''}
       </div>
       <div class="fp-net-row">
@@ -723,7 +728,10 @@ function renderPO(){
     const overdue = showOverdueBadge && days > 60;
     const dueSoon = showOverdueBadge && days >= 45 && days <= 60;
     let statusBadge, rowStyle='';
-    if(overdue) {
+    if(overdue && days > 90) {
+      statusBadge = '<span class="po-status-badge" style="background:#fef3e2;color:var(--amber)">UNRECEIPTED IN NS</span>';
+      rowStyle = ' style="background:#fffbf0"';
+    } else if(overdue) {
       statusBadge = '<span class="po-status-badge po-status-overdue">OVERDUE</span>';
       rowStyle = ' style="background:#fff5f5"';
     } else if(dueSoon) {
