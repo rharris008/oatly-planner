@@ -164,7 +164,7 @@
 
 <!-- PLANNING DASHBOARD -->
 <div id="tab-forecast" class="tab-pane active">
-  <div class="ns-banner" style="background:#e8f4fd;border-left-color:var(--blue)">Data sources: Stock from NetSuite (22/04/2026). Sales orders from Report 246 (23/04/2026). Open POs from SuiteQL (23/04/2026). Creditors from Report 557 (23/04/2026).</div>
+  <div class="ns-banner" style="background:#e8f4fd;border-left-color:var(--blue)">Data sources: Stock from NetSuite (23/04/2026). Sales orders from Report 246 (23/04/2026). Open POs from SuiteQL (23/04/2026). Creditors from Report 557 (23/04/2026).</div>
   <div class="section-header" style="margin-top:8px">Planning Position by SKU</div>
   <div class="front-cards-grid" id="front-cards">
     <div class="loader"><span class="spinner"></span>Loading planning data...</div>
@@ -173,7 +173,7 @@
 
 <!-- STOCK TAB -->
 <div id="tab-stock" class="tab-pane">
-  <div class="ns-banner">NetSuite extract: 22/04/2026 | AGD Erskine Park | Inventory balance by item (all lots/bins aggregated)</div>
+  <div class="ns-banner">NetSuite extract: 23/04/2026 | AGD Erskine Park | Inventory balance by item (all lots/bins aggregated)</div>
   <div class="summary-row" id="stock-summary-tiles"></div>
   <div class="data-section">
     <div class="data-table-wrap">
@@ -290,7 +290,7 @@
 </div>
 
 <script>
-// ---- Static NetSuite data (extracted 22/04/2026) ----
+// ---- Static NetSuite data (extracted 23/04/2026) ----
 const STOCK_DATA = [
   {code:'FG 61737',desc:'Oatly Oat Milk Barista Edition 1L',soh:57689,avail:57689},
   {code:'FG 62108',desc:'Oatly Oat Milk Full 2.8% Fat 1.0L',soh:6171,avail:6171},
@@ -303,7 +303,7 @@ const STOCK_DATA = [
   {code:'FG 61909',desc:'Oatly Creamy Oat Organic 0.25L',soh:0,avail:0},
   {code:'FG 62107',desc:'Oatly Oat Milk Light 1.5% fat 1L',soh:0,avail:0},
   {code:'FG 62262',desc:'Oatly Oat Milk Barista Edition 1.5L',soh:0,avail:0},
-  {code:'FG 62322',desc:'Oatly Oat Milk Barista Organic 1L',soh:0,avail:0}
+  {code:'FG 62322',desc:'Oatly Oat Milk Barista Organic 1L',soh:0,avail:0},
 ];
 
 const SALES_ORDERS_DATA = [
@@ -311,54 +311,53 @@ const SALES_ORDERS_DATA = [
   {sku:'FG 61737',desc:'Oatly Barista Edition 1L',so:'SOAGD2073',customer:'Bidfood',date:'23/04/2026',qty:70,fulfilled:0},
 ];
 
-// Open PO data by SKU (SuiteQL extract 23/04/2026, 89 open Oatly PO lines)
+// Open PO data by SKU (SuiteQL extract 23/04/2026)
 const OPEN_PO_BY_SKU = [
-  {code:'FG 61737',desc:'Oatly Barista Edition 1L',open_qty:217000,po_count:70,pending_receipt:12,pending_bill:58},
-  {code:'FG 61739',desc:'Oatly Organic 1L',open_qty:14171,po_count:5,pending_receipt:1,pending_bill:4},
-  {code:'FG 61740',desc:'Oatly Chocolate 1L',open_qty:7130,po_count:3,pending_receipt:0,pending_bill:2,partial:1},
-  {code:'FG 61909',desc:'Oatly Creamy Oat Organic 0.25L',open_qty:3186,po_count:1,pending_receipt:0,pending_bill:1},
-  {code:'FG 62060',desc:'Oatly Vanilla Flavour 1L',open_qty:4185,po_count:2,pending_receipt:0,pending_bill:2},
-  {code:'FG 62106',desc:'Oatly Low Sugar 1L',open_qty:6200,po_count:2,pending_receipt:1,pending_bill:1},
-  {code:'FG 62108',desc:'Oatly Full 2.8% Fat 1L',open_qty:11315,po_count:4,pending_receipt:1,pending_bill:3},
-  {code:'FG 62322',desc:'Oatly Barista Organic 1L',open_qty:5714,po_count:2,pending_receipt:0,pending_bill:2},
+  {code:'FG 61737',desc:'',open_qty:220100,po_count:71,pending_receipt:9,pending_bill:62},
+  {code:'FG 61739',desc:'',open_qty:14171,po_count:5,pending_receipt:1,pending_bill:4},
+  {code:'FG 61740',desc:'',open_qty:7130,po_count:3,pending_receipt:1,pending_bill:2,partial:1},
+  {code:'FG 61909',desc:'',open_qty:3186,po_count:1,pending_receipt:0,pending_bill:1},
+  {code:'FG 62060',desc:'',open_qty:4185,po_count:2,pending_receipt:0,pending_bill:2},
+  {code:'FG 62106',desc:'',open_qty:6200,po_count:2,pending_receipt:1,pending_bill:1},
+  {code:'FG 62108',desc:'',open_qty:11315,po_count:4,pending_receipt:1,pending_bill:3},
+  {code:'FG 62322',desc:'',open_qty:8814,po_count:3,pending_receipt:0,pending_bill:3},
 ];
 
 const AP_DATA = [
-  {inv:"Promo Support QE Sept 25",vendor:"OAT101 OATLY EMEA AB",bill_date:"30/09/2025",due_date:null,aud:-229059.26,auth:"Richard Carlick",memo:null},
-  {inv:"Oatly Promo Support QE Dec 25",vendor:"OAT101 OATLY EMEA AB",bill_date:"31/12/2025",due_date:null,aud:-162107.72,auth:"Richard Carlick",memo:null},
-  {inv:"Promo Support Jan 26",vendor:"OAT101 OATLY EMEA AB",bill_date:"28/02/2026",due_date:null,aud:-15581.51,auth:"Richard Carlick",memo:null},
-  {inv:"3010600067971",vendor:"OAT101 OATLY EMEA AB",bill_date:"16/03/2026",due_date:null,aud:38721.61,auth:"Richard Carlick",memo:"POAGD219"},
-  {inv:"3010600068116",vendor:"OAT101 OATLY EMEA AB",bill_date:"16/03/2026",due_date:null,aud:38721.61,auth:"Richard Carlick",memo:"POAGD229"},
-  {inv:"3010600068114",vendor:"OAT101 OATLY EMEA AB",bill_date:"16/03/2026",due_date:null,aud:39177.76,auth:"Richard Carlick",memo:"POAGD226"},
-  {inv:"3010600067977",vendor:"OAT101 OATLY EMEA AB",bill_date:"16/03/2026",due_date:null,aud:39177.76,auth:"Richard Carlick",memo:"POAGD223"},
-  {inv:"3010600067975",vendor:"OAT101 OATLY EMEA AB",bill_date:"16/03/2026",due_date:null,aud:39177.76,auth:"Richard Carlick",memo:"POAGD222"},
-  {inv:"3010600067974",vendor:"OAT101 OATLY EMEA AB",bill_date:"16/03/2026",due_date:null,aud:39177.76,auth:"Richard Carlick",memo:"POAGD216"},
-  {inv:"3010600069011",vendor:"OAT101 OATLY EMEA AB",bill_date:"18/03/2026",due_date:"05/02/2026",aud:31720.15,auth:"Richard Carlick",memo:"POAGD245"},
-  {inv:"3010600069006",vendor:"OAT101 OATLY EMEA AB",bill_date:"18/03/2026",due_date:"05/02/2026",aud:31720.15,auth:"Richard Carlick",memo:"POAGD243"},
-  {inv:"3010600069015",vendor:"OAT101 OATLY EMEA AB",bill_date:"18/03/2026",due_date:"05/02/2026",aud:33532.73,auth:"Richard Carlick",memo:"POAGD277"},
-  {inv:"3010600069008",vendor:"OAT101 OATLY EMEA AB",bill_date:"18/03/2026",due_date:"05/02/2026",aud:31720.15,auth:"Richard Carlick",memo:"POAGD244"},
-  {inv:"3010600068638",vendor:"OAT101 OATLY EMEA AB",bill_date:"19/03/2026",due_date:"05/03/2026",aud:31786.67,auth:"Richard Carlick",memo:"POAGD239"},
-  {inv:"3010600068641",vendor:"OAT101 OATLY EMEA AB",bill_date:"19/03/2026",due_date:"05/03/2026",aud:31786.67,auth:"Richard Carlick",memo:"POAGD241"},
-  {inv:"3010600068467",vendor:"OAT101 OATLY EMEA AB",bill_date:"19/03/2026",due_date:"05/03/2026",aud:54525.28,auth:"Richard Carlick",memo:"POAGD246"},
-  {inv:"3010600068643",vendor:"OAT101 OATLY EMEA AB",bill_date:"19/03/2026",due_date:"05/03/2026",aud:31786.67,auth:"Richard Carlick",memo:"POAGD242"},
-  {inv:"3010600068645",vendor:"OAT101 OATLY EMEA AB",bill_date:"19/03/2026",due_date:"05/03/2026",aud:33418.77,auth:"Richard Carlick",memo:"POAGD240"},
-  {inv:"3010600069340",vendor:"OAT101 OATLY EMEA AB",bill_date:"24/03/2026",due_date:"05/08/2026",aud:32338.62,auth:"Richard Carlick",memo:"POAGD247"},
-  {inv:"3010600069292",vendor:"OAT101 OATLY EMEA AB",bill_date:"24/03/2026",due_date:"05/08/2026",aud:32338.62,auth:"Richard Carlick",memo:"POAGD248"},
-  {inv:"3010600069277",vendor:"OAT101 OATLY EMEA AB",bill_date:"24/03/2026",due_date:"05/08/2026",aud:32338.62,auth:"Richard Carlick",memo:"POAGD249"},
-  {inv:"3010600069280",vendor:"OAT101 OATLY EMEA AB",bill_date:"24/03/2026",due_date:"05/08/2026",aud:32338.62,auth:"Richard Carlick",memo:"POAGD250"},
-  {inv:"3010600069538",vendor:"OAT101 OATLY EMEA AB",bill_date:"31/03/2026",due_date:null,aud:32665.96,auth:"Richard Carlick",memo:"w/c 06.04.26"},
-  {inv:"3010600069680",vendor:"OAT101 OATLY EMEA AB",bill_date:"31/03/2026",due_date:null,aud:33964.47,auth:"Richard Carlick",memo:"POAGD275"},
-  {inv:"3010600069540",vendor:"OAT101 OATLY EMEA AB",bill_date:"01/04/2026",due_date:null,aud:32722.77,auth:"Richard Carlick",memo:"POAGD252"},
-  {inv:"3010600069541",vendor:"OAT101 OATLY EMEA AB",bill_date:"01/04/2026",due_date:null,aud:32722.77,auth:"Richard Carlick",memo:"POAGD253"},
-  {inv:"3010600069823",vendor:"OAT101 OATLY EMEA AB",bill_date:"09/04/2026",due_date:"24/05/2026",aud:32048.05,auth:"Richard Carlick",memo:null},
-  {inv:"3010600069834",vendor:"OAT101 OATLY EMEA AB",bill_date:"09/04/2026",due_date:"24/05/2026",aud:32356.20,auth:"Richard Carlick",memo:null},
-  {inv:"3010600069832",vendor:"OAT101 OATLY EMEA AB",bill_date:"10/04/2026",due_date:"25/05/2026",aud:32279.48,auth:"Richard Carlick",memo:null},
-  {inv:"3010600069819",vendor:"OAT101 OATLY EMEA AB",bill_date:"10/04/2026",due_date:"25/05/2026",aud:32279.48,auth:"Richard Carlick",memo:null},
+  {inv:"Promo Support QE Sept 25",vendor:"OAT101 OATLY EMEA AB",bill_date:"30/09/2025",due_date:null,aud:-229059.26,auth:"",memo:null},
+  {inv:"Oatly Promo Support QE Dec 25",vendor:"OAT101 OATLY EMEA AB",bill_date:"31/12/2025",due_date:null,aud:-162107.72,auth:"",memo:null},
+  {inv:"Promo Support Jan 26",vendor:"OAT101 OATLY EMEA AB",bill_date:"28/02/2026",due_date:null,aud:-15581.51,auth:"",memo:null},
+  {inv:"3010600067971",vendor:"OAT101 OATLY EMEA AB",bill_date:"16/03/2026",due_date:null,aud:38721.61,auth:"",memo:null},
+  {inv:"3010600068116",vendor:"OAT101 OATLY EMEA AB",bill_date:"16/03/2026",due_date:null,aud:38721.61,auth:"",memo:null},
+  {inv:"3010600068114",vendor:"OAT101 OATLY EMEA AB",bill_date:"16/03/2026",due_date:null,aud:39177.76,auth:"",memo:null},
+  {inv:"3010600067977",vendor:"OAT101 OATLY EMEA AB",bill_date:"16/03/2026",due_date:null,aud:39177.76,auth:"",memo:null},
+  {inv:"3010600067975",vendor:"OAT101 OATLY EMEA AB",bill_date:"16/03/2026",due_date:null,aud:39177.76,auth:"",memo:null},
+  {inv:"3010600067974",vendor:"OAT101 OATLY EMEA AB",bill_date:"16/03/2026",due_date:null,aud:39177.76,auth:"",memo:null},
+  {inv:"3010600069011",vendor:"OAT101 OATLY EMEA AB",bill_date:"18/03/2026",due_date:"05/02/2026",aud:31720.15,auth:"",memo:null},
+  {inv:"3010600069006",vendor:"OAT101 OATLY EMEA AB",bill_date:"18/03/2026",due_date:"05/02/2026",aud:31720.15,auth:"",memo:null},
+  {inv:"3010600069015",vendor:"OAT101 OATLY EMEA AB",bill_date:"18/03/2026",due_date:"05/02/2026",aud:33532.73,auth:"",memo:null},
+  {inv:"3010600069008",vendor:"OAT101 OATLY EMEA AB",bill_date:"18/03/2026",due_date:"05/02/2026",aud:31720.15,auth:"",memo:null},
+  {inv:"3010600068638",vendor:"OAT101 OATLY EMEA AB",bill_date:"19/03/2026",due_date:"05/03/2026",aud:31786.67,auth:"",memo:null},
+  {inv:"3010600068641",vendor:"OAT101 OATLY EMEA AB",bill_date:"19/03/2026",due_date:"05/03/2026",aud:31786.67,auth:"",memo:null},
+  {inv:"3010600068467",vendor:"OAT101 OATLY EMEA AB",bill_date:"19/03/2026",due_date:"05/03/2026",aud:54525.28,auth:"",memo:null},
+  {inv:"3010600068643",vendor:"OAT101 OATLY EMEA AB",bill_date:"19/03/2026",due_date:"05/03/2026",aud:31786.67,auth:"",memo:null},
+  {inv:"3010600068645",vendor:"OAT101 OATLY EMEA AB",bill_date:"19/03/2026",due_date:"05/03/2026",aud:33418.77,auth:"",memo:null},
+  {inv:"3010600069340",vendor:"OAT101 OATLY EMEA AB",bill_date:"24/03/2026",due_date:"05/08/2026",aud:32338.62,auth:"",memo:null},
+  {inv:"3010600069292",vendor:"OAT101 OATLY EMEA AB",bill_date:"24/03/2026",due_date:"05/08/2026",aud:32338.62,auth:"",memo:null},
+  {inv:"3010600069277",vendor:"OAT101 OATLY EMEA AB",bill_date:"24/03/2026",due_date:"05/08/2026",aud:32338.62,auth:"",memo:null},
+  {inv:"3010600069280",vendor:"OAT101 OATLY EMEA AB",bill_date:"24/03/2026",due_date:"05/08/2026",aud:32338.62,auth:"",memo:null},
+  {inv:"3010600069538",vendor:"OAT101 OATLY EMEA AB",bill_date:"31/03/2026",due_date:null,aud:32665.96,auth:"",memo:null},
+  {inv:"3010600069680",vendor:"OAT101 OATLY EMEA AB",bill_date:"31/03/2026",due_date:null,aud:33964.47,auth:"",memo:null},
+  {inv:"3010600069540",vendor:"OAT101 OATLY EMEA AB",bill_date:"01/04/2026",due_date:null,aud:32722.77,auth:"",memo:null},
+  {inv:"3010600069541",vendor:"OAT101 OATLY EMEA AB",bill_date:"01/04/2026",due_date:null,aud:32722.77,auth:"",memo:null},
+  {inv:"3010600069823",vendor:"OAT101 OATLY EMEA AB",bill_date:"09/04/2026",due_date:"24/05/2026",aud:32048.05,auth:"",memo:null},
+  {inv:"3010600069834",vendor:"OAT101 OATLY EMEA AB",bill_date:"09/04/2026",due_date:"24/05/2026",aud:32356.2,auth:"",memo:null},
+  {inv:"3010600069832",vendor:"OAT101 OATLY EMEA AB",bill_date:"10/04/2026",due_date:"25/05/2026",aud:32279.48,auth:"",memo:null},
+  {inv:"3010600069819",vendor:"OAT101 OATLY EMEA AB",bill_date:"10/04/2026",due_date:"25/05/2026",aud:32279.48,auth:"",memo:null},
 ];
 
 // Individual PO lines with dates for overdue tracking
 const PO_LINES = [
-  // Dec 2025 batch
   {po:'POAGD257',sku:'FG 61737',date:'17/12/2025',status:'F',qty:3100},
   {po:'POAGD258',sku:'FG 61737',date:'17/12/2025',status:'F',qty:3100},
   {po:'POAGD259',sku:'FG 61737',date:'17/12/2025',status:'F',qty:3100},
@@ -375,12 +374,11 @@ const PO_LINES = [
   {po:'POAGD270',sku:'FG 61739',date:'17/12/2025',status:'F',qty:3100},
   {po:'POAGD271',sku:'FG 61739',date:'17/12/2025',status:'B',qty:2133},
   {po:'POAGD271',sku:'FG 61740',date:'17/12/2025',status:'B',qty:930},
-  {po:'POAGD272',sku:'FG 61740',date:'17/12/2025',status:'E',qty:3100},  // partially received, not pending
+  {po:'POAGD272',sku:'FG 61740',date:'17/12/2025',status:'E',qty:3100},
   {po:'POAGD273',sku:'FG 61740',date:'17/12/2025',status:'B',qty:3100},
   {po:'POAGD276',sku:'FG 62106',date:'17/12/2025',status:'F',qty:3100},
   {po:'POAGD278',sku:'FG 62108',date:'17/12/2025',status:'F',qty:3100},
   {po:'POAGD279',sku:'FG 62322',date:'17/12/2025',status:'B',qty:2614},
-  // Jan 2026 batch
   {po:'POAGD282',sku:'FG 61737',date:'15/01/2026',status:'B',qty:3100},
   {po:'POAGD283',sku:'FG 61737',date:'15/01/2026',status:'B',qty:3100},
   {po:'POAGD284',sku:'FG 61737',date:'15/01/2026',status:'B',qty:3100},
@@ -400,7 +398,6 @@ const PO_LINES = [
   {po:'POAGD298',sku:'FG 62060',date:'15/01/2026',status:'B',qty:3100},
   {po:'POAGD299',sku:'FG 62106',date:'15/01/2026',status:'B',qty:3100},
   {po:'POAGD300',sku:'FG 62108',date:'15/01/2026',status:'B',qty:3100},
-  // Feb 2026 batch
   {po:'POAGD303',sku:'FG 61909',date:'05/02/2026',status:'B',qty:3186},
   {po:'POAGD305',sku:'FG 61737',date:'16/02/2026',status:'B',qty:3100},
   {po:'POAGD306',sku:'FG 61737',date:'16/02/2026',status:'B',qty:3100},
@@ -423,7 +420,6 @@ const PO_LINES = [
   {po:'POAGD322',sku:'FG 62108',date:'16/02/2026',status:'B',qty:3100},
   {po:'POAGD323',sku:'FG 61737',date:'16/02/2026',status:'B',qty:3100},
   {po:'POAGD324',sku:'FG 61737',date:'16/02/2026',status:'B',qty:3100},
-  // Mar 2026 batch (< 60 days, not overdue yet)
   {po:'POAGD328',sku:'FG 61737',date:'25/03/2026',status:'B',qty:3100},
   {po:'POAGD329',sku:'FG 61737',date:'25/03/2026',status:'B',qty:3100},
   {po:'POAGD330',sku:'FG 61737',date:'25/03/2026',status:'B',qty:3100},
