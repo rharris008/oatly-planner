@@ -154,7 +154,7 @@
 
 <!-- FORECAST TAB (Demand / Forecast) — default landing tab -->
 <div id="tab-forecast" class="tab-pane active">
-  <div class="ns-banner" style="background:#fef3e2;border-left-color:var(--amber)">No open sales orders in NetSuite for AGD (Report 757, checked 23/04/2026). Forecast data from retailer uploads. Stock and PO data from NetSuite extract 22/04/2026.</div>
+  <div class="ns-banner" style="background:#e8f4fd;border-left-color:var(--blue)">Sales orders: NetSuite Report 246, 23/04/2026 (351 units pending fulfilment). PO quantities by SKU: not available from standard reports (Report 277 gives $ only, custom reports access-denied). Need access to Report 567 or 665 for per-SKU PO quantities. Forecast data from retailer uploads. Stock data from NetSuite extract 22/04/2026.</div>
   <div class="section-header" style="margin-top:8px">Planning Position by SKU</div>
   <div class="front-cards-grid" id="front-cards">
     <div class="loader"><span class="spinner"></span>Loading planning data...</div>
@@ -220,6 +220,9 @@
 <div id="tab-po" class="tab-pane">
   <div class="ns-banner">NetSuite extract: 23/04/2026 | Open Purchase Orders (Report 277) | AGD subsidiary | 93 open POs | Total AUD 3,934,477</div>
   <div class="summary-row" id="po-summary-tiles"></div>
+  <div style="background:#e8f4fd;border-left:4px solid var(--blue);padding:10px 24px;font-size:9pt;color:#1B2A4A;margin:0;font-weight:bold">
+    This tab shows PO values in AUD. Per-SKU unit quantities are not available from the accessible NetSuite reports. Request access to Custom Open Purchase Orders - AGD (Report 567) for SKU-level quantity breakdowns.
+  </div>
   <div style="background:#fef3e2;border-left:4px solid var(--amber);padding:8px 24px;font-size:8.5pt;color:#1B2A4A;margin:0">
     Expected receipt/arrival dates are not available in this NetSuite report. Sharon or the vendor can confirm expected container arrival dates per PO.
   </div>
@@ -302,6 +305,17 @@ const STOCK_DATA = [
   {code:'FG 62262',desc:'Oatly Oat Milk Barista Edition 1.5L',soh:0,avail:0},
   {code:'FG 62322',desc:'Oatly Oat Milk Barista Organic 1L',soh:0,avail:0}
 ];
+
+const SALES_ORDERS_DATA = [
+  {sku:'FG 61737',desc:'Oatly Barista Edition 1L',so:'SOAGD1965',customer:'Bidfood',date:'21/04/2026',qty:280,fulfilled:0},
+  {sku:'FG 61737',desc:'Oatly Barista Edition 1L',so:'SOAGD2073',customer:'Bidfood',date:'23/04/2026',qty:70,fulfilled:0},
+  {sku:'FG PerfectTed VML Promo Pack',desc:'PerfectTed VML Promo Pack',so:'SOAGD1998',customer:'PerfectTed',date:'20/04/2026',qty:1,fulfilled:0},
+];
+
+// Helper: get total pending fulfilment qty for a given SKU code from SALES_ORDERS_DATA
+function getSalesOrderQty(skuCode) {
+  return SALES_ORDERS_DATA.filter(s => s.sku === skuCode).reduce((sum, s) => sum + (s.qty - s.fulfilled), 0);
+}
 
 const PO_DATA_RAW = [
   {po:"POAGD257",vendor:"OATLY EMEA AB",date:"17/12/2025",status:"Pending Bill",aud:34587.48},
@@ -549,7 +563,7 @@ function renderSummary(skus,fc,ord){
   document.getElementById('summary-tiles').innerHTML=`
     <div class="tile blue"><div class="tile-label">Active SKUs (with stock)</div><div class="tile-value">${sohSkus}</div><div class="tile-sub">${sohSkus} of ${STOCK_DATA.length} SKUs have stock</div></div>
     <div class="tile"><div class="tile-label">Retailer Forecast</div><div class="tile-value">${fmtNum(tFc)}</div><div class="tile-sub">${weeks} weeks, cases</div></div>
-    <div class="tile"><div class="tile-label">Actual Sales Orders</div><div class="tile-value">${tOrd>0?fmtNum(tOrd):'0'}</div><div class="tile-sub">${tOrd>0?'cases on open customer sales orders (NetSuite)':'No open SOs in NetSuite (Report 757, 23/04/2026)'}</div></div>
+    <div class="tile"><div class="tile-label">Actual Sales Orders</div><div class="tile-value">${tOrd>0?fmtNum(tOrd):'0'}</div><div class="tile-sub">${tOrd>0?'cases on open customer sales orders (NetSuite)':'No planned orders in Supabase for this period'}</div></div>
     <div class="tile ${tOrd>0?cc:''}"><div class="tile-label">Coverage</div><div class="tile-value">${tOrd>0?coverageVal:'0%'}</div><div class="tile-sub">${tOrd>0?coverageSub:'No open sales orders found for AGD'}</div></div>
     <div class="tile blue tile-link" onclick="document.querySelectorAll('.tab-btn')[1].click()"><div class="tile-label">Stock on Hand</div><div class="tile-value" style="${totalSoh===0?'font-size:11pt;color:#999':''}">${sohLabel}</div><div class="tile-sub">${sohSub}</div></div>`;
 }
@@ -814,11 +828,11 @@ function renderSkuCards(){
   const totalPOValue=PO_DATA_RAW.reduce((s,p)=>s+p.aud,0);
   const cards=STOCK_DATA.map(s=>{
     const fcQty=_fc.filter(f=>f.sku_code===s.code).reduce((ss,f)=>ss+(f.forecast_qty||0),0);
-    // No open sales orders in NetSuite for AGD (Report 757, checked 23/04/2026)
-    const ordersQty=0;
-    const ordersDisplay='0';
-    // Net = Stock - Forecast (PO data is at PO level, not per-SKU, so excluded from net calc)
-    const net=s.soh-fcQty;
+    // Sales orders from NetSuite Report 246 (23/04/2026)
+    const ordersQty=getSalesOrderQty(s.code);
+    const ordersDisplay=fmtNum(ordersQty);
+    // Net = Stock - Sales Orders - Forecast (PO units not available by SKU, excluded)
+    const net=s.soh-ordersQty-fcQty;
     // Colour: green positive, red negative, amber if tight (within 10% of forecast or zero stock)
     let cls='fp-green';
     if(net<0) cls='fp-red';
@@ -836,12 +850,12 @@ function renderSkuCards(){
       </div>
       <div class="fp-card-body">
         <div class="fp-metric-row"><span class="fp-metric-label">Stock on Hand</span><span class="fp-metric-value${s.soh===0?' fp-neg':''}">${s.soh>0?fmtNum(s.soh):'0'}</span></div>
-        <div class="fp-metric-row"><span class="fp-metric-label">Actual Sales Orders</span><span class="fp-metric-value">${ordersDisplay}</span></div>
+        <div class="fp-metric-row"><span class="fp-metric-label">Actual Sales Orders</span><span class="fp-metric-value${ordersQty>0?' fp-neg':''}">${ordersDisplay}</span></div>
         <div class="fp-metric-row"><span class="fp-metric-label">Forecast Demand (13 wk)</span><span class="fp-metric-value">${fcQty>0?fmtNum(fcQty):'--'}</span></div>
         <div class="fp-metric-row"><span class="fp-metric-label">Open POs (inbound)</span><span class="fp-metric-value fp-pending" style="cursor:pointer" onclick="document.querySelectorAll('.tab-btn')[2].click()">See PO tab (AUD ${fmtNum(Math.round(totalPOValue))} total)</span></div>
       </div>
       <div class="fp-net-row">
-        <span class="fp-net-label">Net Position (excl. POs)</span>
+        <span class="fp-net-label">Net Position (Stock - SOs - Forecast, excl. POs)</span>
         <span class="fp-net-val ${netCls}">${fmtSigned(net)}</span>
       </div>
     </div>`;
