@@ -154,7 +154,7 @@
 
 <!-- FORECAST TAB (Demand / Forecast) — default landing tab -->
 <div id="tab-forecast" class="tab-pane active">
-  <div class="ns-banner" style="background:#fef3e2;border-left-color:var(--amber)">Sales orders and forecast data: pending NetSuite MCP re-authorisation and retailer forecast upload. Stock and PO data from NetSuite extract 22/04/2026.</div>
+  <div class="ns-banner" style="background:#fef3e2;border-left-color:var(--amber)">No open sales orders in NetSuite for AGD (Report 757, checked 23/04/2026). Forecast data from retailer uploads. Stock and PO data from NetSuite extract 22/04/2026.</div>
   <div class="section-header" style="margin-top:8px">Planning Position by SKU</div>
   <div class="front-cards-grid" id="front-cards">
     <div class="loader"><span class="spinner"></span>Loading planning data...</div>
@@ -256,20 +256,21 @@
 
 <!-- CREDITORS TAB -->
 <div id="tab-creditors" class="tab-pane">
-  <div class="warn-banner"><strong>Creditors data extracted 22/04/2026. May not match current NetSuite AGD creditors. Will be refreshed on next NetSuite sync.</strong></div>
-  <div class="ns-banner">NetSuite extract: 22/04/2026 | Outstanding bills payable to OATLY EMEA AB (vendor OAT101) | Exchange rates as recorded on each invoice in NetSuite</div>
+  <div class="ns-banner">NetSuite extract: 23/04/2026 | AGD Open Bills (Report 557) | Total: AUD 885,033 | 54 open bills</div>
   <div class="ap-filter-bar">
     <label>Show:</label>
     <select id="ap-filter" onchange="renderAP()">
-      <option value="all">All invoices</option>
+      <option value="all">All bills</option>
       <option value="overdue">Overdue only</option>
       <option value="current">Current only</option>
+      <option value="credits">Promo credits only</option>
+    </select>
+    <label style="margin-left:16px">Vendor:</label>
+    <select id="ap-vendor-filter" onchange="renderAP()">
+      <option value="all">All vendors</option>
     </select>
   </div>
-  <div class="summary-row">
-    <div class="tile red"><div class="tile-label">Overdue</div><div class="tile-value" id="ap-overdue-val">86 invoices</div><div class="tile-sub" id="ap-overdue-sub">EUR 2,123,077</div></div>
-    <div class="tile green"><div class="tile-label">Current</div><div class="tile-value" id="ap-current-val">27 invoices</div><div class="tile-sub" id="ap-current-sub">EUR 570,030</div></div>
-    <div class="tile amber"><div class="tile-label">Total Outstanding</div><div class="tile-value" id="ap-total-val">113 invoices</div><div class="tile-sub" id="ap-total-sub">EUR 2,693,107</div></div>
+  <div class="summary-row" id="ap-summary-tiles">
   </div>
   <div class="data-section">
     <div class="data-table-wrap">
@@ -277,12 +278,12 @@
         <thead>
           <tr>
             <th>Invoice No.</th>
-            <th>Invoice Date</th>
+            <th>Vendor</th>
+            <th>Bill Date</th>
             <th>Due Date</th>
-            <th>Status</th>
-            <th class="num">Amount (EUR)</th>
-            <th class="num">Exchange Rate</th>
             <th class="num">Amount (AUD)</th>
+            <th>Authoriser</th>
+            <th>Memo / PO Ref</th>
           </tr>
         </thead>
         <tbody id="ap-tbody"></tbody>
@@ -329,7 +330,62 @@ const PO_DATA = [
   {code:'FG 61561',desc:'Oatly Oat Cream 1L',po_count:1,total_qty:120}
 ];
 
-const AP_DATA = [{"inv":"3010600057583","inv_date":"17/03/2025","due_date":"01/05/2025","overdue":true,"status_label":"Overdue 356d","days":356,"eur":25048,"aud":43101.67,"rate":1.720763},{"inv":"3010600057577","inv_date":"17/03/2025","due_date":"01/05/2025","overdue":true,"status_label":"Overdue 356d","days":356,"eur":25048,"aud":43101.67,"rate":1.720763},{"inv":"3010600057576","inv_date":"17/03/2025","due_date":"01/05/2025","overdue":true,"status_label":"Overdue 356d","days":356,"eur":25048,"aud":43101.67,"rate":1.720763},{"inv":"3010600057575","inv_date":"17/03/2025","due_date":"01/05/2025","overdue":true,"status_label":"Overdue 356d","days":356,"eur":25048,"aud":43101.67,"rate":1.720763},{"inv":"3010600057581","inv_date":"17/03/2025","due_date":"01/05/2025","overdue":true,"status_label":"Overdue 356d","days":356,"eur":25048,"aud":43101.67,"rate":1.720763},{"inv":"3010600057579","inv_date":"17/03/2025","due_date":"01/05/2025","overdue":true,"status_label":"Overdue 356d","days":356,"eur":25048,"aud":43101.67,"rate":1.720763},{"inv":"3010600062046","inv_date":"18/07/2025","due_date":"01/09/2025","overdue":true,"status_label":"Overdue 233d","days":233,"eur":23963,"aud":42792.19,"rate":1.785761},{"inv":"3010600069008","inv_date":"18/03/2026","due_date":"02/05/2026","overdue":false,"status_label":"Due in 10d","days":10,"eur":19530,"aud":31720.15,"rate":1.6241755},{"inv":"3010600069006","inv_date":"18/03/2026","due_date":"02/05/2026","overdue":false,"status_label":"Due in 10d","days":10,"eur":19530,"aud":31720.15,"rate":1.6241755},{"inv":"3010600069015","inv_date":"18/03/2026","due_date":"02/05/2026","overdue":false,"status_label":"Due in 10d","days":10,"eur":20646,"aud":33532.73,"rate":1.6241755},{"inv":"3010600069011","inv_date":"18/03/2026","due_date":"02/05/2026","overdue":false,"status_label":"Due in 10d","days":10,"eur":19530,"aud":31720.15,"rate":1.6241755},{"inv":"3010600059399","inv_date":"18/06/2025","due_date":"02/08/2025","overdue":true,"status_label":"Overdue 263d","days":263,"eur":23378.4,"aud":41470.56,"rate":1.7738835},{"inv":"3010600059225","inv_date":"18/06/2025","due_date":"02/08/2025","overdue":true,"status_label":"Overdue 263d","days":263,"eur":22258,"aud":39483.1,"rate":1.7738835},{"inv":"3010600059398","inv_date":"18/06/2025","due_date":"02/08/2025","overdue":true,"status_label":"Overdue 263d","days":263,"eur":20965.6,"aud":37190.53,"rate":1.7738835},{"inv":"3010600057496","inv_date":"19/03/2025","due_date":"03/05/2025","overdue":true,"status_label":"Overdue 354d","days":354,"eur":25048,"aud":43096.2,"rate":1.7205445},{"inv":"3010600057497","inv_date":"19/03/2025","due_date":"03/05/2025","overdue":true,"status_label":"Overdue 354d","days":354,"eur":25048,"aud":43096.2,"rate":1.7205445},{"inv":"3010600057492","inv_date":"19/03/2025","due_date":"03/05/2025","overdue":true,"status_label":"Overdue 354d","days":354,"eur":25048,"aud":43096.2,"rate":1.7205445},{"inv":"3010600057489","inv_date":"19/03/2025","due_date":"03/05/2025","overdue":true,"status_label":"Overdue 354d","days":354,"eur":25048,"aud":43096.2,"rate":1.7205445},{"inv":"3010600068638","inv_date":"19/03/2026","due_date":"03/05/2026","overdue":false,"status_label":"Due in 11d","days":11,"eur":19530,"aud":31786.67,"rate":1.6275815},{"inv":"3010600068643","inv_date":"19/03/2026","due_date":"03/05/2026","overdue":false,"status_label":"Due in 11d","days":11,"eur":19530,"aud":31786.67,"rate":1.6275815},{"inv":"3010600068641","inv_date":"19/03/2026","due_date":"03/05/2026","overdue":false,"status_label":"Due in 11d","days":11,"eur":19530,"aud":31786.67,"rate":1.6275815},{"inv":"3010600068467","inv_date":"19/03/2026","due_date":"03/05/2026","overdue":false,"status_label":"Due in 11d","days":11,"eur":33500.8,"aud":54525.28,"rate":1.6275815},{"inv":"3010600068645","inv_date":"19/03/2026","due_date":"03/05/2026","overdue":false,"status_label":"Due in 11d","days":11,"eur":20532.78,"aud":33418.77,"rate":1.6275815},{"inv":"3010600059227","inv_date":"19/06/2025","due_date":"03/08/2025","overdue":true,"status_label":"Overdue 262d","days":262,"eur":23963,"aud":42301.44,"rate":1.7652815},{"inv":"3010600060318","inv_date":"22/07/2025","due_date":"05/09/2025","overdue":true,"status_label":"Overdue 229d","days":229,"eur":23684,"aud":42432.03,"rate":1.7915905},{"inv":"3010600060316","inv_date":"23/07/2025","due_date":"06/09/2025","overdue":true,"status_label":"Overdue 228d","days":228,"eur":23963,"aud":42976.42,"rate":1.793449},{"inv":"3010600060315","inv_date":"23/07/2025","due_date":"06/09/2025","overdue":true,"status_label":"Overdue 228d","days":228,"eur":23963,"aud":42976.42,"rate":1.793449},{"inv":"3010600057619","inv_date":"23/04/2025","due_date":"07/06/2025","overdue":true,"status_label":"Overdue 319d","days":319,"eur":22805.4,"aud":40876.83,"rate":1.792419},{"inv":"3010600057623","inv_date":"23/04/2025","due_date":"07/06/2025","overdue":true,"status_label":"Overdue 319d","days":319,"eur":22767.2,"aud":40808.36,"rate":1.792419},{"inv":"3010600069292","inv_date":"24/03/2026","due_date":"08/05/2026","overdue":false,"status_label":"Due in 16d","days":16,"eur":19530,"aud":32338.62,"rate":1.6558435},{"inv":"3010600069340","inv_date":"24/03/2026","due_date":"08/05/2026","overdue":false,"status_label":"Due in 16d","days":16,"eur":19530,"aud":32338.62,"rate":1.6558435},{"inv":"3010600069277","inv_date":"24/03/2026","due_date":"08/05/2026","overdue":false,"status_label":"Due in 16d","days":16,"eur":19530,"aud":32338.62,"rate":1.6558435},{"inv":"3010600069280","inv_date":"24/03/2026","due_date":"08/05/2026","overdue":false,"status_label":"Due in 16d","days":16,"eur":19530,"aud":32338.62,"rate":1.6558435},{"inv":"3010600057452","inv_date":"24/04/2025","due_date":"08/06/2025","overdue":true,"status_label":"Overdue 318d","days":318,"eur":23963,"aud":42639.26,"rate":1.779379},{"inv":"3010600057454","inv_date":"24/04/2025","due_date":"08/06/2025","overdue":true,"status_label":"Overdue 318d","days":318,"eur":23963,"aud":42639.26,"rate":1.779379},{"inv":"3010600057437","inv_date":"24/04/2025","due_date":"08/06/2025","overdue":true,"status_label":"Overdue 318d","days":318,"eur":23963,"aud":42639.26,"rate":1.779379},{"inv":"3010600057449","inv_date":"24/04/2025","due_date":"08/06/2025","overdue":true,"status_label":"Overdue 318d","days":318,"eur":23963,"aud":42639.26,"rate":1.779379},{"inv":"3010600057444","inv_date":"24/04/2025","due_date":"08/06/2025","overdue":true,"status_label":"Overdue 318d","days":318,"eur":23963,"aud":42639.26,"rate":1.779379},{"inv":"3010600058299","inv_date":"27/05/2025","due_date":"11/07/2025","overdue":true,"status_label":"Overdue 285d","days":285,"eur":23684,"aud":41577.65,"rate":1.7555165},{"inv":"3010600058432","inv_date":"28/05/2025","due_date":"12/07/2025","overdue":true,"status_label":"Overdue 284d","days":284,"eur":31230.68,"aud":54926.76,"rate":1.7587435},{"inv":"3010600058570","inv_date":"28/05/2025","due_date":"12/07/2025","overdue":true,"status_label":"Overdue 284d","days":284,"eur":23684,"aud":41654.08,"rate":1.7587435},{"inv":"3010600058297","inv_date":"28/05/2025","due_date":"12/07/2025","overdue":true,"status_label":"Overdue 284d","days":284,"eur":23684,"aud":41654.08,"rate":1.7587435},{"inv":"3010600059998","inv_date":"29/07/2025","due_date":"12/09/2025","overdue":true,"status_label":"Overdue 222d","days":222,"eur":23963,"aud":42638.32,"rate":1.77934},{"inv":"3010600060552","inv_date":"30/07/2025","due_date":"13/09/2025","overdue":true,"status_label":"Overdue 221d","days":221,"eur":23963,"aud":42477.28,"rate":1.7726195},{"inv":"3010600060555","inv_date":"30/07/2025","due_date":"13/09/2025","overdue":true,"status_label":"Overdue 221d","days":221,"eur":23684,"aud":41982.72,"rate":1.7726195},{"inv":"3010600060564","inv_date":"30/07/2025","due_date":"13/09/2025","overdue":true,"status_label":"Overdue 221d","days":221,"eur":23963,"aud":42477.28,"rate":1.7726195},{"inv":"3010600060553","inv_date":"31/07/2025","due_date":"14/09/2025","overdue":true,"status_label":"Overdue 220d","days":220,"eur":22258,"aud":39539.4,"rate":1.776413},{"inv":"3010600060562","inv_date":"31/07/2025","due_date":"14/09/2025","overdue":true,"status_label":"Overdue 220d","days":220,"eur":23963,"aud":42568.18,"rate":1.776413},{"inv":"3010600060560","inv_date":"31/07/2025","due_date":"14/09/2025","overdue":true,"status_label":"Overdue 220d","days":220,"eur":23963,"aud":42568.18,"rate":1.776413},{"inv":"3010600060548","inv_date":"31/07/2025","due_date":"14/09/2025","overdue":true,"status_label":"Overdue 220d","days":220,"eur":23963,"aud":42568.18,"rate":1.776413},{"inv":"3010600060550","inv_date":"31/07/2025","due_date":"14/09/2025","overdue":true,"status_label":"Overdue 220d","days":220,"eur":23963,"aud":42568.18,"rate":1.776413},{"inv":"3010600056800","inv_date":"31/03/2025","due_date":"15/05/2025","overdue":true,"status_label":"Overdue 342d","days":342,"eur":23504.72,"aud":40458.62,"rate":1.7212975},{"inv":"3010600069680","inv_date":"31/03/2026","due_date":"15/05/2026","overdue":false,"status_label":"Due in 23d","days":23,"eur":20306.34,"aud":33964.47,"rate":1.672604},{"inv":"3010600069538","inv_date":"31/03/2026","due_date":"15/05/2026","overdue":false,"status_label":"Due in 23d","days":23,"eur":19530,"aud":32665.96,"rate":1.672604},{"inv":"3010600069540","inv_date":"01/04/2026","due_date":"16/05/2026","overdue":false,"status_label":"Due in 24d","days":24,"eur":19530,"aud":32722.77,"rate":1.675513},{"inv":"3010600069541","inv_date":"01/04/2026","due_date":"16/05/2026","overdue":false,"status_label":"Due in 24d","days":24,"eur":19530,"aud":32722.77,"rate":1.675513},{"inv":"3010600058810","inv_date":"02/06/2025","due_date":"17/07/2025","overdue":true,"status_label":"Overdue 279d","days":279,"eur":23963,"aud":42288.7,"rate":1.76475},{"inv":"2010600000289","inv_date":"19/05/2025","due_date":"17/08/2025","overdue":true,"status_label":"Overdue 248d","days":248,"eur":24886.4,"aud":43344.58,"rate":1.7416975},{"inv":"3010600059632","inv_date":"03/07/2025","due_date":"17/08/2025","overdue":true,"status_label":"Overdue 248d","days":248,"eur":23963,"aud":42954.04,"rate":1.792515},{"inv":"3010600059626","inv_date":"03/07/2025","due_date":"17/08/2025","overdue":true,"status_label":"Overdue 248d","days":248,"eur":23684,"aud":42453.93,"rate":1.792515},{"inv":"3010600059634","inv_date":"03/07/2025","due_date":"17/08/2025","overdue":true,"status_label":"Overdue 248d","days":248,"eur":23963,"aud":42954.04,"rate":1.792515},{"inv":"3010600059621","inv_date":"03/07/2025","due_date":"17/08/2025","overdue":true,"status_label":"Overdue 248d","days":248,"eur":23963,"aud":42954.04,"rate":1.792515},{"inv":"3010600058984","inv_date":"03/07/2025","due_date":"17/08/2025","overdue":true,"status_label":"Overdue 248d","days":248,"eur":28150.76,"aud":50460.66,"rate":1.792515},{"inv":"3010600059627","inv_date":"03/07/2025","due_date":"17/08/2025","overdue":true,"status_label":"Overdue 248d","days":248,"eur":23963,"aud":42954.04,"rate":1.792515},{"inv":"3010600058986","inv_date":"03/07/2025","due_date":"17/08/2025","overdue":true,"status_label":"Overdue 248d","days":248,"eur":20922.52,"aud":37503.93,"rate":1.792515},{"inv":"3010600058814","inv_date":"03/06/2025","due_date":"18/07/2025","overdue":true,"status_label":"Overdue 278d","days":278,"eur":23963,"aud":42229.46,"rate":1.7622775},{"inv":"3010600058804","inv_date":"03/06/2025","due_date":"18/07/2025","overdue":true,"status_label":"Overdue 278d","days":278,"eur":23963,"aud":42229.46,"rate":1.7622775},{"inv":"3010600058813","inv_date":"03/06/2025","due_date":"18/07/2025","overdue":true,"status_label":"Overdue 278d","days":278,"eur":23963,"aud":42229.46,"rate":1.7622775},{"inv":"3010600058806","inv_date":"03/06/2025","due_date":"18/07/2025","overdue":true,"status_label":"Overdue 278d","days":278,"eur":23963,"aud":42229.46,"rate":1.7622775},{"inv":"3010600058801","inv_date":"04/06/2025","due_date":"19/07/2025","overdue":true,"status_label":"Overdue 277d","days":277,"eur":21860.44,"aud":38443.22,"rate":1.758575},{"inv":"3010600058815","inv_date":"04/06/2025","due_date":"19/07/2025","overdue":true,"status_label":"Overdue 277d","days":277,"eur":23963,"aud":42140.73,"rate":1.758575},{"inv":"3010600057852","inv_date":"06/05/2025","due_date":"20/06/2025","overdue":true,"status_label":"Overdue 306d","days":306,"eur":71817.45,"aud":125626.85,"rate":1.7492525},{"inv":"3010600057849","inv_date":"06/05/2025","due_date":"20/06/2025","overdue":true,"status_label":"Overdue 306d","days":306,"eur":28356.24,"aud":49602.22,"rate":1.7492525},{"inv":"3010600057850","inv_date":"06/05/2025","due_date":"20/06/2025","overdue":true,"status_label":"Overdue 306d","days":306,"eur":21568.72,"aud":37729.14,"rate":1.7492525},{"inv":"3010600057688","inv_date":"08/05/2025","due_date":"22/06/2025","overdue":true,"status_label":"Overdue 304d","days":304,"eur":23963,"aud":42094.26,"rate":1.7566355},{"inv":"3010600057693","inv_date":"08/05/2025","due_date":"22/06/2025","overdue":true,"status_label":"Overdue 304d","days":304,"eur":22842.15,"aud":40125.33,"rate":1.7566355},{"inv":"3010600057686","inv_date":"08/05/2025","due_date":"22/06/2025","overdue":true,"status_label":"Overdue 304d","days":304,"eur":23963,"aud":42094.26,"rate":1.7566355},{"inv":"3010600057683","inv_date":"08/05/2025","due_date":"22/06/2025","overdue":true,"status_label":"Overdue 304d","days":304,"eur":23963,"aud":42094.26,"rate":1.7566355},{"inv":"3010600057691","inv_date":"08/05/2025","due_date":"22/06/2025","overdue":true,"status_label":"Overdue 304d","days":304,"eur":23963,"aud":42094.26,"rate":1.7566355},{"inv":"3010600069823","inv_date":"09/04/2026","due_date":"24/05/2026","overdue":false,"status_label":"Due in 32d","days":32,"eur":19344,"aud":32048.05,"rate":1.6567435},{"inv":"3010600069834","inv_date":"09/04/2026","due_date":"24/05/2026","overdue":false,"status_label":"Due in 32d","days":32,"eur":19530,"aud":32356.2,"rate":1.6567435},{"inv":"3010600059852","inv_date":"10/07/2025","due_date":"24/08/2025","overdue":true,"status_label":"Overdue 241d","days":241,"eur":23963,"aud":42936.09,"rate":1.791766},{"inv":"3010600059855","inv_date":"10/07/2025","due_date":"24/08/2025","overdue":true,"status_label":"Overdue 241d","days":241,"eur":23963,"aud":42936.09,"rate":1.791766},{"inv":"3010600059860","inv_date":"10/07/2025","due_date":"24/08/2025","overdue":true,"status_label":"Overdue 241d","days":241,"eur":23963,"aud":42936.09,"rate":1.791766},{"inv":"3010600069832","inv_date":"10/04/2026","due_date":"25/05/2026","overdue":false,"status_label":"Due in 33d","days":33,"eur":19530,"aud":32279.48,"rate":1.652815},{"inv":"3010600069819","inv_date":"10/04/2026","due_date":"25/05/2026","overdue":false,"status_label":"Due in 33d","days":33,"eur":19530,"aud":32279.48,"rate":1.652815},{"inv":"3010600059036","inv_date":"10/06/2025","due_date":"25/07/2025","overdue":true,"status_label":"Overdue 271d","days":271,"eur":23963,"aud":41968.89,"rate":1.751404},{"inv":"3010600058811","inv_date":"10/06/2025","due_date":"25/07/2025","overdue":true,"status_label":"Overdue 271d","days":271,"eur":23963,"aud":41968.89,"rate":1.751404},{"inv":"3010600059861","inv_date":"11/07/2025","due_date":"25/08/2025","overdue":true,"status_label":"Overdue 240d","days":240,"eur":23963,"aud":42557.98,"rate":1.775987},{"inv":"3010600059541","inv_date":"11/07/2025","due_date":"25/08/2025","overdue":true,"status_label":"Overdue 240d","days":240,"eur":28944.66,"aud":51405.34,"rate":1.775987},{"inv":"3010600059857","inv_date":"11/07/2025","due_date":"25/08/2025","overdue":true,"status_label":"Overdue 240d","days":240,"eur":23684,"aud":42062.48,"rate":1.775987},{"inv":"3010600059543","inv_date":"11/07/2025","due_date":"25/08/2025","overdue":true,"status_label":"Overdue 240d","days":240,"eur":21087.66,"aud":37451.41,"rate":1.775987},{"inv":"3010600059546","inv_date":"11/07/2025","due_date":"25/08/2025","overdue":true,"status_label":"Overdue 240d","days":240,"eur":23963,"aud":42557.98,"rate":1.775987},{"inv":"3010600059034","inv_date":"11/06/2025","due_date":"26/07/2025","overdue":true,"status_label":"Overdue 270d","days":270,"eur":23684,"aud":41487.27,"rate":1.7517005},{"inv":"3010600059037","inv_date":"11/06/2025","due_date":"26/07/2025","overdue":true,"status_label":"Overdue 270d","days":270,"eur":23963,"aud":41976,"rate":1.7517005},{"inv":"3010600059140","inv_date":"12/06/2025","due_date":"27/07/2025","overdue":true,"status_label":"Overdue 269d","days":269,"eur":20505.76,"aud":36191.69,"rate":1.7649525},{"inv":"3010600067971","inv_date":"16/03/2026","due_date":"30/04/2026","overdue":false,"status_label":"Due in 8d","days":8,"eur":23684,"aud":38721.61,"rate":1.634927},{"inv":"3010600068116","inv_date":"16/03/2026","due_date":"30/04/2026","overdue":false,"status_label":"Due in 8d","days":8,"eur":23684,"aud":38721.61,"rate":1.634927},{"inv":"3010600067974","inv_date":"16/03/2026","due_date":"30/04/2026","overdue":false,"status_label":"Due in 8d","days":8,"eur":23963,"aud":39177.76,"rate":1.634927},{"inv":"3010600068114","inv_date":"16/03/2026","due_date":"30/04/2026","overdue":false,"status_label":"Due in 8d","days":8,"eur":23963,"aud":39177.76,"rate":1.634927},{"inv":"3010600067977","inv_date":"16/03/2026","due_date":"30/04/2026","overdue":false,"status_label":"Due in 8d","days":8,"eur":23963,"aud":39177.76,"rate":1.634927},{"inv":"3010600067975","inv_date":"16/03/2026","due_date":"30/04/2026","overdue":false,"status_label":"Due in 8d","days":8,"eur":23963,"aud":39177.76,"rate":1.634927},{"inv":"3010600057491","inv_date":"15/04/2025","due_date":"30/05/2025","overdue":true,"status_label":"Overdue 327d","days":327,"eur":23924.35,"aud":42852.22,"rate":1.791155},{"inv":"3010600060097","inv_date":"16/07/2025","due_date":"30/08/2025","overdue":true,"status_label":"Overdue 235d","days":235,"eur":23963,"aud":42664.9,"rate":1.780449},{"inv":"3010600059864","inv_date":"16/07/2025","due_date":"30/08/2025","overdue":true,"status_label":"Overdue 235d","days":235,"eur":23963,"aud":42664.9,"rate":1.780449},{"inv":"3010600057238","inv_date":"16/04/2025","due_date":"31/05/2025","overdue":true,"status_label":"Overdue 326d","days":326,"eur":23963,"aud":42564.23,"rate":1.776248},{"inv":"3010600057241","inv_date":"16/04/2025","due_date":"31/05/2025","overdue":true,"status_label":"Overdue 326d","days":326,"eur":23963,"aud":42564.23,"rate":1.776248},{"inv":"3010600059859","inv_date":"17/07/2025","due_date":"31/08/2025","overdue":true,"status_label":"Overdue 234d","days":234,"eur":23963,"aud":42736.5,"rate":1.783437},{"inv":"3010600060269","inv_date":"17/07/2025","due_date":"31/08/2025","overdue":true,"status_label":"Overdue 234d","days":234,"eur":32828.58,"aud":58547.7,"rate":1.783437},{"inv":"3010600060094","inv_date":"17/07/2025","due_date":"31/08/2025","overdue":true,"status_label":"Overdue 234d","days":234,"eur":23963,"aud":42736.5,"rate":1.783437},{"inv":"3010600060096","inv_date":"17/07/2025","due_date":"31/08/2025","overdue":true,"status_label":"Overdue 234d","days":234,"eur":23963,"aud":42736.5,"rate":1.783437},{"inv":"3010600060090","inv_date":"17/07/2025","due_date":"31/08/2025","overdue":true,"status_label":"Overdue 234d","days":234,"eur":23963,"aud":42736.5,"rate":1.783437},{"inv":"3010600060092","inv_date":"17/07/2025","due_date":"31/08/2025","overdue":true,"status_label":"Overdue 234d","days":234,"eur":23963,"aud":42736.5,"rate":1.783437}];
+const AP_DATA = [
+  {inv:"Promo Support QE Sept 25",vendor:"OAT101 OATLY EMEA AB",bill_date:"30/09/2025",due_date:null,aud:-229059.26,auth:"Richard Carlick",memo:null},
+  {inv:"Oatly Promo Support QE Dec 25",vendor:"OAT101 OATLY EMEA AB",bill_date:"31/12/2025",due_date:null,aud:-162107.72,auth:"Richard Carlick",memo:null},
+  {inv:"AGD NOV25 BAS",vendor:"ATO101 Australian Taxation Office",bill_date:"15/01/2026",due_date:null,aud:-35503,auth:"Richard Carlick",memo:null},
+  {inv:"AGD DEC25 BAS",vendor:"ATO101 Australian Taxation Office",bill_date:"09/02/2026",due_date:null,aud:-13869,auth:"Richard Carlick",memo:"AGD DEC25 BAS"},
+  {inv:"SI-00009875/2",vendor:"MAD101 Made Beverages Ltd T/A PerfectTed",bill_date:"12/02/2026",due_date:null,aud:605.70,auth:"Richard Carlick",memo:"POAGD233"},
+  {inv:"Promo Support Jan 26",vendor:"OAT101 OATLY EMEA AB",bill_date:"28/02/2026",due_date:null,aud:-15581.51,auth:"Richard Carlick",memo:null},
+  {inv:"00230011",vendor:"IDS102 International Delivery Service",bill_date:"04/03/2026",due_date:null,aud:368.50,auth:"Sharon",memo:"Weight amendment fee - POAGD218"},
+  {inv:"00230721",vendor:"IDS102 International Delivery Service",bill_date:"15/03/2026",due_date:null,aud:5741.90,auth:"Sharon",memo:"Landed Costs - POAGD226, 226"},
+  {inv:"3010600067971",vendor:"OAT101 OATLY EMEA AB",bill_date:"16/03/2026",due_date:null,aud:38721.61,auth:"Richard Carlick",memo:"POAGD219"},
+  {inv:"3010600068116",vendor:"OAT101 OATLY EMEA AB",bill_date:"16/03/2026",due_date:null,aud:38721.61,auth:"Richard Carlick",memo:"POAGD229"},
+  {inv:"3010600068114",vendor:"OAT101 OATLY EMEA AB",bill_date:"16/03/2026",due_date:null,aud:39177.76,auth:"Richard Carlick",memo:"POAGD226"},
+  {inv:"3010600067977",vendor:"OAT101 OATLY EMEA AB",bill_date:"16/03/2026",due_date:null,aud:39177.76,auth:"Richard Carlick",memo:"POAGD223"},
+  {inv:"3010600067975",vendor:"OAT101 OATLY EMEA AB",bill_date:"16/03/2026",due_date:null,aud:39177.76,auth:"Richard Carlick",memo:"POAGD222"},
+  {inv:"3010600067974",vendor:"OAT101 OATLY EMEA AB",bill_date:"16/03/2026",due_date:null,aud:39177.76,auth:"Richard Carlick",memo:"POAGD216"},
+  {inv:"3010600069011",vendor:"OAT101 OATLY EMEA AB",bill_date:"18/03/2026",due_date:"05/02/2026",aud:31720.15,auth:"Richard Carlick",memo:"POAGD245"},
+  {inv:"3010600069006",vendor:"OAT101 OATLY EMEA AB",bill_date:"18/03/2026",due_date:"05/02/2026",aud:31720.15,auth:"Richard Carlick",memo:"POAGD243"},
+  {inv:"00230939",vendor:"IDS102 International Delivery Service",bill_date:"18/03/2026",due_date:null,aud:11045.29,auth:"Sharon",memo:"Landed Costs - POAGD216,219,222-223"},
+  {inv:"3010600069015",vendor:"OAT101 OATLY EMEA AB",bill_date:"18/03/2026",due_date:"05/02/2026",aud:33532.73,auth:"Richard Carlick",memo:"POAGD277"},
+  {inv:"3010600069008",vendor:"OAT101 OATLY EMEA AB",bill_date:"18/03/2026",due_date:"05/02/2026",aud:31720.15,auth:"Richard Carlick",memo:"POAGD244"},
+  {inv:"3010600068638",vendor:"OAT101 OATLY EMEA AB",bill_date:"19/03/2026",due_date:"05/03/2026",aud:31786.67,auth:"Richard Carlick",memo:"POAGD239"},
+  {inv:"3010600068641",vendor:"OAT101 OATLY EMEA AB",bill_date:"19/03/2026",due_date:"05/03/2026",aud:31786.67,auth:"Richard Carlick",memo:"POAGD241"},
+  {inv:"3010600068467",vendor:"OAT101 OATLY EMEA AB",bill_date:"19/03/2026",due_date:"05/03/2026",aud:54525.28,auth:"Richard Carlick",memo:"POAGD246"},
+  {inv:"3010600068643",vendor:"OAT101 OATLY EMEA AB",bill_date:"19/03/2026",due_date:"05/03/2026",aud:31786.67,auth:"Richard Carlick",memo:"POAGD242"},
+  {inv:"3010600068645",vendor:"OAT101 OATLY EMEA AB",bill_date:"19/03/2026",due_date:"05/03/2026",aud:33418.77,auth:"Richard Carlick",memo:"POAGD240"},
+  {inv:"00231330",vendor:"IDS102 International Delivery Service",bill_date:"24/03/2026",due_date:null,aud:10510.79,auth:"Sharon",memo:"Landed Costs - POAGD247-250"},
+  {inv:"3010600069340",vendor:"OAT101 OATLY EMEA AB",bill_date:"24/03/2026",due_date:"05/08/2026",aud:32338.62,auth:"Richard Carlick",memo:"POAGD247"},
+  {inv:"00231328",vendor:"IDS102 International Delivery Service",bill_date:"24/03/2026",due_date:null,aud:3094.95,auth:"Sharon",memo:"Landed Costs - POAGD246"},
+  {inv:"3010600069292",vendor:"OAT101 OATLY EMEA AB",bill_date:"24/03/2026",due_date:"05/08/2026",aud:32338.62,auth:"Richard Carlick",memo:"POAGD248"},
+  {inv:"3010600069277",vendor:"OAT101 OATLY EMEA AB",bill_date:"24/03/2026",due_date:"05/08/2026",aud:32338.62,auth:"Richard Carlick",memo:"POAGD249"},
+  {inv:"3010600069280",vendor:"OAT101 OATLY EMEA AB",bill_date:"24/03/2026",due_date:"05/08/2026",aud:32338.62,auth:"Richard Carlick",memo:"POAGD250"},
+  {inv:"00231264",vendor:"IDS102 International Delivery Service",bill_date:"24/03/2026",due_date:null,aud:10792.29,auth:"Sharon",memo:"Landed Costs - POAGD243-245, 277"},
+  {inv:"00231329",vendor:"IDS102 International Delivery Service",bill_date:"24/03/2026",due_date:null,aud:10510.79,auth:"Sharon",memo:"Landed Costs - POAGD239-242"},
+  {inv:"00231701",vendor:"IDS102 International Delivery Service",bill_date:"30/03/2026",due_date:null,aud:10326.14,auth:"Sharon",memo:"Landed Costs - POAGD280"},
+  {inv:"00231646",vendor:"IDS102 International Delivery Service",bill_date:"30/03/2026",due_date:null,aud:10785.79,auth:"Sharon",memo:"Landed Costs - POAGD251-253 / 275"},
+  {inv:"1019399067",vendor:"CAM004 DHL Supply Chain",bill_date:"31/03/2026",due_date:null,aud:2738.08,auth:"Kate Harris",memo:"Freight w/e 29.03.26"},
+  {inv:"3010600069538",vendor:"OAT101 OATLY EMEA AB",bill_date:"31/03/2026",due_date:null,aud:32665.96,auth:"Richard Carlick",memo:"w/c 06.04.26"},
+  {inv:"3010600069680",vendor:"OAT101 OATLY EMEA AB",bill_date:"31/03/2026",due_date:null,aud:33964.47,auth:"Richard Carlick",memo:"POAGD275"},
+  {inv:"S00002103",vendor:"INT101 Inter World Shipping",bill_date:"31/03/2026",due_date:null,aud:17013.94,auth:"Sharon",memo:"Airfreight Landed Costs POAGD326 Matcha Latte"},
+  {inv:"S00002103/A",vendor:"INT101 Inter World Shipping",bill_date:"01/04/2026",due_date:"04/01/2026",aud:89.50,auth:"Sharon",memo:"Airfreight Quarantine Fees - POAGD326"},
+  {inv:"3010600069540",vendor:"OAT101 OATLY EMEA AB",bill_date:"01/04/2026",due_date:null,aud:32722.77,auth:"Richard Carlick",memo:"POAGD252"},
+  {inv:"3010600069541",vendor:"OAT101 OATLY EMEA AB",bill_date:"01/04/2026",due_date:null,aud:32722.77,auth:"Richard Carlick",memo:"POAGD253"},
+  {inv:"CI-00012533/1",vendor:"MAD101 Made Beverages Ltd T/A PerfectTed",bill_date:"02/04/2026",due_date:"05/02/2026",aud:103815.95,auth:"Richard Carlick",memo:"POAGD280"},
+  {inv:"CI-00015007",vendor:"MAD101 Made Beverages Ltd T/A PerfectTed",bill_date:"02/04/2026",due_date:"05/02/2026",aud:167516.70,auth:"Richard Carlick",memo:"POAGD326 Airfreight"},
+  {inv:"00231991",vendor:"IDS102 International Delivery Service",bill_date:"07/04/2026",due_date:null,aud:10510.79,auth:"Sharon",memo:"Landed Costs - POAGD254-256_274"},
+  {inv:"3010600069823",vendor:"OAT101 OATLY EMEA AB",bill_date:"09/04/2026",due_date:"24/05/2026",aud:32048.05,auth:"Richard Carlick",memo:null},
+  {inv:"3010600069834",vendor:"OAT101 OATLY EMEA AB",bill_date:"09/04/2026",due_date:"24/05/2026",aud:32356.20,auth:"Richard Carlick",memo:null},
+  {inv:"3010600069832",vendor:"OAT101 OATLY EMEA AB",bill_date:"10/04/2026",due_date:"25/05/2026",aud:32279.48,auth:"Richard Carlick",memo:null},
+  {inv:"3010600069819",vendor:"OAT101 OATLY EMEA AB",bill_date:"10/04/2026",due_date:"25/05/2026",aud:32279.48,auth:"Richard Carlick",memo:null},
+  {inv:"4673",vendor:"SCH002 Schaeffer's Transport",bill_date:"13/04/2026",due_date:null,aud:10221.98,auth:"Kate Harris",memo:"Freight w/e 13.04.26"},
+  {inv:"00232254",vendor:"IDS102 International Delivery Service",bill_date:"13/04/2026",due_date:null,aud:3652.16,auth:"Sharon",memo:"Customs Duty - POAGD260-261/278"},
+  {inv:"00232463",vendor:"IDS102 International Delivery Service",bill_date:"15/04/2026",due_date:null,aud:2702.05,auth:"Sharon",memo:"Customs Duty - POAGD270/272"},
+  {inv:"1019411216",vendor:"CAM004 DHL Supply Chain",bill_date:"16/04/2026",due_date:null,aud:5764.84,auth:"Kate Harris",memo:"Freight w/e 12.04.26"},
+  {inv:"327914",vendor:"BUD001 Budget Courier Systems",bill_date:"17/04/2026",due_date:"05/01/2026",aud:1182.97,auth:"Kate Harris",memo:"Freight w/e 17.04.26"},
+  {inv:"4694",vendor:"SCH002 Schaeffer's Transport",bill_date:"20/04/2026",due_date:"05/04/2026",aud:4706.50,auth:"Kate Harris",memo:"Freight w/e 20.04.26"},
+];
 
 // ---- Supabase config ----
 const SB_URL='https://yxaebxkkclbjezffmerw.supabase.co';
@@ -424,8 +480,8 @@ function renderSummary(skus,fc,ord){
   document.getElementById('summary-tiles').innerHTML=`
     <div class="tile blue"><div class="tile-label">Active SKUs (with stock)</div><div class="tile-value">${sohSkus}</div><div class="tile-sub">${sohSkus} of ${STOCK_DATA.length} SKUs have stock</div></div>
     <div class="tile"><div class="tile-label">Retailer Forecast</div><div class="tile-value">${fmtNum(tFc)}</div><div class="tile-sub">${weeks} weeks, cases</div></div>
-    <div class="tile"><div class="tile-label">Actual Sales Orders</div><div class="tile-value">${tOrd>0?fmtNum(tOrd):'Pending NetSuite sync'}</div><div class="tile-sub">${tOrd>0?'cases on open customer sales orders (NetSuite)':'Awaiting NetSuite MCP re-authorisation'}</div></div>
-    <div class="tile ${tOrd>0?cc:''}"><div class="tile-label">Coverage</div><div class="tile-value">${tOrd>0?coverageVal:'--'}</div><div class="tile-sub">${tOrd>0?coverageSub:'Requires actual sales order data'}</div></div>
+    <div class="tile"><div class="tile-label">Actual Sales Orders</div><div class="tile-value">${tOrd>0?fmtNum(tOrd):'0'}</div><div class="tile-sub">${tOrd>0?'cases on open customer sales orders (NetSuite)':'No open SOs in NetSuite (Report 757, 23/04/2026)'}</div></div>
+    <div class="tile ${tOrd>0?cc:''}"><div class="tile-label">Coverage</div><div class="tile-value">${tOrd>0?coverageVal:'0%'}</div><div class="tile-sub">${tOrd>0?coverageSub:'No open sales orders found for AGD'}</div></div>
     <div class="tile blue tile-link" onclick="document.querySelectorAll('.tab-btn')[1].click()"><div class="tile-label">Stock on Hand</div><div class="tile-value" style="${totalSoh===0?'font-size:11pt;color:#999':''}">${sohLabel}</div><div class="tile-sub">${sohSub}</div></div>`;
 }
 function renderCards(skus,fc,ord,fd){
@@ -596,35 +652,59 @@ function renderPO(){
 }
 
 // ---- AP tab ----
+function parseDD(s){if(!s)return null;const[d,m,y]=s.split('/');return new Date(+y,+m-1,+d);}
+function isOverdue(b){if(!b.due_date||b.aud<0)return false;const d=parseDD(b.due_date);return d&&d<new Date();}
+function vendorShort(v){if(!v)return'--';const i=v.indexOf(' ');return i>0?v.substring(i+1):v;}
+function fmtAudSigned(n){
+  if(n<0)return'<span class="negative" style="color:var(--red)">('+Number(Math.abs(n)).toLocaleString('en-AU',{minimumFractionDigits:2,maximumFractionDigits:2})+')</span>';
+  return Number(n).toLocaleString('en-AU',{minimumFractionDigits:2,maximumFractionDigits:2});
+}
 function renderAP(){
   const filter=document.getElementById('ap-filter').value;
+  const vendorFilter=document.getElementById('ap-vendor-filter').value;
+  // Populate vendor dropdown on first render
+  const vSel=document.getElementById('ap-vendor-filter');
+  if(vSel.options.length<=1){
+    const vendors=[...new Set(AP_DATA.map(b=>b.vendor))].sort();
+    vendors.forEach(v=>{const o=document.createElement('option');o.value=v;o.textContent=vendorShort(v);vSel.appendChild(o);});
+  }
   const filtered=AP_DATA.filter(b=>{
-    if(filter==='overdue') return b.overdue;
-    if(filter==='current') return !b.overdue;
+    if(vendorFilter!=='all'&&b.vendor!==vendorFilter)return false;
+    if(filter==='overdue') return isOverdue(b);
+    if(filter==='current') return b.aud>0&&!isOverdue(b);
+    if(filter==='credits') return b.aud<0;
     return true;
   });
+  // Summary tiles
+  const totalAud=AP_DATA.reduce((s,b)=>s+b.aud,0);
+  const billCount=AP_DATA.length;
+  const overdueCount=AP_DATA.filter(b=>isOverdue(b)).length;
+  const promoCredits=AP_DATA.filter(b=>b.aud<0).reduce((s,b)=>s+b.aud,0);
+  document.getElementById('ap-summary-tiles').innerHTML=`
+    <div class="tile blue"><div class="tile-label">Total Open</div><div class="tile-value">AUD ${fmtNum(Math.round(totalAud))}</div><div class="tile-sub">Net of credits</div></div>
+    <div class="tile"><div class="tile-label">Number of Bills</div><div class="tile-value">${billCount}</div><div class="tile-sub">open bills on extract</div></div>
+    <div class="tile ${overdueCount>0?'red':'green'}"><div class="tile-label">Overdue</div><div class="tile-value">${overdueCount}</div><div class="tile-sub">${overdueCount>0?'bills past due date':'none overdue'}</div></div>
+    <div class="tile amber"><div class="tile-label">Promo Credits</div><div class="tile-value negative" style="color:var(--red)">(${fmtNum(Math.round(Math.abs(promoCredits)))})</div><div class="tile-sub">Oatly promo support credits</div></div>`;
   const tbody=document.getElementById('ap-tbody');
   const tfoot=document.getElementById('ap-tfoot');
   tbody.innerHTML=filtered.map(b=>{
-    const rowCls=b.overdue?'overdue-row':'';
-    const badge=b.overdue?`<span class="overdue-badge">${b.status_label}</span>`:`<span class="current-badge">${b.status_label}</span>`;
+    const od=isOverdue(b);
+    const rowCls=od?'overdue-row':'';
     return`<tr class="${rowCls}">
       <td style="font-size:8.5pt">${b.inv}</td>
-      <td>${b.inv_date}</td>
-      <td>${b.due_date}</td>
-      <td>${badge}</td>
-      <td class="num">${fmtNum(b.eur)}</td>
-      <td class="num">${b.rate.toFixed(6)}</td>
-      <td class="num">${fmtAud(b.aud)}</td>
+      <td>${vendorShort(b.vendor)}</td>
+      <td>${b.bill_date}</td>
+      <td>${b.due_date||'Not set'}</td>
+      <td class="num">${fmtAudSigned(b.aud)}</td>
+      <td>${b.auth||'--'}</td>
+      <td style="font-size:8pt;color:#666">${b.memo||'--'}</td>
     </tr>`;
   }).join('');
-  const totEur=filtered.reduce((s,b)=>s+b.eur,0);
   const totAud=filtered.reduce((s,b)=>s+b.aud,0);
   tfoot.innerHTML=`<tr>
-    <td colspan="4">Total (${filtered.length} invoices)</td>
-    <td class="num">${fmtNum(Math.round(totEur))}</td>
-    <td class="num"></td>
-    <td class="num">${fmtAud(totAud)}</td>
+    <td colspan="4">Total (${filtered.length} bills)</td>
+    <td class="num">${fmtAudSigned(totAud)}</td>
+    <td colspan="2"></td>
   </tr>`;
 }
 
@@ -640,9 +720,9 @@ function renderSkuCards(){
     const po=PO_DATA.find(p=>p.code===s.code);
     const poQty=po?po.total_qty:0;
     const fcQty=_fc.filter(f=>f.sku_code===s.code).reduce((ss,f)=>ss+(f.forecast_qty||0),0);
-    // Orders pending NetSuite re-auth
-    const ordersQty=null; // Pending
-    const ordersDisplay='Pending';
+    // No open sales orders in NetSuite for AGD (Report 757, checked 23/04/2026)
+    const ordersQty=0;
+    const ordersDisplay='0';
     // Net = Stock + POs - Orders - Forecast. Orders unknown so excluded for now.
     const net=s.soh+poQty-fcQty;
     // Colour: green positive, red negative, amber if tight (within 10% of forecast or zero stock)
@@ -662,7 +742,7 @@ function renderSkuCards(){
       </div>
       <div class="fp-card-body">
         <div class="fp-metric-row"><span class="fp-metric-label">Stock on Hand</span><span class="fp-metric-value${s.soh===0?' fp-neg':''}">${s.soh>0?fmtNum(s.soh):'0'}</span></div>
-        <div class="fp-metric-row"><span class="fp-metric-label">Actual Sales Orders</span><span class="fp-metric-value fp-pending">${ordersDisplay}</span></div>
+        <div class="fp-metric-row"><span class="fp-metric-label">Actual Sales Orders</span><span class="fp-metric-value">${ordersDisplay}</span></div>
         <div class="fp-metric-row"><span class="fp-metric-label">Forecast Demand (13 wk)</span><span class="fp-metric-value">${fcQty>0?fmtNum(fcQty):'--'}</span></div>
         <div class="fp-metric-row"><span class="fp-metric-label">Open POs (inbound)</span><span class="fp-metric-value">${poQty>0?fmtNum(poQty):'--'}</span></div>
       </div>
