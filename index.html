@@ -148,7 +148,6 @@
 <nav class="tab-nav">
   <button class="tab-btn active" onclick="showTab('forecast',this)">Demand / Forecast</button>
   <button class="tab-btn" onclick="showTab('stock',this)">Stock on Hand</button>
-  <button class="tab-btn" onclick="showTab('sales_orders',this)">Customer Sales Orders</button>
   <button class="tab-btn" onclick="showTab('po',this)">PO Quantities</button>
   <button class="tab-btn" onclick="showTab('creditors',this)">Creditors</button>
 </nav>
@@ -167,12 +166,13 @@
       </select>
     </div>
   </div>
+  <div class="ns-banner" style="background:#fef3e2;border-left-color:var(--amber)">Sales orders data: pending NetSuite MCP re-authorisation. Once connected, this will pull live open sales orders from NetSuite Report 757 (AGD subsidiary).</div>
   <div class="summary-row" id="summary-tiles"><div class="loader"><span class="spinner"></span>Loading data...</div></div>
   <div class="section-header" style="margin-top:8px">Per-SKU Planning Position</div>
   <div class="front-cards-grid" id="front-cards">
     <div class="loader"><span class="spinner"></span>Loading planning data...</div>
   </div>
-  <div class="section-header" id="cards-heading" style="display:none">SKU Forecast vs Planned Orders</div>
+  <div class="section-header" id="cards-heading" style="display:none">SKU Forecast vs Actual Orders</div>
   <div class="cards-grid" id="cards-grid"></div>
   <div class="chart-section">
     <div class="chart-card" id="weekly-chart-card" style="display:none">
@@ -213,26 +213,7 @@
   </div>
 </div>
 
-<!-- Planned orders pane removed: content merged into Demand / Forecast tab above -->
 
-<!-- CUSTOMER SALES ORDERS TAB (NetSuite confirmed sales orders, pending configuration) -->
-<div id="tab-sales_orders" class="tab-pane">
-  <div class="ns-banner" style="background:#fdecea;border-left-color:var(--red);color:#7a1500">
-    <strong>NetSuite sales orders not yet configured.</strong>
-    This view will show confirmed customer sales orders from NetSuite (all retailers) once the Oatly SKU list and customer IDs are provided.
-  </div>
-  <div class="summary-row">
-    <div class="tile" style="border-top-color:var(--mdgrey);min-width:100%">
-      <div class="tile-label">Status</div>
-      <div class="tile-value" style="font-size:13pt;color:#999">Pending configuration</div>
-      <div class="tile-sub" style="margin-top:8px;line-height:1.6">
-        Customer sales orders from NetSuite will appear here once the Oatly SKU list and customer IDs are confirmed.<br>
-        Contact Rob to provide: (1) Oatly NetSuite item IDs, (2) AGD customer record IDs (WW, Coles, Metcash).
-      </div>
-    </div>
-  </div>
-  <!-- TODO: Wire to NetSuite Report 757, need Oatly SKU list and customer IDs from Rob -->
-</div>
 
 <!-- PO TAB -->
 <div id="tab-po" class="tab-pane">
@@ -274,6 +255,7 @@
 
 <!-- CREDITORS TAB -->
 <div id="tab-creditors" class="tab-pane">
+  <div class="warn-banner"><strong>Creditors data extracted 22/04/2026. May not match current NetSuite AGD creditors. Will be refreshed on next NetSuite sync.</strong></div>
   <div class="ns-banner">NetSuite extract: 22/04/2026 | Outstanding bills payable to OATLY EMEA AB (vendor OAT101) | Exchange rates as recorded on each invoice in NetSuite</div>
   <div class="ap-filter-bar">
     <label>Show:</label>
@@ -428,7 +410,7 @@ function renderSummary(skus,fc,ord){
   const tOrd=ord.reduce((s,o)=>s+(o.planned_qty||0),0);
   const gap=tFc-tOrd;
   const weeks=[...new Set(fc.map(f=>f.week_commencing))].length;
-  // Coverage = planned orders vs retailer forecast (not stock-based)
+  // Coverage = actual sales orders vs retailer forecast (what % of forecast demand has been converted to actual orders)
   const pct=tFc>0?Math.round(tOrd/tFc*100):null;
   const cc=pct===null?'':pct>=90?'green':pct>=70?'amber':'red';
   const coverageVal=pct===null?'--':pct+'%';
@@ -441,8 +423,8 @@ function renderSummary(skus,fc,ord){
   document.getElementById('summary-tiles').innerHTML=`
     <div class="tile blue"><div class="tile-label">Active SKUs (with stock)</div><div class="tile-value">${sohSkus}</div><div class="tile-sub">${sohSkus} of ${STOCK_DATA.length} SKUs have stock</div></div>
     <div class="tile"><div class="tile-label">Retailer Forecast</div><div class="tile-value">${fmtNum(tFc)}</div><div class="tile-sub">${weeks} weeks, cases</div></div>
-    <div class="tile"><div class="tile-label">Planned Orders</div><div class="tile-value">${fmtNum(tOrd)}</div><div class="tile-sub">cases in AGD replenishment plan</div></div>
-    <div class="tile ${cc}"><div class="tile-label">Coverage</div><div class="tile-value">${coverageVal}</div><div class="tile-sub">${coverageSub}</div></div>
+    <div class="tile"><div class="tile-label">Actual Sales Orders</div><div class="tile-value">${tOrd>0?fmtNum(tOrd):'Pending NetSuite sync'}</div><div class="tile-sub">${tOrd>0?'cases on open customer sales orders (NetSuite)':'Awaiting NetSuite MCP re-authorisation'}</div></div>
+    <div class="tile ${tOrd>0?cc:''}"><div class="tile-label">Coverage</div><div class="tile-value">${tOrd>0?coverageVal:'--'}</div><div class="tile-sub">${tOrd>0?coverageSub:'Requires actual sales order data'}</div></div>
     <div class="tile blue tile-link" onclick="document.querySelectorAll('.tab-btn')[1].click()"><div class="tile-label">Stock on Hand</div><div class="tile-value" style="${totalSoh===0?'font-size:11pt;color:#999':''}">${sohLabel}</div><div class="tile-sub">${sohSub}</div></div>`;
 }
 function renderCards(skus,fc,ord,fd){
@@ -491,10 +473,10 @@ function renderWeeklyChart(fc,ord){
   ord.forEach(o=>{if(!wm[o.week_commencing])wm[o.week_commencing]={fc:0,ord:0};wm[o.week_commencing].ord+=(o.planned_qty||0);});
   const weeks=Object.keys(wm).sort().slice(0,26);
   const maxV=Math.max(...weeks.map(w=>Math.max(wm[w].fc,wm[w].ord)),1);
-  document.getElementById('weekly-chart-title').textContent='Weekly Forecast vs Planned Orders ('+weeks.length+' weeks)';
+  document.getElementById('weekly-chart-title').textContent='Weekly Forecast vs Actual Sales Orders ('+weeks.length+' weeks)';
   body.innerHTML=`<div style="font-size:8pt;color:#666;margin-bottom:8px;display:flex;gap:16px">
     <span style="display:inline-flex;align-items:center;gap:4px"><span style="width:12px;height:12px;background:var(--blue);border-radius:2px;display:inline-block"></span> Forecast</span>
-    <span style="display:inline-flex;align-items:center;gap:4px"><span style="width:12px;height:12px;background:var(--green);border-radius:2px;display:inline-block"></span> Planned Orders</span>
+    <span style="display:inline-flex;align-items:center;gap:4px"><span style="width:12px;height:12px;background:var(--green);border-radius:2px;display:inline-block"></span> Actual Sales Orders</span>
   </div>`+weeks.map(w=>{
     const d=wm[w],fp=Math.round(d.fc/maxV*100),op=Math.round(d.ord/maxV*100),gap=d.fc-d.ord;
     return`<div style="margin-bottom:8px">
@@ -679,7 +661,7 @@ function renderSkuCards(){
       </div>
       <div class="fp-card-body">
         <div class="fp-metric-row"><span class="fp-metric-label">Stock on Hand</span><span class="fp-metric-value${s.soh===0?' fp-neg':''}">${s.soh>0?fmtNum(s.soh):'0'}</span></div>
-        <div class="fp-metric-row"><span class="fp-metric-label">Open Customer Orders</span><span class="fp-metric-value fp-pending">${ordersDisplay}</span></div>
+        <div class="fp-metric-row"><span class="fp-metric-label">Actual Sales Orders</span><span class="fp-metric-value fp-pending">${ordersDisplay}</span></div>
         <div class="fp-metric-row"><span class="fp-metric-label">Forecast Demand (13 wk)</span><span class="fp-metric-value">${fcQty>0?fmtNum(fcQty):'--'}</span></div>
         <div class="fp-metric-row"><span class="fp-metric-label">Open POs (inbound)</span><span class="fp-metric-value">${poQty>0?fmtNum(poQty):'--'}</span></div>
       </div>
