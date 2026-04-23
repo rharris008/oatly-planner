@@ -130,6 +130,13 @@
   .fp-woc-value.woc-green { color:var(--green); }
   .fp-woc-value.woc-amber { color:var(--amber); }
   .fp-woc-value.woc-red { color:var(--red); }
+  /* Overdue PO styling */
+  .fp-card.fp-overdue { border:2px solid var(--red); border-left-width:5px; }
+  .fp-overdue-badge { display:inline-block; padding:2px 8px; border-radius:10px; font-size:7.5pt; font-weight:bold; text-transform:uppercase; background:#fdecea; color:var(--red); margin-left:6px; }
+  .po-status-badge { display:inline-block; padding:2px 8px; border-radius:10px; font-size:7.5pt; font-weight:bold; text-transform:uppercase; }
+  .po-status-overdue { background:#fdecea; color:var(--red); }
+  .po-status-due-soon { background:#fef3e2; color:var(--amber); }
+  .po-status-on-track { background:#e8f8ee; color:var(--green); }
 </style>
 </head>
 <body>
@@ -222,12 +229,14 @@
       <table class="data-table">
         <thead>
           <tr>
-            <th>SKU Code</th>
+            <th>PO Number</th>
+            <th>SKU</th>
             <th>Description</th>
-            <th class="num">Open Qty (units)</th>
-            <th class="num">PO Count</th>
-            <th class="num">Pending Receipt</th>
-            <th class="num">Pending Bill</th>
+            <th>PO Date</th>
+            <th class="num">Qty (units)</th>
+            <th class="num">Days Since Order</th>
+            <th>PO Status</th>
+            <th>Status</th>
           </tr>
         </thead>
         <tbody id="po-tbody"></tbody>
@@ -347,6 +356,135 @@ const AP_DATA = [
   {inv:"3010600069819",vendor:"OAT101 OATLY EMEA AB",bill_date:"10/04/2026",due_date:"25/05/2026",aud:32279.48,auth:"Richard Carlick",memo:null},
 ];
 
+// Individual PO lines with dates for overdue tracking
+const PO_LINES = [
+  // Dec 2025 batch
+  {po:'POAGD257',sku:'FG 61737',date:'17/12/2025',status:'F',qty:3100},
+  {po:'POAGD258',sku:'FG 61737',date:'17/12/2025',status:'F',qty:3100},
+  {po:'POAGD259',sku:'FG 61737',date:'17/12/2025',status:'F',qty:3100},
+  {po:'POAGD260',sku:'FG 61737',date:'17/12/2025',status:'F',qty:3100},
+  {po:'POAGD261',sku:'FG 61737',date:'17/12/2025',status:'F',qty:3100},
+  {po:'POAGD262',sku:'FG 61737',date:'17/12/2025',status:'F',qty:3100},
+  {po:'POAGD263',sku:'FG 61737',date:'17/12/2025',status:'F',qty:3100},
+  {po:'POAGD264',sku:'FG 61737',date:'17/12/2025',status:'F',qty:3100},
+  {po:'POAGD265',sku:'FG 61737',date:'17/12/2025',status:'F',qty:3100},
+  {po:'POAGD266',sku:'FG 61737',date:'17/12/2025',status:'B',qty:3100},
+  {po:'POAGD267',sku:'FG 61737',date:'17/12/2025',status:'B',qty:3100},
+  {po:'POAGD268',sku:'FG 61737',date:'17/12/2025',status:'B',qty:3100},
+  {po:'POAGD269',sku:'FG 61737',date:'17/12/2025',status:'B',qty:3100},
+  {po:'POAGD270',sku:'FG 61739',date:'17/12/2025',status:'F',qty:3100},
+  {po:'POAGD271',sku:'FG 61739',date:'17/12/2025',status:'B',qty:2133},
+  {po:'POAGD271',sku:'FG 61740',date:'17/12/2025',status:'B',qty:930},
+  {po:'POAGD272',sku:'FG 61740',date:'17/12/2025',status:'E',qty:3100},  // partially received, not pending
+  {po:'POAGD273',sku:'FG 61740',date:'17/12/2025',status:'B',qty:3100},
+  {po:'POAGD276',sku:'FG 62106',date:'17/12/2025',status:'F',qty:3100},
+  {po:'POAGD278',sku:'FG 62108',date:'17/12/2025',status:'F',qty:3100},
+  {po:'POAGD279',sku:'FG 62322',date:'17/12/2025',status:'B',qty:2614},
+  // Jan 2026 batch
+  {po:'POAGD282',sku:'FG 61737',date:'15/01/2026',status:'B',qty:3100},
+  {po:'POAGD283',sku:'FG 61737',date:'15/01/2026',status:'B',qty:3100},
+  {po:'POAGD284',sku:'FG 61737',date:'15/01/2026',status:'B',qty:3100},
+  {po:'POAGD285',sku:'FG 61737',date:'15/01/2026',status:'B',qty:3100},
+  {po:'POAGD286',sku:'FG 61737',date:'15/01/2026',status:'B',qty:3100},
+  {po:'POAGD287',sku:'FG 61737',date:'15/01/2026',status:'B',qty:3100},
+  {po:'POAGD288',sku:'FG 61737',date:'15/01/2026',status:'B',qty:3100},
+  {po:'POAGD289',sku:'FG 61737',date:'15/01/2026',status:'B',qty:3100},
+  {po:'POAGD290',sku:'FG 61737',date:'15/01/2026',status:'B',qty:3100},
+  {po:'POAGD291',sku:'FG 61737',date:'15/01/2026',status:'B',qty:3100},
+  {po:'POAGD292',sku:'FG 61737',date:'15/01/2026',status:'B',qty:3100},
+  {po:'POAGD293',sku:'FG 61737',date:'15/01/2026',status:'B',qty:3100},
+  {po:'POAGD294',sku:'FG 61737',date:'15/01/2026',status:'B',qty:3100},
+  {po:'POAGD295',sku:'FG 61737',date:'15/01/2026',status:'B',qty:3100},
+  {po:'POAGD296',sku:'FG 61739',date:'15/01/2026',status:'B',qty:3100},
+  {po:'POAGD297',sku:'FG 61739',date:'15/01/2026',status:'B',qty:2738},
+  {po:'POAGD298',sku:'FG 62060',date:'15/01/2026',status:'B',qty:3100},
+  {po:'POAGD299',sku:'FG 62106',date:'15/01/2026',status:'B',qty:3100},
+  {po:'POAGD300',sku:'FG 62108',date:'15/01/2026',status:'B',qty:3100},
+  // Feb 2026 batch
+  {po:'POAGD303',sku:'FG 61909',date:'05/02/2026',status:'B',qty:3186},
+  {po:'POAGD305',sku:'FG 61737',date:'16/02/2026',status:'B',qty:3100},
+  {po:'POAGD306',sku:'FG 61737',date:'16/02/2026',status:'B',qty:3100},
+  {po:'POAGD307',sku:'FG 61737',date:'16/02/2026',status:'B',qty:3100},
+  {po:'POAGD308',sku:'FG 61737',date:'16/02/2026',status:'B',qty:3100},
+  {po:'POAGD309',sku:'FG 61737',date:'16/02/2026',status:'B',qty:3100},
+  {po:'POAGD310',sku:'FG 61737',date:'16/02/2026',status:'B',qty:3100},
+  {po:'POAGD311',sku:'FG 61737',date:'16/02/2026',status:'B',qty:3100},
+  {po:'POAGD312',sku:'FG 61737',date:'16/02/2026',status:'B',qty:3100},
+  {po:'POAGD313',sku:'FG 61737',date:'16/02/2026',status:'B',qty:3100},
+  {po:'POAGD314',sku:'FG 61737',date:'16/02/2026',status:'B',qty:3100},
+  {po:'POAGD315',sku:'FG 61737',date:'16/02/2026',status:'B',qty:3100},
+  {po:'POAGD316',sku:'FG 61737',date:'16/02/2026',status:'B',qty:3100},
+  {po:'POAGD317',sku:'FG 61737',date:'16/02/2026',status:'B',qty:3100},
+  {po:'POAGD318',sku:'FG 61737',date:'16/02/2026',status:'B',qty:3100},
+  {po:'POAGD319',sku:'FG 62322',date:'16/02/2026',status:'B',qty:3100},
+  {po:'POAGD320',sku:'FG 62060',date:'16/02/2026',status:'B',qty:1085},
+  {po:'POAGD320',sku:'FG 62108',date:'16/02/2026',status:'B',qty:2015},
+  {po:'POAGD321',sku:'FG 62322',date:'16/02/2026',status:'B',qty:3100},
+  {po:'POAGD322',sku:'FG 62108',date:'16/02/2026',status:'B',qty:3100},
+  {po:'POAGD323',sku:'FG 61737',date:'16/02/2026',status:'B',qty:3100},
+  {po:'POAGD324',sku:'FG 61737',date:'16/02/2026',status:'B',qty:3100},
+  // Mar 2026 batch (< 60 days, not overdue yet)
+  {po:'POAGD328',sku:'FG 61737',date:'25/03/2026',status:'B',qty:3100},
+  {po:'POAGD329',sku:'FG 61737',date:'25/03/2026',status:'B',qty:3100},
+  {po:'POAGD330',sku:'FG 61737',date:'25/03/2026',status:'B',qty:3100},
+  {po:'POAGD331',sku:'FG 61737',date:'25/03/2026',status:'B',qty:3100},
+  {po:'POAGD332',sku:'FG 61737',date:'25/03/2026',status:'B',qty:3100},
+  {po:'POAGD333',sku:'FG 61737',date:'25/03/2026',status:'B',qty:3100},
+  {po:'POAGD334',sku:'FG 61737',date:'25/03/2026',status:'B',qty:3100},
+  {po:'POAGD335',sku:'FG 61737',date:'25/03/2026',status:'B',qty:3100},
+  {po:'POAGD336',sku:'FG 61737',date:'25/03/2026',status:'B',qty:3100},
+  {po:'POAGD337',sku:'FG 61737',date:'25/03/2026',status:'B',qty:3100},
+  {po:'POAGD338',sku:'FG 61737',date:'25/03/2026',status:'B',qty:3100},
+  {po:'POAGD339',sku:'FG 61737',date:'25/03/2026',status:'B',qty:3100},
+  {po:'POAGD340',sku:'FG 61737',date:'25/03/2026',status:'B',qty:3100},
+  {po:'POAGD341',sku:'FG 61737',date:'25/03/2026',status:'B',qty:3100},
+  {po:'POAGD342',sku:'FG 61737',date:'25/03/2026',status:'B',qty:3100},
+  {po:'POAGD343',sku:'FG 61737',date:'25/03/2026',status:'B',qty:3100},
+  {po:'POAGD344',sku:'FG 61737',date:'25/03/2026',status:'B',qty:3100},
+  {po:'POAGD345',sku:'FG 61737',date:'25/03/2026',status:'B',qty:3100},
+  {po:'POAGD346',sku:'FG 61737',date:'25/03/2026',status:'B',qty:3100},
+  {po:'POAGD347',sku:'FG 61737',date:'25/03/2026',status:'B',qty:3100},
+  {po:'POAGD348',sku:'FG 61737',date:'25/03/2026',status:'B',qty:3100},
+  {po:'POAGD349',sku:'FG 61737',date:'25/03/2026',status:'B',qty:3100},
+  {po:'POAGD350',sku:'FG 61739',date:'25/03/2026',status:'B',qty:3100},
+  {po:'POAGD351',sku:'FG 61737',date:'25/03/2026',status:'B',qty:3100},
+  {po:'POAGD352',sku:'FG 61737',date:'25/03/2026',status:'B',qty:3100},
+  {po:'POAGD353',sku:'FG 61737',date:'25/03/2026',status:'B',qty:3100},
+  {po:'POAGD354',sku:'FG 61737',date:'25/03/2026',status:'B',qty:3100},
+  {po:'POAGD355',sku:'FG 61737',date:'25/03/2026',status:'B',qty:3100},
+  {po:'POAGD356',sku:'FG 61737',date:'25/03/2026',status:'B',qty:3100},
+];
+
+// ---- PO overdue helpers ----
+// Today for overdue calcs: 23/04/2026
+const TODAY_DATE = new Date(2026, 3, 23); // months are 0-indexed
+
+function parsePODate(s) {
+  const [d,m,y] = s.split('/');
+  return new Date(+y, +m-1, +d);
+}
+
+function daysSinceOrder(dateStr) {
+  const poDate = parsePODate(dateStr);
+  return Math.floor((TODAY_DATE - poDate) / (1000*60*60*24));
+}
+
+function isPOPending(status) {
+  return status === 'B' || status === 'F';
+}
+
+function isPOOverdue(line) {
+  return daysSinceOrder(line.date) > 60 && isPOPending(line.status);
+}
+
+function getOverduePOs(skuCode) {
+  return PO_LINES.filter(l => l.sku === skuCode && isPOOverdue(l));
+}
+
+function getPOLinesBySku(skuCode) {
+  return PO_LINES.filter(l => l.sku === skuCode && isPOPending(l.status));
+}
+
 // ---- Helpers ----
 function fmtNum(n){if(n===null||n===undefined)return'--';return Number(n).toLocaleString('en-AU');}
 function fmtAudSigned(n){
@@ -399,6 +537,12 @@ function renderSkuCards(){
     // Net = Stock + Open POs - Sales Orders
     const net=s.soh + poQty - ordersQty;
 
+    // Overdue PO analysis
+    const overduePOs = getOverduePOs(s.code);
+    const overdueCount = overduePOs.length;
+    const overdueQty = overduePOs.reduce((sum, l) => sum + l.qty, 0);
+    const hasOverdue = overdueCount > 0;
+
     // Weeks of Cover: no sales history available for most SKUs
     // Use sales order run rate as a proxy where we have data, otherwise N/A
     let wocDisplay='N/A';
@@ -422,12 +566,18 @@ function renderSkuCards(){
     else if(s.soh===0 && poQty===0) cls='fp-red';
     else if(s.soh===0 && poQty>0) cls='fp-amber';
 
+    // Add overdue border class
+    const overdueCls = hasOverdue ? ' fp-overdue' : '';
+
     const netCls=net<0?'fp-neg':net===0?'fp-tight':'fp-pos';
 
-    return`<div class="fp-card ${cls}">
+    // Overdue badge in header
+    const overdueBadge = hasOverdue ? '<span class="fp-overdue-badge">OVERDUE</span>' : '';
+
+    return`<div class="fp-card ${cls}${overdueCls}">
       <div class="fp-card-header">
         <div>
-          <div class="fp-sku-name">${s.desc}</div>
+          <div class="fp-sku-name">${s.desc}${overdueBadge}</div>
           <div class="fp-sku-code">${s.code}</div>
         </div>
         <span class="badge ${net<0?'badge-risk':s.soh===0?'badge-warn':'badge-ok'}">${net<0?'Short':s.soh===0?'No Stock':'OK'}</span>
@@ -436,6 +586,7 @@ function renderSkuCards(){
         <div class="fp-metric-row"><span class="fp-metric-label">Stock on Hand</span><span class="fp-metric-value${s.soh===0?' fp-neg':''}">${s.soh>0?fmtNum(s.soh):'0'}</span></div>
         <div class="fp-metric-row"><span class="fp-metric-label">Open POs Inbound</span><span class="fp-metric-value">${poQty>0?fmtNum(poQty)+' units ('+poCount+' POs)':'None'}</span></div>
         <div class="fp-metric-row"><span class="fp-metric-label">Sales Orders</span><span class="fp-metric-value${ordersQty>0?' fp-neg':''}">${ordersQty>0?fmtNum(ordersQty):'0'}</span></div>
+        ${hasOverdue?'<div class="fp-metric-row"><span class="fp-metric-label" style="color:var(--red);font-weight:bold">Overdue POs</span><span class="fp-metric-value" style="color:var(--red)">' + overdueCount + ' POs / ' + fmtNum(overdueQty) + ' units</span></div>':''}
       </div>
       <div class="fp-net-row">
         <span class="fp-net-label">Net Position (Stock + POs - SOs)</span>
@@ -515,36 +666,66 @@ function renderSO(){
 
 // ---- PO tab ----
 function renderPO(){
-  const totalQty=OPEN_PO_BY_SKU.reduce((s,p)=>s+p.open_qty,0);
-  const totalPOs=OPEN_PO_BY_SKU.reduce((s,p)=>s+p.po_count,0);
-  const skusWithPOs=OPEN_PO_BY_SKU.length;
+  // Use PO_LINES for detailed view, filtered to pending only (B or F)
+  const pendingLines = PO_LINES.filter(l => isPOPending(l.status));
+  const totalQty = pendingLines.reduce((s,l) => s + l.qty, 0);
+  const totalPOs = [...new Set(pendingLines.map(l => l.po + l.sku))].length;
+  const overdueLines = pendingLines.filter(l => isPOOverdue(l));
+  const overdueCount = overdueLines.length;
+  const dueSoonLines = pendingLines.filter(l => { const d=daysSinceOrder(l.date); return d>=45 && d<=60; });
 
   document.getElementById('po-summary-tiles').innerHTML=`
-    <div class="tile blue"><div class="tile-label">Total Open Units</div><div class="tile-value">${fmtNum(totalQty)}</div><div class="tile-sub">units on open purchase orders</div></div>
-    <div class="tile"><div class="tile-label">SKUs with Open POs</div><div class="tile-value">${skusWithPOs} of ${STOCK_DATA.length}</div><div class="tile-sub">SKUs have inbound stock</div></div>
-    <div class="tile green"><div class="tile-label">Total PO Count</div><div class="tile-value">${totalPOs}</div><div class="tile-sub">open purchase orders</div></div>`;
+    <div class="tile blue"><div class="tile-label">Total Open Units</div><div class="tile-value">${fmtNum(totalQty)}</div><div class="tile-sub">units on pending purchase orders</div></div>
+    <div class="tile ${overdueCount>0?'red':'green'}"><div class="tile-label">Overdue POs (>60 days)</div><div class="tile-value">${overdueCount}</div><div class="tile-sub">${overdueCount>0?fmtNum(overdueLines.reduce((s,l)=>s+l.qty,0))+' units overdue':'none overdue'}</div></div>
+    <div class="tile ${dueSoonLines.length>0?'amber':'green'}"><div class="tile-label">Due Soon (45-60 days)</div><div class="tile-value">${dueSoonLines.length}</div><div class="tile-sub">${dueSoonLines.length>0?fmtNum(dueSoonLines.reduce((s,l)=>s+l.qty,0))+' units':'all on track'}</div></div>
+    <div class="tile"><div class="tile-label">Total PO Lines</div><div class="tile-value">${totalPOs}</div><div class="tile-sub">pending receipt or bill</div></div>`;
+
+  // Sort: overdue first (oldest first), then due soon, then on track
+  const sorted = [...pendingLines].sort((a,b) => {
+    const da = daysSinceOrder(a.date);
+    const db = daysSinceOrder(b.date);
+    const aOver = da > 60 ? 2 : da >= 45 ? 1 : 0;
+    const bOver = db > 60 ? 2 : db >= 45 ? 1 : 0;
+    if(aOver !== bOver) return bOver - aOver; // overdue first
+    return db - da; // oldest first within group
+  });
+
+  // SKU description lookup
+  const skuDesc = {};
+  STOCK_DATA.forEach(s => skuDesc[s.code] = s.desc);
+  OPEN_PO_BY_SKU.forEach(p => skuDesc[p.code] = p.desc);
 
   const tbody=document.getElementById('po-tbody');
-  tbody.innerHTML=OPEN_PO_BY_SKU.map(p=>{
-    const partialNote = p.partial ? ' (+'+p.partial+' partial)' : '';
-    return`<tr>
-      <td style="font-weight:bold">${p.code}</td>
-      <td>${p.desc}</td>
-      <td class="num">${fmtNum(p.open_qty)}</td>
-      <td class="num">${p.po_count}</td>
-      <td class="num">${p.pending_receipt}${partialNote}</td>
-      <td class="num">${p.pending_bill}</td>
+  tbody.innerHTML=sorted.map(l => {
+    const days = daysSinceOrder(l.date);
+    const overdue = days > 60;
+    const dueSoon = days >= 45 && days <= 60;
+    let statusBadge, rowStyle='';
+    if(overdue) {
+      statusBadge = '<span class="po-status-badge po-status-overdue">OVERDUE</span>';
+      rowStyle = ' style="background:#fff5f5"';
+    } else if(dueSoon) {
+      statusBadge = '<span class="po-status-badge po-status-due-soon">DUE SOON</span>';
+    } else {
+      statusBadge = '<span class="po-status-badge po-status-on-track">ON TRACK</span>';
+    }
+    const statusLabel = l.status === 'F' ? 'Pending Receipt' : l.status === 'B' ? 'Pending Bill' : l.status;
+    return`<tr${rowStyle}>
+      <td style="font-weight:bold">${l.po}</td>
+      <td>${l.sku}</td>
+      <td>${skuDesc[l.sku]||''}</td>
+      <td>${l.date}</td>
+      <td class="num">${fmtNum(l.qty)}</td>
+      <td class="num" style="${overdue?'color:var(--red);font-weight:bold':dueSoon?'color:var(--amber);font-weight:bold':''}">${days}</td>
+      <td>${statusLabel}</td>
+      <td>${statusBadge}</td>
     </tr>`;
   }).join('');
 
-  const totalReceipt=OPEN_PO_BY_SKU.reduce((s,p)=>s+p.pending_receipt,0);
-  const totalBill=OPEN_PO_BY_SKU.reduce((s,p)=>s+p.pending_bill,0);
   document.getElementById('po-tfoot').innerHTML=`<tr>
-    <td colspan="2">Total (${skusWithPOs} SKUs)</td>
+    <td colspan="4">Total (${sorted.length} lines)</td>
     <td class="num">${fmtNum(totalQty)}</td>
-    <td class="num">${totalPOs}</td>
-    <td class="num">${totalReceipt}</td>
-    <td class="num">${totalBill}</td>
+    <td colspan="3"></td>
   </tr>`;
 }
 
