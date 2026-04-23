@@ -102,6 +102,32 @@
   .ap-filter-bar label { font-size:9pt; color:#666; }
   .ap-filter-bar select { font-family:Arial,sans-serif; font-size:9pt; padding:5px 8px; border:1px solid var(--mdgrey); border-radius:4px; }
   .negative { color:var(--red); }
+  /* Warning banner */
+  .warn-banner { background:#fdecea; border-left:4px solid var(--red); padding:10px 24px; font-size:9pt; color:#7a1500; line-height:1.5; }
+  .warn-banner strong { display:block; margin-bottom:2px; }
+  /* Front page planning cards */
+  .front-cards-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(340px,1fr)); gap:16px; padding:16px 24px; }
+  .fp-card { background:var(--white); border-radius:8px; box-shadow:0 1px 6px rgba(0,0,0,.1); overflow:hidden; border-left:5px solid var(--mdgrey); }
+  .fp-card.fp-green { border-left-color:var(--green); }
+  .fp-card.fp-amber { border-left-color:var(--amber); }
+  .fp-card.fp-red { border-left-color:var(--red); }
+  .fp-card-header { padding:10px 14px; border-bottom:1px solid var(--ltgrey); display:flex; justify-content:space-between; align-items:center; }
+  .fp-card-header .fp-sku-name { font-size:10pt; font-weight:bold; color:var(--navy); }
+  .fp-card-header .fp-sku-code { font-size:8pt; color:#888; }
+  .fp-card-body { padding:10px 14px; }
+  .fp-metric-row { display:flex; justify-content:space-between; padding:4px 0; border-bottom:1px solid #f0f0f0; font-size:9pt; }
+  .fp-metric-row:last-child { border-bottom:none; }
+  .fp-metric-label { color:#666; }
+  .fp-metric-value { font-weight:bold; font-variant-numeric:tabular-nums; }
+  .fp-metric-value.fp-neg { color:var(--red); }
+  .fp-metric-value.fp-pending { color:#999; font-weight:normal; font-style:italic; }
+  .fp-net-row { display:flex; justify-content:space-between; padding:8px 14px; background:#f8f8f8; border-top:2px solid var(--mdgrey); font-size:10pt; font-weight:bold; }
+  .fp-net-row .fp-net-label { color:var(--navy); }
+  .fp-net-row .fp-net-val { font-variant-numeric:tabular-nums; }
+  .fp-net-row .fp-net-val.fp-neg { color:var(--red); }
+  .fp-net-row .fp-net-val.fp-pos { color:var(--green); }
+  .fp-net-row .fp-net-val.fp-tight { color:var(--amber); }
+  .fp-warning { font-size:7.5pt; color:var(--amber); padding:2px 14px 8px; }
 </style>
 </head>
 <body>
@@ -130,8 +156,9 @@
 
 <!-- FRONT PAGE TAB -->
 <div id="tab-front" class="tab-pane active">
-  <div class="summary-row" id="front-tiles">
-    <div class="loader"><span class="spinner"></span>Loading data...</div>
+  <div class="summary-row" id="front-tiles"></div>
+  <div class="front-cards-grid" id="front-cards">
+    <div class="loader"><span class="spinner"></span>Loading planning data...</div>
   </div>
 </div>
 
@@ -214,6 +241,10 @@
 
 <!-- PO TAB -->
 <div id="tab-po" class="tab-pane">
+  <div class="warn-banner">
+    <strong>DATA ERROR: Quantities show total ordered (all time), not remaining to receive. Figures are overstated.</strong>
+    Awaiting NetSuite re-sync with correct open PO remaining quantities. Do not use these figures for planning until corrected.
+  </div>
   <div class="ns-banner">NetSuite extract: 22/04/2026 | Open purchase orders from Oatly EMEA AB (vendor OAT101) | Statuses: Pending Approval, Pending Receipt, Partially Received, Pending Bill | Note: quantity shown is total ordered on each PO, including units already received but pending bill</div>
   <div class="summary-row">
     <div class="tile blue"><div class="tile-label">SKUs on Open POs</div><div class="tile-value">12</div><div class="tile-sub">all active SKUs</div></div>
@@ -619,50 +650,85 @@ function renderAP(){
   </tr>`;
 }
 
-// ---- Front Page (executive summary tiles with click-through) ----
+// ---- Front Page (per-SKU planning cards) ----
+function fmtSigned(n){
+  if(n===null||n===undefined)return'--';
+  if(n<0)return'('+fmtNum(Math.abs(n))+')';
+  return fmtNum(n);
+}
 function renderFrontPage(){
-  const sohSkus=STOCK_DATA.filter(d=>d.soh>0).length;
+  // Summary tiles row
   const totalSoh=STOCK_DATA.reduce((s,d)=>s+d.soh,0);
+  const sohSkus=STOCK_DATA.filter(d=>d.soh>0).length;
+  const totalFc=_fc.reduce((s,f)=>s+(f.forecast_qty||0),0);
   const totalPOQty=PO_DATA.reduce((s,p)=>s+p.total_qty,0);
-  const overdueCount=AP_DATA.filter(b=>b.overdue).length;
-  const currentCount=AP_DATA.filter(b=>!b.overdue).length;
-  const totalInvoices=AP_DATA.length;
+  const redCount=STOCK_DATA.filter(d=>{
+    const po=PO_DATA.find(p=>p.code===d.code);
+    const poQty=po?po.total_qty:0;
+    const fcQty=_fc.filter(f=>f.sku_code===d.code).reduce((s,f)=>s+(f.forecast_qty||0),0);
+    const net=d.soh+poQty-fcQty;
+    return net<0;
+  }).length;
+  const greenCount=STOCK_DATA.filter(d=>{
+    const po=PO_DATA.find(p=>p.code===d.code);
+    const poQty=po?po.total_qty:0;
+    const fcQty=_fc.filter(f=>f.sku_code===d.code).reduce((s,f)=>s+(f.forecast_qty||0),0);
+    const net=d.soh+poQty-fcQty;
+    return net>0;
+  }).length;
+
   document.getElementById('front-tiles').innerHTML=`
-    <div class="tile blue tile-link" onclick="document.querySelectorAll('.tab-btn')[1].click()">
-      <div class="tile-label">Stock on Hand</div>
-      <div class="tile-value">${fmtNum(totalSoh)}</div>
-      <div class="tile-sub">${sohSkus} of ${STOCK_DATA.length} SKUs with stock</div>
-    </div>
-    <div class="tile tile-link" onclick="document.querySelectorAll('.tab-btn')[2].click()">
-      <div class="tile-label">Customer Sales Orders</div>
-      <div class="tile-value" style="font-size:13pt;color:#999">Pending</div>
-      <div class="tile-sub">Awaiting NetSuite configuration</div>
-    </div>
-    <div class="tile green tile-link" onclick="document.querySelectorAll('.tab-btn')[3].click()">
-      <div class="tile-label">PO Quantities</div>
-      <div class="tile-value">${fmtNum(totalPOQty)}</div>
-      <div class="tile-sub">${PO_DATA.length} SKUs on open POs</div>
-    </div>
-    <div class="tile amber tile-link" onclick="document.querySelectorAll('.tab-btn')[4].click()">
-      <div class="tile-label">Demand / Forecast</div>
-      <div class="tile-value" id="front-fc-val">Loading...</div>
-      <div class="tile-sub" id="front-fc-sub">retailer forecasts</div>
-    </div>
-    <div class="tile ${overdueCount>0?'red':''} tile-link" onclick="document.querySelectorAll('.tab-btn')[5].click()">
-      <div class="tile-label">Creditors</div>
-      <div class="tile-value">${totalInvoices} invoices</div>
-      <div class="tile-sub">${overdueCount} overdue, ${currentCount} current</div>
+    <div class="tile blue"><div class="tile-label">Total Stock on Hand</div><div class="tile-value">${fmtNum(totalSoh)}</div><div class="tile-sub">${sohSkus} of ${STOCK_DATA.length} SKUs with stock</div></div>
+    <div class="tile"><div class="tile-label">Forecast Demand (13 wk)</div><div class="tile-value">${totalFc>0?fmtNum(totalFc):'Pending'}</div><div class="tile-sub">${totalFc>0?'units across all SKUs':'Load Demand/Forecast tab'}</div></div>
+    <div class="tile ${redCount>0?'red':'green'}"><div class="tile-label">Supply Issues</div><div class="tile-value">${redCount}</div><div class="tile-sub">${redCount>0?redCount+' SKUs with negative net position':'All SKUs covered'}</div></div>
+    <div class="tile green"><div class="tile-label">Healthy SKUs</div><div class="tile-value">${greenCount}</div><div class="tile-sub">positive net position</div></div>`;
+
+  // Per-SKU cards
+  const cardsDiv=document.getElementById('front-cards');
+  const cards=STOCK_DATA.map(s=>{
+    const po=PO_DATA.find(p=>p.code===s.code);
+    const poQty=po?po.total_qty:0;
+    const fcQty=_fc.filter(f=>f.sku_code===s.code).reduce((ss,f)=>ss+(f.forecast_qty||0),0);
+    // Orders pending NetSuite re-auth
+    const ordersQty=null; // Pending
+    const ordersDisplay='Pending';
+    // Net = Stock + POs - Orders - Forecast. Orders unknown so excluded for now.
+    const net=s.soh+poQty-fcQty;
+    // Colour: green positive, red negative, amber if tight (within 10% of forecast or zero stock)
+    let cls='fp-green';
+    if(net<0) cls='fp-red';
+    else if(net===0||(fcQty>0&&net<fcQty*0.1)||s.soh===0) cls='fp-amber';
+
+    const netCls=net<0?'fp-neg':net===0?'fp-tight':'fp-pos';
+
+    return`<div class="fp-card ${cls}">
+      <div class="fp-card-header">
+        <div>
+          <div class="fp-sku-name">${s.desc}</div>
+          <div class="fp-sku-code">${s.code}</div>
+        </div>
+        <span class="badge ${net<0?'badge-risk':net===0||(fcQty>0&&net<fcQty*0.1)?'badge-warn':'badge-ok'}">${net<0?'Short':net===0||(fcQty>0&&net<fcQty*0.1)?'Tight':'OK'}</span>
+      </div>
+      <div class="fp-card-body">
+        <div class="fp-metric-row"><span class="fp-metric-label">Stock on Hand</span><span class="fp-metric-value${s.soh===0?' fp-neg':''}">${s.soh>0?fmtNum(s.soh):'0'}</span></div>
+        <div class="fp-metric-row"><span class="fp-metric-label">Open Customer Orders</span><span class="fp-metric-value fp-pending">${ordersDisplay}</span></div>
+        <div class="fp-metric-row"><span class="fp-metric-label">Forecast Demand (13 wk)</span><span class="fp-metric-value">${fcQty>0?fmtNum(fcQty):'--'}</span></div>
+        <div class="fp-metric-row"><span class="fp-metric-label">Open POs (inbound)</span><span class="fp-metric-value">${poQty>0?fmtNum(poQty):'--'}</span></div>
+      </div>
+      ${poQty>0?'<div class="fp-warning">PO qty is total ordered (all time), not remaining. See PO tab warning.</div>':''}
+      <div class="fp-net-row">
+        <span class="fp-net-label">Net Position</span>
+        <span class="fp-net-val ${netCls}">${fmtSigned(net)}</span>
+      </div>
     </div>`;
+  }).join('');
+  cardsDiv.innerHTML=cards;
 }
 function updateFrontForecastTile(){
-  const el=document.getElementById('front-fc-val');
-  const sub=document.getElementById('front-fc-sub');
-  if(!el)return;
-  const tFc=_fc.reduce((s,f)=>s+(f.forecast_qty||0),0);
-  const tOrd=_ord.reduce((s,o)=>s+(o.planned_qty||0),0);
-  el.textContent=tFc>0?fmtNum(tFc)+' cases':'No data';
-  const pct=tFc>0?Math.round(tOrd/tFc*100):0;
-  sub.textContent=tFc>0?pct+'% covered by planned orders':'Load Demand/Forecast tab';
+  // Re-render front page cards with forecast data now loaded
+  if(document.getElementById('tab-front').classList.contains('active')){
+    renderFrontPage();
+  }
 }
 
 // ---- Init ----
