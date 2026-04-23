@@ -167,7 +167,7 @@
 
 <!-- PLANNING DASHBOARD -->
 <div id="tab-forecast" class="tab-pane active">
-  <div class="ns-banner" style="background:#e8f4fd;border-left-color:var(--blue)">Data sources: Stock from NetSuite (23/04/2026). Sales orders from Report 246 (23/04/2026). Open POs from SuiteQL (23/04/2026). Creditors from Report 557 (23/04/2026).</div>
+  <div class="ns-banner" style="background:#e8f4fd;border-left-color:var(--blue)">Data sources: Stock from NetSuite (24/04/2026). Sales orders from Report 246 (24/04/2026). Open POs from SuiteQL (24/04/2026). Creditors from Report 557 (24/04/2026).</div>
   <div class="section-header" style="margin-top:8px">Planning Position by SKU</div>
   <div class="front-cards-grid" id="front-cards">
     <div class="loader"><span class="spinner"></span>Loading planning data...</div>
@@ -176,7 +176,7 @@
 
 <!-- STOCK TAB -->
 <div id="tab-stock" class="tab-pane">
-  <div class="ns-banner">NetSuite extract: 23/04/2026 | AGD Erskine Park | Inventory balance by item (all lots/bins aggregated)</div>
+  <div class="ns-banner">NetSuite extract: 24/04/2026 | AGD Erskine Park | Inventory balance by item (all lots/bins aggregated)</div>
   <div class="summary-row" id="stock-summary-tiles"></div>
   <div class="data-section">
     <div class="data-table-wrap">
@@ -199,7 +199,7 @@
 
 <!-- SALES ORDERS TAB -->
 <div id="tab-so" class="tab-pane">
-  <div class="ns-banner">NetSuite Report 246, 23/04/2026 | Open sales orders for Oatly SKUs</div>
+  <div class="ns-banner">NetSuite Report 246, 24/04/2026 | Open sales orders for Oatly SKUs</div>
   <div class="summary-row" id="so-summary-tiles"></div>
   <div class="data-section">
     <div class="data-table-wrap">
@@ -225,7 +225,7 @@
 
 <!-- PO TAB -->
 <div id="tab-po" class="tab-pane">
-  <div class="ns-banner">NetSuite SuiteQL extract: 23/04/2026 | Open Oatly purchase orders by SKU | Status B=Pending Receipt, F=Pending Bill, E=Partially Received</div>
+  <div class="ns-banner">NetSuite SuiteQL extract: 24/04/2026 | Open Oatly purchase orders by SKU | Status B=Pending Receipt, F=Pending Bill, E=Partially Received</div>
   <div class="summary-row" id="po-summary-tiles"></div>
   <div class="data-section">
     <div class="data-table-wrap">
@@ -251,7 +251,7 @@
 
 <!-- CREDITORS TAB -->
 <div id="tab-creditors" class="tab-pane">
-  <div class="ns-banner">NetSuite extract: 23/04/2026 | Oatly Open Bills (Report 557, filtered to OAT101 only) | Total: AUD 529,797 | 30 open bills</div>
+  <div class="ns-banner">NetSuite extract: 24/04/2026 | Oatly Open Bills (Report 557, filtered to OAT101 only) | Total: AUD 529,797 | 30 open bills</div>
   <div class="ap-filter-bar">
     <label>Show:</label>
     <select id="ap-filter" onchange="renderAP()">
@@ -288,12 +288,12 @@
 </div>
 
 <div class="page-footer">
-  <span>AGD Oatly Planner | Data: NetSuite 23/04/2026 | INTERNAL - NOT FOR DISTRIBUTION</span>
+  <span>AGD Oatly Planner | Data: NetSuite 24/04/2026 | INTERNAL - NOT FOR DISTRIBUTION</span>
   <span id="footer-gen">Generated: --</span>
 </div>
 
 <script>
-// ---- Static NetSuite data (extracted 23/04/2026) ----
+// ---- Static NetSuite data (extracted 24/04/2026) ----
 const STOCK_DATA = [
   {code:'FG 61737',desc:'Oatly Oat Milk Barista Edition 1L',soh:57689,avail:57689},
   {code:'FG 62108',desc:'Oatly Oat Milk Full 2.8% Fat 1.0L',soh:6171,avail:6171},
@@ -314,7 +314,7 @@ const SALES_ORDERS_DATA = [
   {sku:'FG 61737',desc:'Oatly Barista Edition 1L',so:'SOAGD2073',customer:'Bidfood',date:'23/04/2026',qty:70,fulfilled:0},
 ];
 
-// Open PO data by SKU (SuiteQL extract 23/04/2026)
+// Open PO data by SKU (SuiteQL extract 24/04/2026)
 const OPEN_PO_BY_SKU = [
   {code:'FG 61737',desc:'',open_qty:220100,po_count:71,pending_receipt:9,pending_bill:62},
   {code:'FG 61739',desc:'',open_qty:14171,po_count:5,pending_receipt:1,pending_bill:4},
@@ -455,8 +455,8 @@ const PO_LINES = [
 ];
 
 // ---- PO overdue helpers ----
-// Today for overdue calcs: 23/04/2026
-const TODAY_DATE = new Date(2026, 3, 23); // months are 0-indexed
+// Today for overdue calcs: 24/04/2026
+const TODAY_DATE = new Date(2026, 3, 24); // months are 0-indexed
 
 function parsePODate(s) {
   const [d,m,y] = s.split('/');
