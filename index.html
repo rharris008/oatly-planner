@@ -102,9 +102,6 @@
   .ap-filter-bar label { font-size:9pt; color:#666; }
   .ap-filter-bar select { font-family:Arial,sans-serif; font-size:9pt; padding:5px 8px; border:1px solid var(--mdgrey); border-radius:4px; }
   .negative { color:var(--red); }
-  /* Warning banner */
-  .warn-banner { background:#fdecea; border-left:4px solid var(--red); padding:10px 24px; font-size:9pt; color:#7a1500; line-height:1.5; }
-  .warn-banner strong { display:block; margin-bottom:2px; }
   /* Front page planning cards */
   .front-cards-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(340px,1fr)); gap:16px; padding:16px 24px; }
   .fp-card { background:var(--white); border-radius:8px; box-shadow:0 1px 6px rgba(0,0,0,.1); overflow:hidden; border-left:5px solid var(--mdgrey); }
@@ -127,7 +124,12 @@
   .fp-net-row .fp-net-val.fp-neg { color:var(--red); }
   .fp-net-row .fp-net-val.fp-pos { color:var(--green); }
   .fp-net-row .fp-net-val.fp-tight { color:var(--amber); }
-  .fp-warning { font-size:7.5pt; color:var(--amber); padding:2px 14px 8px; }
+  .fp-woc-row { display:flex; justify-content:space-between; padding:4px 14px 8px; font-size:8.5pt; }
+  .fp-woc-label { color:#666; }
+  .fp-woc-value { font-weight:bold; }
+  .fp-woc-value.woc-green { color:var(--green); }
+  .fp-woc-value.woc-amber { color:var(--amber); }
+  .fp-woc-value.woc-red { color:var(--red); }
 </style>
 </head>
 <body>
@@ -148,13 +150,14 @@
 <nav class="tab-nav">
   <button class="tab-btn active" onclick="showTab('forecast',this)">Planning Dashboard</button>
   <button class="tab-btn" onclick="showTab('stock',this)">Stock on Hand</button>
+  <button class="tab-btn" onclick="showTab('so',this)">Sales Orders</button>
   <button class="tab-btn" onclick="showTab('po',this)">Purchase Orders</button>
   <button class="tab-btn" onclick="showTab('creditors',this)">Creditors</button>
 </nav>
 
-<!-- PLANNING DASHBOARD — default landing tab -->
+<!-- PLANNING DASHBOARD -->
 <div id="tab-forecast" class="tab-pane active">
-  <div class="ns-banner" style="background:#e8f4fd;border-left-color:var(--blue)">Data sources: Stock from NetSuite (22/04/2026). Sales orders from Report 246 (23/04/2026). PO values from Report 277 (23/04/2026). Creditors from Report 557 (23/04/2026). Retailer forecasts: pending upload from Sharon.</div>
+  <div class="ns-banner" style="background:#e8f4fd;border-left-color:var(--blue)">Data sources: Stock from NetSuite (22/04/2026). Sales orders from Report 246 (23/04/2026). Open POs from SuiteQL (23/04/2026). Creditors from Report 557 (23/04/2026).</div>
   <div class="section-header" style="margin-top:8px">Planning Position by SKU</div>
   <div class="front-cards-grid" id="front-cards">
     <div class="loader"><span class="spinner"></span>Loading planning data...</div>
@@ -164,9 +167,7 @@
 <!-- STOCK TAB -->
 <div id="tab-stock" class="tab-pane">
   <div class="ns-banner">NetSuite extract: 22/04/2026 | AGD Erskine Park | Inventory balance by item (all lots/bins aggregated)</div>
-  <div class="summary-row" id="stock-summary-tiles">
-    <!-- Populated dynamically by renderStock() — reads STOCK_DATA (same source as front-page tile) -->
-  </div>
+  <div class="summary-row" id="stock-summary-tiles"></div>
   <div class="data-section">
     <div class="data-table-wrap">
       <table class="data-table">
@@ -179,37 +180,54 @@
             <th style="width:180px">Visual</th>
           </tr>
         </thead>
-        <tbody id="stock-tbody">
-        </tbody>
-        <tfoot id="stock-tfoot">
-        </tfoot>
+        <tbody id="stock-tbody"></tbody>
+        <tfoot id="stock-tfoot"></tfoot>
       </table>
     </div>
   </div>
 </div>
 
-
-
-<!-- PO TAB -->
-<div id="tab-po" class="tab-pane">
-  <div class="ns-banner">NetSuite extract: 23/04/2026 | Oatly Open Purchase Orders (Report 277, filtered to Oatly only) | 89 open POs | Total AUD 3,116,654</div>
-  <div class="summary-row" id="po-summary-tiles"></div>
-  <div style="background:#e8f4fd;border-left:4px solid var(--blue);padding:10px 24px;font-size:9pt;color:#1B2A4A;margin:0;font-weight:bold">
-    This tab shows PO values in AUD. Per-SKU unit quantities are not available from the accessible NetSuite reports. Request access to Custom Open Purchase Orders - AGD (Report 567) for SKU-level quantity breakdowns.
-  </div>
-  <div style="background:#fef3e2;border-left:4px solid var(--amber);padding:8px 24px;font-size:8.5pt;color:#1B2A4A;margin:0">
-    Expected receipt/arrival dates are not available in this NetSuite report. Sharon or the vendor can confirm expected container arrival dates per PO.
-  </div>
+<!-- SALES ORDERS TAB -->
+<div id="tab-so" class="tab-pane">
+  <div class="ns-banner">NetSuite Report 246, 23/04/2026 | Open sales orders for Oatly SKUs</div>
+  <div class="summary-row" id="so-summary-tiles"></div>
   <div class="data-section">
     <div class="data-table-wrap">
       <table class="data-table">
         <thead>
           <tr>
-            <th>PO Number</th>
-            <th>Vendor</th>
-            <th>PO Date</th>
-            <th>Status</th>
-            <th class="num">Current Amount (AUD)</th>
+            <th>SO Number</th>
+            <th>Customer</th>
+            <th>SKU</th>
+            <th>Description</th>
+            <th class="num">Ordered Qty</th>
+            <th class="num">Fulfilled Qty</th>
+            <th class="num">Remaining</th>
+            <th>Date</th>
+          </tr>
+        </thead>
+        <tbody id="so-tbody"></tbody>
+        <tfoot id="so-tfoot"></tfoot>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- PO TAB -->
+<div id="tab-po" class="tab-pane">
+  <div class="ns-banner">NetSuite SuiteQL extract: 23/04/2026 | Open Oatly purchase orders by SKU | Status B=Pending Bill, F=Pending Receipt, E=Partially Received</div>
+  <div class="summary-row" id="po-summary-tiles"></div>
+  <div class="data-section">
+    <div class="data-table-wrap">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>SKU Code</th>
+            <th>Description</th>
+            <th class="num">Open Qty (units)</th>
+            <th class="num">PO Count</th>
+            <th class="num">Pending Receipt</th>
+            <th class="num">Pending Bill</th>
           </tr>
         </thead>
         <tbody id="po-tbody"></tbody>
@@ -235,8 +253,7 @@
       <option value="all">All vendors</option>
     </select>
   </div>
-  <div class="summary-row" id="ap-summary-tiles">
-  </div>
+  <div class="summary-row" id="ap-summary-tiles"></div>
   <div class="data-section">
     <div class="data-table-wrap">
       <table class="data-table" id="ap-table">
@@ -259,7 +276,7 @@
 </div>
 
 <div class="page-footer">
-  <span>AGD Oatly Planner | INTERNAL - NOT FOR DISTRIBUTION</span>
+  <span>AGD Oatly Planner | Data: NetSuite 23/04/2026 | INTERNAL - NOT FOR DISTRIBUTION</span>
   <span id="footer-gen">Generated: --</span>
 </div>
 
@@ -285,101 +302,16 @@ const SALES_ORDERS_DATA = [
   {sku:'FG 61737',desc:'Oatly Barista Edition 1L',so:'SOAGD2073',customer:'Bidfood',date:'23/04/2026',qty:70,fulfilled:0},
 ];
 
-// Helper: get total pending fulfilment qty for a given SKU code from SALES_ORDERS_DATA
-function getSalesOrderQty(skuCode) {
-  return SALES_ORDERS_DATA.filter(s => s.sku === skuCode).reduce((sum, s) => sum + (s.qty - s.fulfilled), 0);
-}
-
-const PO_DATA_RAW = [
-  {po:"POAGD257",vendor:"OATLY EMEA AB",date:"17/12/2025",status:"Pending Bill",aud:34587.48},
-  {po:"POAGD258",vendor:"OATLY EMEA AB",date:"17/12/2025",status:"Pending Bill",aud:34587.48},
-  {po:"POAGD259",vendor:"OATLY EMEA AB",date:"17/12/2025",status:"Pending Bill",aud:34587.48},
-  {po:"POAGD260",vendor:"OATLY EMEA AB",date:"17/12/2025",status:"Pending Bill",aud:34587.48},
-  {po:"POAGD261",vendor:"OATLY EMEA AB",date:"17/12/2025",status:"Pending Bill",aud:34587.48},
-  {po:"POAGD262",vendor:"OATLY EMEA AB",date:"17/12/2025",status:"Pending Bill",aud:34587.48},
-  {po:"POAGD263",vendor:"OATLY EMEA AB",date:"17/12/2025",status:"Pending Bill",aud:34587.48},
-  {po:"POAGD264",vendor:"OATLY EMEA AB",date:"17/12/2025",status:"Pending Bill",aud:34587.48},
-  {po:"POAGD265",vendor:"OATLY EMEA AB",date:"17/12/2025",status:"Pending Bill",aud:34587.48},
-  {po:"POAGD266",vendor:"OATLY EMEA AB",date:"17/12/2025",status:"Pending Receipt",aud:34587.48},
-  {po:"POAGD267",vendor:"OATLY EMEA AB",date:"17/12/2025",status:"Pending Receipt",aud:34587.48},
-  {po:"POAGD268",vendor:"OATLY EMEA AB",date:"17/12/2025",status:"Pending Receipt",aud:34587.48},
-  {po:"POAGD269",vendor:"OATLY EMEA AB",date:"17/12/2025",status:"Pending Receipt",aud:34587.48},
-  {po:"POAGD270",vendor:"OATLY EMEA AB",date:"17/12/2025",status:"Pending Bill",aud:44469.62},
-  {po:"POAGD271",vendor:"OATLY EMEA AB",date:"17/12/2025",status:"Pending Receipt",aud:42654.18},
-  {po:"POAGD272",vendor:"OATLY EMEA AB",date:"17/12/2025",status:"Pending Billing/Partially Received",aud:40187.36},
-  {po:"POAGD273",vendor:"OATLY EMEA AB",date:"17/12/2025",status:"Pending Receipt",aud:40187.36},
-  {po:"POAGD276",vendor:"OATLY EMEA AB",date:"17/12/2025",status:"Pending Bill",aud:36563.91},
-  {po:"POAGD278",vendor:"OATLY EMEA AB",date:"17/12/2025",status:"Pending Bill",aud:36563.91},
-  {po:"POAGD279",vendor:"OATLY EMEA AB",date:"17/12/2025",status:"Pending Receipt",aud:37497.93},
-  {po:"POAGD282",vendor:"OATLY EMEA AB",date:"15/01/2026",status:"Pending Receipt",aud:34032.86},
-  {po:"POAGD283",vendor:"OATLY EMEA AB",date:"15/01/2026",status:"Pending Receipt",aud:34032.86},
-  {po:"POAGD284",vendor:"OATLY EMEA AB",date:"15/01/2026",status:"Pending Receipt",aud:34032.86},
-  {po:"POAGD285",vendor:"OATLY EMEA AB",date:"15/01/2026",status:"Pending Receipt",aud:34032.86},
-  {po:"POAGD286",vendor:"OATLY EMEA AB",date:"15/01/2026",status:"Pending Receipt",aud:34032.86},
-  {po:"POAGD287",vendor:"OATLY EMEA AB",date:"15/01/2026",status:"Pending Receipt",aud:34032.86},
-  {po:"POAGD288",vendor:"OATLY EMEA AB",date:"15/01/2026",status:"Pending Receipt",aud:34032.86},
-  {po:"POAGD289",vendor:"OATLY EMEA AB",date:"15/01/2026",status:"Pending Receipt",aud:34032.86},
-  {po:"POAGD290",vendor:"OATLY EMEA AB",date:"15/01/2026",status:"Pending Receipt",aud:34032.86},
-  {po:"POAGD291",vendor:"OATLY EMEA AB",date:"15/01/2026",status:"Pending Receipt",aud:34032.86},
-  {po:"POAGD292",vendor:"OATLY EMEA AB",date:"15/01/2026",status:"Pending Receipt",aud:34032.86},
-  {po:"POAGD293",vendor:"OATLY EMEA AB",date:"15/01/2026",status:"Pending Receipt",aud:34032.86},
-  {po:"POAGD294",vendor:"OATLY EMEA AB",date:"15/01/2026",status:"Pending Receipt",aud:34032.86},
-  {po:"POAGD295",vendor:"OATLY EMEA AB",date:"15/01/2026",status:"Pending Receipt",aud:34032.86},
-  {po:"POAGD296",vendor:"OATLY EMEA AB",date:"15/01/2026",status:"Pending Receipt",aud:43756.54},
-  {po:"POAGD297",vendor:"OATLY EMEA AB",date:"15/01/2026",status:"Pending Receipt",aud:38646.90},
-  {po:"POAGD298",vendor:"OATLY EMEA AB",date:"15/01/2026",status:"Pending Receipt",aud:33708.74},
-  {po:"POAGD299",vendor:"OATLY EMEA AB",date:"15/01/2026",status:"Pending Receipt",aud:35977.60},
-  {po:"POAGD300",vendor:"OATLY EMEA AB",date:"15/01/2026",status:"Pending Receipt",aud:35977.60},
-  {po:"POAGD303",vendor:"OATLY EMEA AB",date:"05/02/2026",status:"Pending Receipt",aud:95992.77},
-  {po:"POAGD305",vendor:"OATLY EMEA AB",date:"16/02/2026",status:"Pending Receipt",aud:32785.43},
-  {po:"POAGD306",vendor:"OATLY EMEA AB",date:"16/02/2026",status:"Pending Receipt",aud:32785.43},
-  {po:"POAGD307",vendor:"OATLY EMEA AB",date:"16/02/2026",status:"Pending Receipt",aud:32785.43},
-  {po:"POAGD308",vendor:"OATLY EMEA AB",date:"16/02/2026",status:"Pending Receipt",aud:32785.43},
-  {po:"POAGD309",vendor:"OATLY EMEA AB",date:"16/02/2026",status:"Pending Receipt",aud:32785.43},
-  {po:"POAGD310",vendor:"OATLY EMEA AB",date:"16/02/2026",status:"Pending Receipt",aud:32785.43},
-  {po:"POAGD311",vendor:"OATLY EMEA AB",date:"16/02/2026",status:"Pending Receipt",aud:32785.43},
-  {po:"POAGD312",vendor:"OATLY EMEA AB",date:"16/02/2026",status:"Pending Receipt",aud:32785.43},
-  {po:"POAGD313",vendor:"OATLY EMEA AB",date:"16/02/2026",status:"Pending Receipt",aud:32785.43},
-  {po:"POAGD314",vendor:"OATLY EMEA AB",date:"16/02/2026",status:"Pending Receipt",aud:32785.43},
-  {po:"POAGD315",vendor:"OATLY EMEA AB",date:"16/02/2026",status:"Pending Receipt",aud:32785.43},
-  {po:"POAGD316",vendor:"OATLY EMEA AB",date:"16/02/2026",status:"Pending Receipt",aud:32785.43},
-  {po:"POAGD317",vendor:"OATLY EMEA AB",date:"16/02/2026",status:"Pending Receipt",aud:32785.43},
-  {po:"POAGD318",vendor:"OATLY EMEA AB",date:"16/02/2026",status:"Pending Receipt",aud:32785.43},
-  {po:"POAGD319",vendor:"OATLY EMEA AB",date:"16/02/2026",status:"Pending Receipt",aud:42152.70},
-  {po:"POAGD320",vendor:"OATLY EMEA AB",date:"16/02/2026",status:"Pending Receipt",aud:33893.89},
-  {po:"POAGD321",vendor:"OATLY EMEA AB",date:"16/02/2026",status:"Pending Receipt",aud:42152.70},
-  {po:"POAGD322",vendor:"OATLY EMEA AB",date:"16/02/2026",status:"Pending Receipt",aud:34658.88},
-  {po:"POAGD323",vendor:"OATLY EMEA AB",date:"16/02/2026",status:"Pending Receipt",aud:32785.43},
-  {po:"POAGD324",vendor:"OATLY EMEA AB",date:"16/02/2026",status:"Pending Receipt",aud:32785.43},
-  {po:"POAGD328",vendor:"OATLY EMEA AB",date:"25/03/2026",status:"Pending Receipt",aud:32471.36},
-  {po:"POAGD329",vendor:"OATLY EMEA AB",date:"25/03/2026",status:"Pending Receipt",aud:32471.36},
-  {po:"POAGD330",vendor:"OATLY EMEA AB",date:"25/03/2026",status:"Pending Receipt",aud:32471.36},
-  {po:"POAGD331",vendor:"OATLY EMEA AB",date:"25/03/2026",status:"Pending Receipt",aud:32471.36},
-  {po:"POAGD332",vendor:"OATLY EMEA AB",date:"25/03/2026",status:"Pending Receipt",aud:32471.36},
-  {po:"POAGD333",vendor:"OATLY EMEA AB",date:"25/03/2026",status:"Pending Receipt",aud:32471.36},
-  {po:"POAGD334",vendor:"OATLY EMEA AB",date:"25/03/2026",status:"Pending Receipt",aud:32471.36},
-  {po:"POAGD335",vendor:"OATLY EMEA AB",date:"25/03/2026",status:"Pending Receipt",aud:32471.36},
-  {po:"POAGD336",vendor:"OATLY EMEA AB",date:"25/03/2026",status:"Pending Receipt",aud:32471.36},
-  {po:"POAGD337",vendor:"OATLY EMEA AB",date:"25/03/2026",status:"Pending Receipt",aud:32471.36},
-  {po:"POAGD338",vendor:"OATLY EMEA AB",date:"25/03/2026",status:"Pending Receipt",aud:32471.36},
-  {po:"POAGD339",vendor:"OATLY EMEA AB",date:"25/03/2026",status:"Pending Receipt",aud:32471.36},
-  {po:"POAGD340",vendor:"OATLY EMEA AB",date:"25/03/2026",status:"Pending Receipt",aud:32471.36},
-  {po:"POAGD341",vendor:"OATLY EMEA AB",date:"25/03/2026",status:"Pending Receipt",aud:32471.36},
-  {po:"POAGD342",vendor:"OATLY EMEA AB",date:"25/03/2026",status:"Pending Receipt",aud:32471.36},
-  {po:"POAGD343",vendor:"OATLY EMEA AB",date:"25/03/2026",status:"Pending Receipt",aud:32471.36},
-  {po:"POAGD344",vendor:"OATLY EMEA AB",date:"25/03/2026",status:"Pending Receipt",aud:32471.36},
-  {po:"POAGD345",vendor:"OATLY EMEA AB",date:"25/03/2026",status:"Pending Receipt",aud:32471.36},
-  {po:"POAGD346",vendor:"OATLY EMEA AB",date:"25/03/2026",status:"Pending Receipt",aud:32471.36},
-  {po:"POAGD347",vendor:"OATLY EMEA AB",date:"25/03/2026",status:"Pending Receipt",aud:32471.36},
-  {po:"POAGD348",vendor:"OATLY EMEA AB",date:"25/03/2026",status:"Pending Receipt",aud:32471.36},
-  {po:"POAGD349",vendor:"OATLY EMEA AB",date:"25/03/2026",status:"Pending Receipt",aud:32471.36},
-  {po:"POAGD350",vendor:"OATLY EMEA AB",date:"25/03/2026",status:"Pending Receipt",aud:41748.89},
-  {po:"POAGD351",vendor:"OATLY EMEA AB",date:"25/03/2026",status:"Pending Receipt",aud:32471.36},
-  {po:"POAGD352",vendor:"OATLY EMEA AB",date:"25/03/2026",status:"Pending Receipt",aud:32471.36},
-  {po:"POAGD353",vendor:"OATLY EMEA AB",date:"25/03/2026",status:"Pending Receipt",aud:32471.36},
-  {po:"POAGD354",vendor:"OATLY EMEA AB",date:"25/03/2026",status:"Pending Receipt",aud:32471.36},
-  {po:"POAGD355",vendor:"OATLY EMEA AB",date:"25/03/2026",status:"Pending Receipt",aud:32471.36},
-  {po:"POAGD356",vendor:"OATLY EMEA AB",date:"25/03/2026",status:"Pending Receipt",aud:32471.36},
+// Open PO data by SKU (SuiteQL extract 23/04/2026, 89 open Oatly PO lines)
+const OPEN_PO_BY_SKU = [
+  {code:'FG 61737',desc:'Oatly Barista Edition 1L',open_qty:217000,po_count:70,pending_receipt:12,pending_bill:58},
+  {code:'FG 61739',desc:'Oatly Organic 1L',open_qty:14171,po_count:5,pending_receipt:1,pending_bill:4},
+  {code:'FG 61740',desc:'Oatly Chocolate 1L',open_qty:7130,po_count:3,pending_receipt:0,pending_bill:2,partial:1},
+  {code:'FG 61909',desc:'Oatly Creamy Oat Organic 0.25L',open_qty:3186,po_count:1,pending_receipt:0,pending_bill:1},
+  {code:'FG 62060',desc:'Oatly Vanilla Flavour 1L',open_qty:4185,po_count:2,pending_receipt:0,pending_bill:2},
+  {code:'FG 62106',desc:'Oatly Low Sugar 1L',open_qty:6200,po_count:2,pending_receipt:1,pending_bill:1},
+  {code:'FG 62108',desc:'Oatly Full 2.8% Fat 1L',open_qty:11315,po_count:4,pending_receipt:1,pending_bill:3},
+  {code:'FG 62322',desc:'Oatly Barista Organic 1L',open_qty:5714,po_count:2,pending_receipt:0,pending_bill:2},
 ];
 
 const AP_DATA = [
@@ -415,230 +347,111 @@ const AP_DATA = [
   {inv:"3010600069819",vendor:"OAT101 OATLY EMEA AB",bill_date:"10/04/2026",due_date:"25/05/2026",aud:32279.48,auth:"Richard Carlick",memo:null},
 ];
 
-// ---- Supabase config ----
-const SB_URL='https://yxaebxkkclbjezffmerw.supabase.co';
-const SB_KEY='sb_publishable_yLmaFw0myJv-rHuCC2LsHw_WW7d8lJn';
-const HDR={'apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY};
-let _skus=[],_dcs=[],_fc=[],_ord=[];
+// ---- Helpers ----
+function fmtNum(n){if(n===null||n===undefined)return'--';return Number(n).toLocaleString('en-AU');}
+function fmtAudSigned(n){
+  if(n<0)return'<span class="negative" style="color:var(--red)">('+Number(Math.abs(n)).toLocaleString('en-AU',{minimumFractionDigits:2,maximumFractionDigits:2})+')</span>';
+  return Number(n).toLocaleString('en-AU',{minimumFractionDigits:2,maximumFractionDigits:2});
+}
+function fmtSigned(n){
+  if(n===null||n===undefined)return'--';
+  if(n<0)return'('+fmtNum(Math.abs(n))+')';
+  return fmtNum(n);
+}
+
+// Helper: get total pending fulfilment qty for a given SKU code
+function getSalesOrderQty(skuCode) {
+  return SALES_ORDERS_DATA.filter(s => s.sku === skuCode).reduce((sum, s) => sum + (s.qty - s.fulfilled), 0);
+}
+
+// Helper: get open PO qty for a given SKU code
+function getOpenPOQty(skuCode) {
+  const po = OPEN_PO_BY_SKU.find(p => p.code === skuCode);
+  return po ? po.open_qty : 0;
+}
+
+// Helper: get PO count for a given SKU code
+function getOpenPOCount(skuCode) {
+  const po = OPEN_PO_BY_SKU.find(p => p.code === skuCode);
+  return po ? po.po_count : 0;
+}
 
 // ---- Tab switching ----
 function showTab(id, btn) {
   document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
   document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-  // Map forecast tab clicks to the demand/forecast pane (which uses planned_orders internally)
-  const paneId = id==='forecast' ? 'forecast' : id;
-  document.getElementById('tab-'+paneId).classList.add('active');
+  document.getElementById('tab-'+id).classList.add('active');
   if(btn) btn.classList.add('active');
-  if(id==='forecast' && !_skus.length) loadForecast();
-  if(id==='forecast' && _skus.length) { applyFilters(); renderPlannedOrders(); renderSkuCards(); }
 }
 
 function refreshCurrent() {
-  const active = document.querySelector('.tab-btn.active');
-  const tabId = active ? active.getAttribute('onclick').match(/'(\w+)'/)[1] : 'forecast';
-  if(tabId==='forecast') loadForecast();
+  // Static data, just re-render
+  renderAll();
 }
 
-// ---- Helpers ----
-function isoToday(){return new Date().toISOString().slice(0,10);}
-function weeksAhead(n){const d=new Date();d.setDate(d.getDate()+n*7);return d.toISOString().slice(0,10);}
-function fmtDate(iso){if(!iso)return'--';const[y,m,d]=iso.split('-');return d+'/'+m+'/'+String(y).slice(2);}
-function fmtNum(n){if(n===null||n===undefined)return'--';return Number(n).toLocaleString('en-AU');}
-function fmtEur(n){return 'EUR '+Number(n).toLocaleString('en-AU',{minimumFractionDigits:0,maximumFractionDigits:0});}
-function fmtAud(n){return 'AUD '+Number(n).toLocaleString('en-AU',{minimumFractionDigits:2,maximumFractionDigits:2});}
-async function sb(p){const r=await fetch(SB_URL+'/rest/v1/'+p,{headers:HDR});if(!r.ok)throw new Error('SB '+r.status+': '+await r.text());return r.json();}
+// ---- Planning Dashboard cards ----
+function renderSkuCards(){
+  const cardsDiv=document.getElementById('front-cards');
+  const cards=STOCK_DATA.map(s=>{
+    const ordersQty=getSalesOrderQty(s.code);
+    const poQty=getOpenPOQty(s.code);
+    const poCount=getOpenPOCount(s.code);
+    // Net = Stock + Open POs - Sales Orders
+    const net=s.soh + poQty - ordersQty;
 
-// ---- Forecast tab ----
-async function loadForecast(){
-  document.getElementById('summary-tiles').innerHTML='<div class="loader"><span class="spinner"></span>Loading data...</div>';
-  document.getElementById('cards-heading').style.display='none';
-  document.getElementById('cards-grid').innerHTML='';
-  document.getElementById('weekly-chart-card').style.display='none';
-  try{
-    const today=isoToday();
-    const horizon=weeksAhead(parseInt(document.getElementById('sel-weeks').value)||13);
-    // Forecast and planned orders tables contain 577 stale WW-only rows from initial seed.
-    // Cannot delete (RLS blocks anon DELETE). Disabled until Sharon uploads real forecasts
-    // and Rob runs DELETE via Supabase SQL editor to clear the stale rows.
-    [_skus,_dcs]=await Promise.all([
-      sb('oatly_skus?select=*&active=eq.true&order=pack_group,sku_code'),
-      sb('oatly_dcs?select=*&active=eq.true&order=dc_code'),
-    ]);
-    _fc=[]; _ord=[];
-    populateFilters();
-    applyFilters();
-    renderSkuCards();
-    const now=new Date().toLocaleString('en-AU',{timeZone:'Australia/Brisbane',hour12:false});
-    document.getElementById('last-refresh').textContent='Refreshed: '+now+' AEST';
-    document.getElementById('footer-gen').textContent='Generated: '+now;
-  }catch(err){
-    document.getElementById('summary-tiles').innerHTML='<div class="loader" style="color:var(--red)">Error: '+err.message+'</div>';
-  }
-}
-function populateFilters(){
-  const ss=document.getElementById('sel-sku'),sd=document.getElementById('sel-dc');
-  const ps=ss.value,pd=sd.value;
-  ss.innerHTML='<option value="">All SKUs</option>'+_skus.map(s=>'<option value="'+s.sku_code+'">'+s.description+' ('+s.sku_code+')</option>').join('');
-  sd.innerHTML='<option value="">All DCs</option>'+_dcs.map(d=>'<option value="'+d.dc_code+'">'+d.dc_name+' ('+d.dc_code+')</option>').join('');
-  if(ps)ss.value=ps; if(pd)sd.value=pd;
-}
-function applyFilters(){
-  const fs=document.getElementById('sel-sku').value,fd=document.getElementById('sel-dc').value;
-  const skus=_skus.filter(s=>!fs||s.sku_code===fs);
-  const fc=_fc.filter(f=>(!fs||f.sku_code===fs)&&(!fd||String(f.dc_code)===String(fd)));
-  const ord=_ord.filter(o=>(!fs||o.sku_code===fs)&&(!fd||String(o.dc_code)===String(fd)));
-  renderSummary(skus,fc,ord);
-  renderCards(skus,fc,ord,fd);
-  renderWeeklyChart(fc,ord);
-  renderPlannedOrders();
-}
-function renderSummary(skus,fc,ord){
-  const tFc=fc.reduce((s,f)=>s+(f.forecast_qty||0),0);
-  const tOrd=ord.reduce((s,o)=>s+(o.planned_qty||0),0);
-  const gap=tFc-tOrd;
-  const weeks=[...new Set(fc.map(f=>f.week_commencing))].length;
-  // Coverage = actual sales orders vs retailer forecast (what % of forecast demand has been converted to actual orders)
-  const pct=tFc>0?Math.round(tOrd/tFc*100):null;
-  const cc=pct===null?'':pct>=90?'green':pct>=70?'amber':'red';
-  const coverageVal=pct===null?'--':pct+'%';
-  const coverageSub=pct===null?'No forecast data loaded':gap>=0?'Gap: '+fmtNum(gap)+' cases':'Surplus: '+fmtNum(-gap)+' cases';
-  // Stock on hand — read from STOCK_DATA (same source as Stock tab tiles)
-  const totalSoh=STOCK_DATA.reduce((s,d)=>s+d.soh,0);
-  const sohSkus=STOCK_DATA.filter(d=>d.soh>0).length;
-  const sohLabel=totalSoh>0?fmtNum(totalSoh):'Pending sync';
-  const sohSub=totalSoh>0?sohSkus+' of '+STOCK_DATA.length+' SKUs with stock →':'Stock on hand: Pending NetSuite sync';
-  document.getElementById('summary-tiles').innerHTML=`
-    <div class="tile blue"><div class="tile-label">Active SKUs (with stock)</div><div class="tile-value">${sohSkus}</div><div class="tile-sub">${sohSkus} of ${STOCK_DATA.length} SKUs have stock</div></div>
-    <div class="tile"><div class="tile-label">Retailer Forecast</div><div class="tile-value">${fmtNum(tFc)}</div><div class="tile-sub">${weeks} weeks, cases</div></div>
-    <div class="tile"><div class="tile-label">Actual Sales Orders</div><div class="tile-value">${tOrd>0?fmtNum(tOrd):'0'}</div><div class="tile-sub">${tOrd>0?'cases on open customer sales orders (NetSuite)':'No planned orders in Supabase for this period'}</div></div>
-    <div class="tile ${tOrd>0?cc:''}"><div class="tile-label">Coverage</div><div class="tile-value">${tOrd>0?coverageVal:'0%'}</div><div class="tile-sub">${tOrd>0?coverageSub:'No open sales orders found for AGD'}</div></div>
-    <div class="tile blue tile-link" onclick="document.querySelectorAll('.tab-btn')[1].click()"><div class="tile-label">Stock on Hand</div><div class="tile-value" style="${totalSoh===0?'font-size:11pt;color:#999':''}">${sohLabel}</div><div class="tile-sub">${sohSub}</div></div>`;
-}
-function renderCards(skus,fc,ord,fd){
-  const heading=document.getElementById('cards-heading'),grid=document.getElementById('cards-grid');
-  if(!skus.length){heading.style.display='none';grid.innerHTML='<div class="loader">No data for selected filters.</div>';return;}
-  heading.style.display='block';
-  const dcs=fd?_dcs.filter(d=>String(d.dc_code)===String(fd)):_dcs;
-  grid.innerHTML=skus.map(sku=>{
-    const sfc=fc.filter(f=>f.sku_code===sku.sku_code);
-    const sord=ord.filter(o=>o.sku_code===sku.sku_code);
-    const tFc=sfc.reduce((s,f)=>s+(f.forecast_qty||0),0);
-    const tOrd=sord.reduce((s,o)=>s+(o.planned_qty||0),0);
-    const gap=tFc-tOrd;
-    const pct=tFc>0?Math.round(tOrd/tFc*100):0;
-    const bc=pct>=90?'badge-ok':pct>=70?'badge-warn':'badge-risk';
-    const bt=pct>=90?'On Track':pct>=70?'At Risk':'Gap';
-    const dcRows=dcs.map(dc=>{
-      const dcFc=sfc.filter(f=>String(f.dc_code)===String(dc.dc_code)).reduce((s,f)=>s+(f.forecast_qty||0),0);
-      const dcOrd=sord.filter(o=>String(o.dc_code)===String(dc.dc_code)).reduce((s,o)=>s+(o.planned_qty||0),0);
-      if(!dcFc&&!dcOrd)return'';
-      const dcGap=dcFc-dcOrd;
-      return`<tr><td>${dc.dc_name}</td><td class="num">${fmtNum(dcFc)}</td><td class="num">${fmtNum(dcOrd)}</td><td class="num ${dcGap>0?'gap-val':'ok-val'}">${dcGap>0?'('+fmtNum(dcGap)+')':'+'+fmtNum(-dcGap)}</td></tr>`;
-    }).join('');
-    return`<div class="sku-card">
-      <div class="sku-card-header">
-        <div><div class="sku-name">${sku.description}</div><div class="sku-code">${sku.sku_code} | ${sku.pack_group||'--'}</div></div>
-        <span class="badge ${bc}">${bt}</span>
-      </div>
-      <div class="sku-card-body">
-        <div class="sku-metrics">
-          <div class="metric-box"><span class="m-val">${fmtNum(tFc)}</span><span class="m-lbl">Forecast</span></div>
-          <div class="metric-box ${pct>=90?'ok':pct>=70?'warn':'risk'}"><span class="m-val">${fmtNum(tOrd)}</span><span class="m-lbl">Ordered</span></div>
-          <div class="metric-box ${gap>0?'risk':'ok'}"><span class="m-val">${gap>0?'('+fmtNum(gap)+')':fmtNum(-gap)}</span><span class="m-lbl">${gap>0?'Gap':'Surplus'}</span></div>
-          <div class="metric-box"><span class="m-val">${pct}%</span><span class="m-lbl">Coverage</span></div>
+    // Weeks of Cover: no sales history available for most SKUs
+    // Use sales order run rate as a proxy where we have data, otherwise N/A
+    let wocDisplay='N/A';
+    let wocClass='';
+    // Only calculate if there are actual sales orders to derive a rate from
+    if(ordersQty > 0) {
+      // Very rough: assume orders represent ~1 week demand
+      const weeklyRate = ordersQty;
+      const totalSupply = s.soh + poQty;
+      const woc = weeklyRate > 0 ? Math.round(totalSupply / weeklyRate) : 0;
+      wocDisplay = woc + ' weeks';
+      wocClass = woc >= 8 ? 'woc-green' : woc >= 4 ? 'woc-amber' : 'woc-red';
+    } else if(s.soh > 0 || poQty > 0) {
+      // Have supply but no demand signal
+      wocDisplay = 'N/A (no sales history)';
+    }
+
+    // Card colour
+    let cls='fp-green';
+    if(net<0) cls='fp-red';
+    else if(s.soh===0 && poQty===0) cls='fp-red';
+    else if(s.soh===0 && poQty>0) cls='fp-amber';
+
+    const netCls=net<0?'fp-neg':net===0?'fp-tight':'fp-pos';
+
+    return`<div class="fp-card ${cls}">
+      <div class="fp-card-header">
+        <div>
+          <div class="fp-sku-name">${s.desc}</div>
+          <div class="fp-sku-code">${s.code}</div>
         </div>
-        ${dcRows?`<table class="dc-table"><thead><tr><th>DC</th><th class="num">Forecast</th><th class="num">Ordered</th><th class="num">Gap/Sur</th></tr></thead><tbody>${dcRows}</tbody></table>`:'<div style="color:#999;font-size:8pt;text-align:center;padding:8px">No DC data in range</div>'}
-      </div></div>`;
-  }).join('');
-}
-function renderWeeklyChart(fc,ord){
-  const card=document.getElementById('weekly-chart-card'),body=document.getElementById('weekly-chart-body');
-  if(!fc.length){card.style.display='none';return;}
-  card.style.display='block';
-  const wm={};
-  fc.forEach(f=>{if(!wm[f.week_commencing])wm[f.week_commencing]={fc:0,ord:0};wm[f.week_commencing].fc+=(f.forecast_qty||0);});
-  ord.forEach(o=>{if(!wm[o.week_commencing])wm[o.week_commencing]={fc:0,ord:0};wm[o.week_commencing].ord+=(o.planned_qty||0);});
-  const weeks=Object.keys(wm).sort().slice(0,26);
-  const maxV=Math.max(...weeks.map(w=>Math.max(wm[w].fc,wm[w].ord)),1);
-  document.getElementById('weekly-chart-title').textContent='Weekly Forecast vs Actual Sales Orders ('+weeks.length+' weeks)';
-  body.innerHTML=`<div style="font-size:8pt;color:#666;margin-bottom:8px;display:flex;gap:16px">
-    <span style="display:inline-flex;align-items:center;gap:4px"><span style="width:12px;height:12px;background:var(--blue);border-radius:2px;display:inline-block"></span> Forecast</span>
-    <span style="display:inline-flex;align-items:center;gap:4px"><span style="width:12px;height:12px;background:var(--green);border-radius:2px;display:inline-block"></span> Actual Sales Orders</span>
-  </div>`+weeks.map(w=>{
-    const d=wm[w],fp=Math.round(d.fc/maxV*100),op=Math.round(d.ord/maxV*100),gap=d.fc-d.ord;
-    return`<div style="margin-bottom:8px">
-      <div style="font-size:8pt;color:#555;margin-bottom:2px;font-weight:bold">w/c ${fmtDate(w)} <span style="font-weight:normal;color:${gap>0?'var(--red)':'var(--green)'}"> ${gap>0?'Gap '+fmtNum(gap):'Covered +'+fmtNum(-gap)}</span></div>
-      <div class="week-row"><div class="week-label" style="font-size:7.5pt">Forecast</div><div class="bar-wrap"><div class="bar-fill" style="width:${fp}%;background:var(--blue)"></div></div><div class="week-val">${fmtNum(d.fc)}</div></div>
-      <div class="week-row"><div class="week-label" style="font-size:7.5pt">Ordered</div><div class="bar-wrap"><div class="bar-fill" style="width:${op}%;background:var(--green)"></div></div><div class="week-val">${fmtNum(d.ord)}</div></div>
+        <span class="badge ${net<0?'badge-risk':s.soh===0?'badge-warn':'badge-ok'}">${net<0?'Short':s.soh===0?'No Stock':'OK'}</span>
+      </div>
+      <div class="fp-card-body">
+        <div class="fp-metric-row"><span class="fp-metric-label">Stock on Hand</span><span class="fp-metric-value${s.soh===0?' fp-neg':''}">${s.soh>0?fmtNum(s.soh):'0'}</span></div>
+        <div class="fp-metric-row"><span class="fp-metric-label">Open POs Inbound</span><span class="fp-metric-value">${poQty>0?fmtNum(poQty)+' units ('+poCount+' POs)':'None'}</span></div>
+        <div class="fp-metric-row"><span class="fp-metric-label">Sales Orders</span><span class="fp-metric-value${ordersQty>0?' fp-neg':''}">${ordersQty>0?fmtNum(ordersQty):'0'}</span></div>
+      </div>
+      <div class="fp-net-row">
+        <span class="fp-net-label">Net Position (Stock + POs - SOs)</span>
+        <span class="fp-net-val ${netCls}">${fmtSigned(net)}</span>
+      </div>
+      <div class="fp-woc-row">
+        <span class="fp-woc-label">Weeks of Cover</span>
+        <span class="fp-woc-value ${wocClass}">${wocDisplay}</span>
+      </div>
     </div>`;
   }).join('');
-}
-
-// ---- Demand detail table (retailer forecast / replenishment planning, NOT NetSuite sales orders) ----
-function renderPlannedOrders() {
-  const fs=document.getElementById('sel-sku')?.value||'';
-  const fd=document.getElementById('sel-dc')?.value||'';
-  const weeks=parseInt(document.getElementById('sel-weeks')?.value||13);
-  const today=isoToday(), horizon=weeksAhead(weeks);
-  const ord=_ord.filter(o=>
-    (!fs||o.sku_code===fs)&&
-    (!fd||String(o.dc_code)===String(fd))&&
-    o.week_commencing>=today&&o.week_commencing<=horizon
-  );
-  const coDiv=document.getElementById('co-content');
-  if(!_ord.length){coDiv.innerHTML='<div class="loader">Load forecast tab first, then return here.</div>';return;}
-  if(!ord.length){coDiv.innerHTML='<div class="loader" style="color:#888">No planned orders found for the selected filters and period.</div>';return;}
-
-  const totOrd=ord.reduce((s,o)=>s+(o.planned_qty||0),0);
-
-  // Build weekly pivot
-  const weeks_list=[...new Set(ord.map(o=>o.week_commencing))].sort();
-  const skus_in=fs?[_skus.find(s=>s.sku_code===fs)].filter(Boolean):_skus.filter(s=>ord.some(o=>o.sku_code===s.sku_code));
-  const dcs_in=fd?_dcs.filter(d=>String(d.dc_code)===String(fd)):_dcs.filter(d=>ord.some(o=>String(o.dc_code)===String(d.dc_code)));
-
-  let html='<div class="data-table-wrap" style="overflow-x:auto"><table class="data-table" style="min-width:600px"><thead><tr>';
-  html+='<th>SKU / Description</th><th>DC / Location</th>';
-  weeks_list.forEach(w=>html+='<th class="num">w/c '+fmtDate(w)+'</th>');
-  html+='<th class="num">Total</th></tr></thead><tbody>';
-
-  skus_in.forEach(sku=>{
-    const skuOrd=ord.filter(o=>o.sku_code===sku.sku_code);
-    const skuDcs=dcs_in.filter(d=>skuOrd.some(o=>String(o.dc_code)===String(d.dc_code)));
-    const skuTotal=skuOrd.reduce((s,o)=>s+(o.planned_qty||0),0);
-    html+=`<tr style="background:#f0f4f8"><td colspan="${2+weeks_list.length+1}" style="font-weight:bold;color:var(--navy);padding:7px 12px">${sku.description} <span style="font-weight:normal;color:#999;font-size:8pt">${sku.sku_code} &middot; ${sku.pack_group||''}</span></td></tr>`;
-    skuDcs.forEach(dc=>{
-      const dcOrd=skuOrd.filter(o=>String(o.dc_code)===String(dc.dc_code));
-      const dcTotal=dcOrd.reduce((s,o)=>s+(o.planned_qty||0),0);
-      const retailer=dcOrd.length>0&&dcOrd[0].retailer?dcOrd[0].retailer:'--';
-      html+=`<tr><td style="padding-left:20px;font-size:8.5pt">${dc.dc_name}</td><td style="font-size:8pt;color:#888">${retailer}</td>`;
-      weeks_list.forEach(w=>{
-        const qty=dcOrd.filter(o=>o.week_commencing===w).reduce((s,o)=>s+(o.planned_qty||0),0);
-        html+=`<td class="num" style="font-size:8.5pt">${qty>0?fmtNum(qty):'--'}</td>`;
-      });
-      html+=`<td class="num" style="font-weight:bold">${fmtNum(dcTotal)}</td></tr>`;
-    });
-    html+=`<tr style="border-top:2px solid var(--mdgrey)"><td colspan="2" style="text-align:right;font-weight:bold;font-size:8.5pt;padding-right:12px">SKU Total</td>`;
-    weeks_list.forEach(w=>{
-      const wTotal=skuOrd.filter(o=>o.week_commencing===w).reduce((s,o)=>s+(o.planned_qty||0),0);
-      html+=`<td class="num" style="font-weight:bold">${wTotal>0?fmtNum(wTotal):'--'}</td>`;
-    });
-    html+=`<td class="num" style="font-weight:bold;color:var(--navy)">${fmtNum(skuTotal)}</td></tr>`;
-  });
-
-  // Grand total row
-  html+=`<tr style="background:var(--navy);color:var(--white)"><td colspan="2" style="font-weight:bold;padding:7px 12px">TOTAL, All SKUs</td>`;
-  weeks_list.forEach(w=>{
-    const wT=ord.filter(o=>o.week_commencing===w).reduce((s,o)=>s+(o.planned_qty||0),0);
-    html+=`<td class="num" style="font-weight:bold">${fmtNum(wT)}</td>`;
-  });
-  html+=`<td class="num" style="font-weight:bold">${fmtNum(totOrd)}</td></tr>`;
-  html+='</tbody></table></div>';
-  coDiv.innerHTML=html;
+  cardsDiv.innerHTML=cards;
 }
 
 // ---- Stock tab ----
 function renderStock(){
-  // Compute counts from STOCK_DATA — same array used by front-page summary tile (single source of truth)
   const withStock=STOCK_DATA.filter(s=>s.soh>0);
   const zeroStock=STOCK_DATA.filter(s=>s.soh===0);
   const totalSoh=STOCK_DATA.reduce((s,d)=>s+d.soh,0);
@@ -665,45 +478,73 @@ function renderStock(){
   }).join('');
 }
 
-// ---- PO tab ----
-function parsePODate(s){if(!s)return new Date(0);const[d,m,y]=s.split('/');return new Date(+y,+m-1,+d);}
-function renderPO(){
-  // Sort by PO date descending (newest first)
-  const sorted=[...PO_DATA_RAW].sort((a,b)=>parsePODate(b.date)-parsePODate(a.date));
-  const totalValue=PO_DATA_RAW.reduce((s,p)=>s+p.aud,0);
-  const totalCount=PO_DATA_RAW.length;
-  const pendingReceipt=PO_DATA_RAW.filter(p=>p.status.includes('Pending Receipt')).length;
-  const pendingBill=PO_DATA_RAW.filter(p=>p.status==='Pending Bill').length;
+// ---- Sales Orders tab ----
+function renderSO(){
+  const totalUnits=SALES_ORDERS_DATA.reduce((s,o)=>s+(o.qty-o.fulfilled),0);
+  const totalSOs=[...new Set(SALES_ORDERS_DATA.map(o=>o.so))].length;
+  const customers=[...new Set(SALES_ORDERS_DATA.map(o=>o.customer))].length;
 
-  // Summary tiles
-  document.getElementById('po-summary-tiles').innerHTML=`
-    <div class="tile blue"><div class="tile-label">Total Open POs</div><div class="tile-value">${totalCount}</div><div class="tile-sub">open purchase orders</div></div>
-    <div class="tile"><div class="tile-label">Total Value</div><div class="tile-value">AUD ${fmtNum(Math.round(totalValue))}</div><div class="tile-sub">current open amount</div></div>
-    <div class="tile amber"><div class="tile-label">Pending Receipt</div><div class="tile-value">${pendingReceipt}</div><div class="tile-sub">awaiting goods</div></div>
-    <div class="tile green"><div class="tile-label">Pending Bill</div><div class="tile-value">${pendingBill}</div><div class="tile-sub">received, awaiting invoice</div></div>`;
+  document.getElementById('so-summary-tiles').innerHTML=`
+    <div class="tile blue"><div class="tile-label">Total Open SOs</div><div class="tile-value">${totalSOs}</div><div class="tile-sub">open sales orders</div></div>
+    <div class="tile"><div class="tile-label">Total Units</div><div class="tile-value">${fmtNum(totalUnits)}</div><div class="tile-sub">remaining to fulfil</div></div>
+    <div class="tile green"><div class="tile-label">Customers</div><div class="tile-value">${customers}</div><div class="tile-sub">with open orders</div></div>`;
 
-  // Status colour coding
-  function statusBadge(s){
-    if(s==='Pending Bill') return '<span class="current-badge">'+s+'</span>';
-    if(s.includes('Partially')) return '<span class="overdue-badge">'+s+'</span>';
-    return '<span style="background:#fef3e2;color:var(--amber);padding:2px 7px;border-radius:10px;font-size:7.5pt;font-weight:bold;white-space:nowrap">'+s+'</span>';
-  }
-
-  const tbody=document.getElementById('po-tbody');
-  tbody.innerHTML=sorted.map(p=>{
+  const tbody=document.getElementById('so-tbody');
+  tbody.innerHTML=SALES_ORDERS_DATA.map(o=>{
+    const remaining=o.qty-o.fulfilled;
     return`<tr>
-      <td style="font-weight:bold">${p.po}</td>
-      <td>${p.vendor}</td>
-      <td>${p.date}</td>
-      <td>${statusBadge(p.status)}</td>
-      <td class="num">${fmtAudSigned(p.aud)}</td>
+      <td style="font-weight:bold">${o.so}</td>
+      <td>${o.customer}</td>
+      <td>${o.sku}</td>
+      <td>${o.desc}</td>
+      <td class="num">${fmtNum(o.qty)}</td>
+      <td class="num">${fmtNum(o.fulfilled)}</td>
+      <td class="num" style="font-weight:bold">${fmtNum(remaining)}</td>
+      <td>${o.date}</td>
     </tr>`;
   }).join('');
 
-  const tfoot=document.getElementById('po-tfoot');
-  tfoot.innerHTML=`<tr>
-    <td colspan="4">Total (${totalCount} POs)</td>
-    <td class="num">${fmtAudSigned(totalValue)}</td>
+  document.getElementById('so-tfoot').innerHTML=`<tr>
+    <td colspan="4">Total (${SALES_ORDERS_DATA.length} lines)</td>
+    <td class="num">${fmtNum(SALES_ORDERS_DATA.reduce((s,o)=>s+o.qty,0))}</td>
+    <td class="num">${fmtNum(SALES_ORDERS_DATA.reduce((s,o)=>s+o.fulfilled,0))}</td>
+    <td class="num">${fmtNum(totalUnits)}</td>
+    <td></td>
+  </tr>`;
+}
+
+// ---- PO tab ----
+function renderPO(){
+  const totalQty=OPEN_PO_BY_SKU.reduce((s,p)=>s+p.open_qty,0);
+  const totalPOs=OPEN_PO_BY_SKU.reduce((s,p)=>s+p.po_count,0);
+  const skusWithPOs=OPEN_PO_BY_SKU.length;
+
+  document.getElementById('po-summary-tiles').innerHTML=`
+    <div class="tile blue"><div class="tile-label">Total Open Units</div><div class="tile-value">${fmtNum(totalQty)}</div><div class="tile-sub">units on open purchase orders</div></div>
+    <div class="tile"><div class="tile-label">SKUs with Open POs</div><div class="tile-value">${skusWithPOs} of ${STOCK_DATA.length}</div><div class="tile-sub">SKUs have inbound stock</div></div>
+    <div class="tile green"><div class="tile-label">Total PO Count</div><div class="tile-value">${totalPOs}</div><div class="tile-sub">open purchase orders</div></div>`;
+
+  const tbody=document.getElementById('po-tbody');
+  tbody.innerHTML=OPEN_PO_BY_SKU.map(p=>{
+    const partialNote = p.partial ? ' (+'+p.partial+' partial)' : '';
+    return`<tr>
+      <td style="font-weight:bold">${p.code}</td>
+      <td>${p.desc}</td>
+      <td class="num">${fmtNum(p.open_qty)}</td>
+      <td class="num">${p.po_count}</td>
+      <td class="num">${p.pending_receipt}${partialNote}</td>
+      <td class="num">${p.pending_bill}</td>
+    </tr>`;
+  }).join('');
+
+  const totalReceipt=OPEN_PO_BY_SKU.reduce((s,p)=>s+p.pending_receipt,0);
+  const totalBill=OPEN_PO_BY_SKU.reduce((s,p)=>s+p.pending_bill,0);
+  document.getElementById('po-tfoot').innerHTML=`<tr>
+    <td colspan="2">Total (${skusWithPOs} SKUs)</td>
+    <td class="num">${fmtNum(totalQty)}</td>
+    <td class="num">${totalPOs}</td>
+    <td class="num">${totalReceipt}</td>
+    <td class="num">${totalBill}</td>
   </tr>`;
 }
 
@@ -711,14 +552,9 @@ function renderPO(){
 function parseDD(s){if(!s)return null;const[d,m,y]=s.split('/');return new Date(+y,+m-1,+d);}
 function isOverdue(b){if(!b.due_date||b.aud<0)return false;const d=parseDD(b.due_date);return d&&d<new Date();}
 function vendorShort(v){if(!v)return'--';const i=v.indexOf(' ');return i>0?v.substring(i+1):v;}
-function fmtAudSigned(n){
-  if(n<0)return'<span class="negative" style="color:var(--red)">('+Number(Math.abs(n)).toLocaleString('en-AU',{minimumFractionDigits:2,maximumFractionDigits:2})+')</span>';
-  return Number(n).toLocaleString('en-AU',{minimumFractionDigits:2,maximumFractionDigits:2});
-}
 function renderAP(){
   const filter=document.getElementById('ap-filter').value;
   const vendorFilter=document.getElementById('ap-vendor-filter').value;
-  // Populate vendor dropdown on first render
   const vSel=document.getElementById('ap-vendor-filter');
   if(vSel.options.length<=1){
     const vendors=[...new Set(AP_DATA.map(b=>b.vendor))].sort();
@@ -731,7 +567,6 @@ function renderAP(){
     if(filter==='credits') return b.aud<0;
     return true;
   });
-  // Summary tiles
   const totalAud=AP_DATA.reduce((s,b)=>s+b.aud,0);
   const billCount=AP_DATA.length;
   const overdueCount=AP_DATA.filter(b=>isOverdue(b)).length;
@@ -764,59 +599,21 @@ function renderAP(){
   </tr>`;
 }
 
-// ---- Per-SKU planning position cards (shown in Demand/Forecast tab) ----
-function fmtSigned(n){
-  if(n===null||n===undefined)return'--';
-  if(n<0)return'('+fmtNum(Math.abs(n))+')';
-  return fmtNum(n);
-}
-function renderSkuCards(){
-  const cardsDiv=document.getElementById('front-cards');
-  const totalPOValue=PO_DATA_RAW.reduce((s,p)=>s+p.aud,0);
-  const cards=STOCK_DATA.map(s=>{
-    const fcQty=_fc.filter(f=>f.sku_code===s.code).reduce((ss,f)=>ss+(f.forecast_qty||0),0);
-    // Sales orders from NetSuite Report 246 (23/04/2026)
-    const ordersQty=getSalesOrderQty(s.code);
-    const ordersDisplay=fmtNum(ordersQty);
-    // Net = Stock - Sales Orders - Forecast (PO units not available by SKU, excluded)
-    const net=s.soh-ordersQty-fcQty;
-    // Colour: green positive, red negative, amber if tight (within 10% of forecast or zero stock)
-    let cls='fp-green';
-    if(net<0) cls='fp-red';
-    else if(net===0||(fcQty>0&&net<fcQty*0.1)||s.soh===0) cls='fp-amber';
-
-    const netCls=net<0?'fp-neg':net===0?'fp-tight':'fp-pos';
-
-    return`<div class="fp-card ${cls}">
-      <div class="fp-card-header">
-        <div>
-          <div class="fp-sku-name">${s.desc}</div>
-          <div class="fp-sku-code">${s.code}</div>
-        </div>
-        <span class="badge ${net<0?'badge-risk':net===0||(fcQty>0&&net<fcQty*0.1)?'badge-warn':'badge-ok'}">${net<0?'Short':net===0||(fcQty>0&&net<fcQty*0.1)?'Tight':'OK'}</span>
-      </div>
-      <div class="fp-card-body">
-        <div class="fp-metric-row"><span class="fp-metric-label">Stock on Hand</span><span class="fp-metric-value${s.soh===0?' fp-neg':''}">${s.soh>0?fmtNum(s.soh):'0'}</span></div>
-        <div class="fp-metric-row"><span class="fp-metric-label">Actual Sales Orders</span><span class="fp-metric-value${ordersQty>0?' fp-neg':''}">${ordersDisplay}</span></div>
-        <div class="fp-metric-row"><span class="fp-metric-label">Forecast Demand (13 wk)</span><span class="fp-metric-value">${fcQty>0?fmtNum(fcQty):'--'}</span></div>
-        <div class="fp-metric-row"><span class="fp-metric-label">Open POs (inbound)</span><span class="fp-metric-value fp-pending" style="cursor:pointer" onclick="document.querySelectorAll('.tab-btn')[2].click()">See PO tab (AUD ${fmtNum(Math.round(totalPOValue))} total)</span></div>
-      </div>
-      <div class="fp-net-row">
-        <span class="fp-net-label">Net Position (Stock - SOs - Forecast, excl. POs)</span>
-        <span class="fp-net-val ${netCls}">${fmtSigned(net)}</span>
-      </div>
-    </div>`;
-  }).join('');
-  cardsDiv.innerHTML=cards;
-}
-// ---- Init ----
-document.addEventListener('DOMContentLoaded',()=>{
+// ---- Render all ----
+function renderAll(){
+  renderSkuCards();
   renderStock();
+  renderSO();
   renderPO();
   renderAP();
-  loadForecast().then(()=>renderSkuCards());
   const now=new Date().toLocaleString('en-AU',{timeZone:'Australia/Brisbane',hour12:false});
+  document.getElementById('last-refresh').textContent='Refreshed: '+now+' AEST';
   document.getElementById('footer-gen').textContent='Generated: '+now;
+}
+
+// ---- Init ----
+document.addEventListener('DOMContentLoaded',()=>{
+  renderAll();
 });
 </script>
 </body>
