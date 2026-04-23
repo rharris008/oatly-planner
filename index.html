@@ -146,44 +146,18 @@
 </div>
 
 <nav class="tab-nav">
-  <button class="tab-btn active" onclick="showTab('forecast',this)">Demand / Forecast</button>
+  <button class="tab-btn active" onclick="showTab('forecast',this)">Planning Dashboard</button>
   <button class="tab-btn" onclick="showTab('stock',this)">Stock on Hand</button>
   <button class="tab-btn" onclick="showTab('po',this)">Purchase Orders</button>
   <button class="tab-btn" onclick="showTab('creditors',this)">Creditors</button>
 </nav>
 
-<!-- FORECAST TAB (Demand / Forecast) — default landing tab -->
+<!-- PLANNING DASHBOARD — default landing tab -->
 <div id="tab-forecast" class="tab-pane active">
-  <div class="ns-banner" style="background:#e8f4fd;border-left-color:var(--blue)">Sales orders: NetSuite Report 246, 23/04/2026 (350 units pending fulfilment, Oatly only). PO quantities by SKU: not available from standard reports (Report 277 gives $ only, custom reports access-denied). Need access to Report 567 or 665 for per-SKU PO quantities. Forecast data from retailer uploads. Stock data from NetSuite extract 22/04/2026.</div>
+  <div class="ns-banner" style="background:#e8f4fd;border-left-color:var(--blue)">Data sources: Stock from NetSuite (22/04/2026). Sales orders from Report 246 (23/04/2026). PO values from Report 277 (23/04/2026). Creditors from Report 557 (23/04/2026). Retailer forecasts: pending upload from Sharon.</div>
   <div class="section-header" style="margin-top:8px">Planning Position by SKU</div>
   <div class="front-cards-grid" id="front-cards">
     <div class="loader"><span class="spinner"></span>Loading planning data...</div>
-  </div>
-  <div class="section-header" style="margin-top:16px">Retailer Forecast vs Actual Orders</div>
-  <div class="filter-bar">
-    <div><label for="sel-sku">SKU</label><select id="sel-sku" onchange="applyFilters()"><option value="">All SKUs</option></select></div>
-    <div><label for="sel-dc">DC</label><select id="sel-dc" onchange="applyFilters()"><option value="">All DCs</option></select></div>
-    <div><label for="sel-weeks">Weeks ahead</label>
-      <select id="sel-weeks" onchange="loadForecast()">
-        <option value="8">8 weeks</option>
-        <option value="13" selected>13 weeks</option>
-        <option value="26">26 weeks</option>
-        <option value="52">52 weeks</option>
-      </select>
-    </div>
-  </div>
-  <div class="summary-row" id="summary-tiles"></div>
-  <div class="section-header" id="cards-heading" style="display:none">SKU Forecast vs Actual Orders</div>
-  <div class="cards-grid" id="cards-grid"></div>
-  <div class="chart-section">
-    <div class="chart-card" id="weekly-chart-card" style="display:none">
-      <div class="chart-title" id="weekly-chart-title">Weekly Forecast, All SKUs</div>
-      <div id="weekly-chart-body"></div>
-    </div>
-  </div>
-  <div class="data-section">
-    <div class="section-header" style="margin-bottom:8px">Detailed Demand by DC</div>
-    <div id="co-content"><div class="loader"><span class="spinner"></span>Loading demand forecast...</div></div>
   </div>
 </div>
 
@@ -483,12 +457,14 @@ async function loadForecast(){
   try{
     const today=isoToday();
     const horizon=weeksAhead(parseInt(document.getElementById('sel-weeks').value)||13);
-    [_skus,_dcs,_fc,_ord]=await Promise.all([
+    // Forecast and planned orders tables contain 577 stale WW-only rows from initial seed.
+    // Cannot delete (RLS blocks anon DELETE). Disabled until Sharon uploads real forecasts
+    // and Rob runs DELETE via Supabase SQL editor to clear the stale rows.
+    [_skus,_dcs]=await Promise.all([
       sb('oatly_skus?select=*&active=eq.true&order=pack_group,sku_code'),
       sb('oatly_dcs?select=*&active=eq.true&order=dc_code'),
-      sb('oatly_forecasts?select=*&week_commencing=gte.'+today+'&week_commencing=lte.'+horizon+'&order=sku_code,dc_code,week_commencing&limit=10000'),
-      sb('oatly_planned_orders?select=*&week_commencing=gte.'+today+'&week_commencing=lte.'+horizon+'&order=sku_code,dc_code,week_commencing&limit=10000'),
     ]);
+    _fc=[]; _ord=[];
     populateFilters();
     applyFilters();
     renderSkuCards();
