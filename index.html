@@ -222,7 +222,7 @@
 
 <!-- PO TAB -->
 <div id="tab-po" class="tab-pane">
-  <div class="ns-banner">NetSuite SuiteQL extract: 23/04/2026 | Open Oatly purchase orders by SKU | Status B=Pending Bill, F=Pending Receipt, E=Partially Received</div>
+  <div class="ns-banner">NetSuite SuiteQL extract: 23/04/2026 | Open Oatly purchase orders by SKU | Status B=Pending Receipt, F=Pending Bill, E=Partially Received</div>
   <div class="summary-row" id="po-summary-tiles"></div>
   <div class="data-section">
     <div class="data-table-wrap">
@@ -466,11 +466,11 @@ function daysSinceOrder(dateStr) {
 }
 
 function isPOAwaitingReceipt(status) {
-  return status === 'F' || status === 'E';
+  return status === 'B' || status === 'E';
 }
 
 function isPOPending(status) {
-  return status === 'F' || status === 'E';
+  return status === 'B' || status === 'E';
 }
 
 function isPOOverdue(line) {
@@ -486,7 +486,7 @@ function getPOLinesBySku(skuCode) {
 }
 
 function getPendingBillLinesBySku(skuCode) {
-  return PO_LINES.filter(l => l.sku === skuCode && l.status === 'B');
+  return PO_LINES.filter(l => l.sku === skuCode && l.status === 'F');
 }
 
 // ---- Helpers ----
@@ -506,23 +506,23 @@ function getSalesOrderQty(skuCode) {
   return SALES_ORDERS_DATA.filter(s => s.sku === skuCode).reduce((sum, s) => sum + (s.qty - s.fulfilled), 0);
 }
 
-// Helper: get inbound PO qty for a given SKU code (F and E only — stock not yet received)
+// Helper: get inbound PO qty for a given SKU code (B and E only — stock not yet received)
 function getOpenPOQty(skuCode) {
   return PO_LINES.filter(l => l.sku === skuCode && isPOAwaitingReceipt(l.status)).reduce((sum, l) => sum + l.qty, 0);
 }
 
-// Helper: get inbound PO count for a given SKU code (F and E only)
+// Helper: get inbound PO count for a given SKU code (B and E only)
 function getOpenPOCount(skuCode) {
   return PO_LINES.filter(l => l.sku === skuCode && isPOAwaitingReceipt(l.status)).length;
 }
 
-// Helper: get pending bill qty for a given SKU code (B only — already received)
+// Helper: get pending bill qty for a given SKU code (F only — already received)
 function getPendingBillQty(skuCode) {
-  return PO_LINES.filter(l => l.sku === skuCode && l.status === 'B').reduce((sum, l) => sum + l.qty, 0);
+  return PO_LINES.filter(l => l.sku === skuCode && l.status === 'F').reduce((sum, l) => sum + l.qty, 0);
 }
 
 function getPendingBillCount(skuCode) {
-  return PO_LINES.filter(l => l.sku === skuCode && l.status === 'B').length;
+  return PO_LINES.filter(l => l.sku === skuCode && l.status === 'F').length;
 }
 
 // ---- Tab switching ----
@@ -543,12 +543,12 @@ function renderSkuCards(){
   const cardsDiv=document.getElementById('front-cards');
   const cards=STOCK_DATA.map(s=>{
     const ordersQty=getSalesOrderQty(s.code);
-    const poQty=getOpenPOQty(s.code);  // F and E only — stock not yet received
+    const poQty=getOpenPOQty(s.code);  // B and E only — stock not yet received
     const poCount=getOpenPOCount(s.code);
-    const pendingBillQty=getPendingBillQty(s.code);  // B only — already in warehouse
+    const pendingBillQty=getPendingBillQty(s.code);  // F only — already in warehouse
     const pendingBillCount=getPendingBillCount(s.code);
-    // Net = Stock + Inbound POs (F/E) - Sales Orders
-    // Note: B (Pending Bill) excluded — goods already received and in SOH
+    // Net = Stock + Inbound POs (B/E) - Sales Orders
+    // Note: F (Pending Bill) excluded — goods already received and in SOH
     const net=s.soh + poQty - ordersQty;
 
     // Overdue PO analysis
@@ -681,7 +681,7 @@ function renderSO(){
 
 // ---- PO tab ----
 function renderPO(){
-  // Section 1: Awaiting Receipt (F and E only — genuine supply risk)
+  // Section 1: Awaiting Receipt (B and E only — genuine supply risk)
   const awaitingLines = PO_LINES.filter(l => isPOAwaitingReceipt(l.status));
   const awaitingQty = awaitingLines.reduce((s,l) => s + l.qty, 0);
   const awaitingCount = [...new Set(awaitingLines.map(l => l.po + l.sku))].length;
@@ -689,16 +689,16 @@ function renderPO(){
   const overdueCount = overdueLines.length;
   const dueSoonLines = awaitingLines.filter(l => { const d=daysSinceOrder(l.date); return d>=45 && d<=60 && !isPOOverdue(l); });
 
-  // Section 2: Received, Pending Invoice (B only — finance concern)
-  const pendingBillLines = PO_LINES.filter(l => l.status === 'B');
+  // Section 2: Received, Pending Invoice (F only — finance concern)
+  const pendingBillLines = PO_LINES.filter(l => l.status === 'F');
   const pendingBillQty = pendingBillLines.reduce((s,l) => s + l.qty, 0);
   const pendingBillCount = [...new Set(pendingBillLines.map(l => l.po + l.sku))].length;
 
   document.getElementById('po-summary-tiles').innerHTML=`
-    <div class="tile blue"><div class="tile-label">Awaiting Receipt</div><div class="tile-value">${fmtNum(awaitingQty)}</div><div class="tile-sub">${awaitingCount} PO lines (F/E status)</div></div>
+    <div class="tile blue"><div class="tile-label">Awaiting Receipt</div><div class="tile-value">${fmtNum(awaitingQty)}</div><div class="tile-sub">${awaitingCount} PO lines (B/E status)</div></div>
     <div class="tile ${overdueCount>0?'red':'green'}"><div class="tile-label">Overdue POs (>60 days)</div><div class="tile-value">${overdueCount}</div><div class="tile-sub">${overdueCount>0?fmtNum(overdueLines.reduce((s,l)=>s+l.qty,0))+' units overdue':'none overdue'}</div></div>
     <div class="tile ${dueSoonLines.length>0?'amber':'green'}"><div class="tile-label">Due Soon (45-60 days)</div><div class="tile-value">${dueSoonLines.length}</div><div class="tile-sub">${dueSoonLines.length>0?fmtNum(dueSoonLines.reduce((s,l)=>s+l.qty,0))+' units':'all on track'}</div></div>
-    <div class="tile"><div class="tile-label">Received, Pending Invoice</div><div class="tile-value">${fmtNum(pendingBillQty)}</div><div class="tile-sub">${pendingBillCount} PO lines (status B)</div></div>`;
+    <div class="tile"><div class="tile-label">Received, Pending Invoice</div><div class="tile-value">${fmtNum(pendingBillQty)}</div><div class="tile-sub">${pendingBillCount} PO lines (status F)</div></div>`;
 
   // SKU description lookup
   const skuDesc = {};
@@ -733,7 +733,7 @@ function renderPO(){
     } else {
       statusBadge = '<span class="po-status-badge" style="background:#e8f4fd;color:var(--blue)">RECEIVED</span>';
     }
-    const statusLabel = l.status === 'F' ? 'Pending Receipt' : l.status === 'E' ? 'Partially Received' : l.status === 'B' ? 'Pending Bill' : l.status;
+    const statusLabel = l.status === 'B' ? 'Pending Receipt' : l.status === 'E' ? 'Partially Received' : l.status === 'F' ? 'Pending Bill' : l.status;
     return`<tr${rowStyle}>
       <td style="font-weight:bold">${l.po}</td>
       <td>${l.sku}</td>
