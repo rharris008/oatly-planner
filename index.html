@@ -164,6 +164,7 @@
   <button class="tab-btn" onclick="showTab('po',this)">Purchase Orders</button>
   <button class="tab-btn" onclick="showTab('creditors',this)">Creditors</button>
   <button class="tab-btn" onclick="showTab('grni',this)">Goods received not invoiced</button>
+  <button class="tab-btn" onclick="showTab('ww-forecast',this)">Retailer Forecast</button>
 </nav>
 
 <!-- PLANNING DASHBOARD -->
@@ -172,6 +173,33 @@
   <div class="section-header" style="margin-top:8px">Planning Position by SKU</div>
   <div class="front-cards-grid" id="front-cards">
     <div class="loader"><span class="spinner"></span>Loading planning data...</div>
+  </div>
+</div>
+
+<!-- RETAILER FORECAST TAB -->
+<div id="tab-ww-forecast" class="tab-pane">
+  <div class="ns-banner">WW Forecast: 258 week/SKU rows | File received 24/04/2026 | Range covers 50 weeks | 8 SKUs</div>
+  <div class="summary-row" id="ww-forecast-summary-tiles"></div>
+  <div class="filter-bar">
+    <label>SKU:</label>
+    <select id="ww-sku-filter" onchange="renderWWForecast()">
+      <option value="all">All SKUs</option>
+    </select>
+    <label style="margin-left:16px">Weeks to show:</label>
+    <select id="ww-weeks-filter" onchange="renderWWForecast()">
+      <option value="13">Next 13 weeks</option>
+      <option value="26">Next 26 weeks</option>
+      <option value="52">All weeks</option>
+    </select>
+  </div>
+  <div class="data-section">
+    <div class="data-table-wrap">
+      <table class="data-table" id="ww-forecast-table">
+        <thead id="ww-forecast-thead"></thead>
+        <tbody id="ww-forecast-tbody"></tbody>
+        <tfoot id="ww-forecast-tfoot"></tfoot>
+      </table>
+    </div>
   </div>
 </div>
 
@@ -444,8 +472,6 @@ const AP_DATA = [
 ];
 
 // Individual PO lines with expected receipt dates for overdue tracking
-// Individual PO lines with expected receipt dates for overdue tracking
-// Individual PO lines with expected receipt dates for overdue tracking
 const PO_LINES = [
   {po:'POAGD257',sku:'FG 61737',date:'17/12/2025',status:'F',qty:3100,exp_receipt:'06/04/2026'},
   {po:'POAGD258',sku:'FG 61737',date:'17/12/2025',status:'F',qty:3100,exp_receipt:'13/04/2026'},
@@ -539,6 +565,282 @@ const PO_LINES = [
   {po:'POAGD355',sku:'FG 61737',date:'25/03/2026',status:'B',qty:3100,exp_receipt:'29/06/2026'},
   {po:'POAGD356',sku:'FG 61737',date:'25/03/2026',status:'B',qty:3100,exp_receipt:'29/06/2026'},
 ];
+
+// WW retailer forecast data (from AGD Oatly  Planned orders 150426.xlsx, updated 24/04/2026)
+// WW retailer forecast data (from AGD Oatly  Planned orders 150426.xlsx, updated 2026-04-24T14:15:25.147090+10:00)
+const WW_FORECAST_DATA = [
+  {week:'2026-04-13',sku:'FG 61737',pallets:12,units:1645,order_date:'2026-04-17',delivery_date:'2026-04-22',need_arrival:'2026-04-23'},
+  {week:'2026-04-13',sku:'FG 61740',pallets:5,units:665,order_date:'2026-04-17',delivery_date:'2026-04-22',need_arrival:'2026-04-23'},
+  {week:'2026-04-13',sku:'FG 61909',pallets:1,units:189,order_date:'2026-04-17',delivery_date:'2026-04-22',need_arrival:'2026-04-23'},
+  {week:'2026-04-13',sku:'FG 62060',pallets:4,units:560,order_date:'2026-04-17',delivery_date:'2026-04-22',need_arrival:'2026-04-23'},
+  {week:'2026-04-13',sku:'FG 62106',pallets:5,units:630,order_date:'2026-04-17',delivery_date:'2026-04-22',need_arrival:'2026-04-23'},
+  {week:'2026-04-13',sku:'FG 62108',pallets:7,units:980,order_date:'2026-04-17',delivery_date:'2026-04-22',need_arrival:'2026-04-23'},
+  {week:'2026-04-13',sku:'FG 62322',pallets:3,units:420,order_date:'2026-04-17',delivery_date:'2026-04-22',need_arrival:'2026-04-23'},
+  {week:'2026-04-20',sku:'FG 61909',pallets:1,units:189,order_date:'2026-04-24',delivery_date:'2026-04-30',need_arrival:'2026-05-01'},
+  {week:'2026-04-27',sku:'FG 61737',pallets:31,units:4340,order_date:'2026-05-01',delivery_date:'2026-05-06',need_arrival:'2026-05-07'},
+  {week:'2026-04-27',sku:'FG 61740',pallets:5,units:700,order_date:'2026-05-01',delivery_date:'2026-05-06',need_arrival:'2026-05-07'},
+  {week:'2026-04-27',sku:'FG 61909',pallets:1,units:189,order_date:'2026-05-01',delivery_date:'2026-05-06',need_arrival:'2026-05-07'},
+  {week:'2026-04-27',sku:'FG 62059',pallets:1,units:171,order_date:'2026-05-01',delivery_date:'2026-05-06',need_arrival:'2026-05-07'},
+  {week:'2026-04-27',sku:'FG 62060',pallets:6,units:840,order_date:'2026-05-01',delivery_date:'2026-05-06',need_arrival:'2026-05-07'},
+  {week:'2026-04-27',sku:'FG 62106',pallets:6,units:840,order_date:'2026-05-01',delivery_date:'2026-05-06',need_arrival:'2026-05-07'},
+  {week:'2026-04-27',sku:'FG 62108',pallets:13,units:1820,order_date:'2026-05-01',delivery_date:'2026-05-06',need_arrival:'2026-05-07'},
+  {week:'2026-04-27',sku:'FG 62322',pallets:7,units:980,order_date:'2026-05-01',delivery_date:'2026-05-06',need_arrival:'2026-05-07'},
+  {week:'2026-05-04',sku:'FG 61909',pallets:1,units:189,order_date:'2026-05-08',delivery_date:'2026-05-13',need_arrival:'2026-05-14'},
+  {week:'2026-05-04',sku:'FG 62059',pallets:1,units:171,order_date:'2026-05-08',delivery_date:'2026-05-13',need_arrival:'2026-05-14'},
+  {week:'2026-05-11',sku:'FG 61737',pallets:46,units:6370,order_date:'2026-05-15',delivery_date:'2026-05-20',need_arrival:'2026-05-21'},
+  {week:'2026-05-11',sku:'FG 61740',pallets:5,units:625,order_date:'2026-05-15',delivery_date:'2026-05-20',need_arrival:'2026-05-21'},
+  {week:'2026-05-11',sku:'FG 62059',pallets:1,units:171,order_date:'2026-05-15',delivery_date:'2026-05-20',need_arrival:'2026-05-21'},
+  {week:'2026-05-11',sku:'FG 62060',pallets:5,units:700,order_date:'2026-05-15',delivery_date:'2026-05-20',need_arrival:'2026-05-21'},
+  {week:'2026-05-11',sku:'FG 62106',pallets:6,units:631,order_date:'2026-05-15',delivery_date:'2026-05-20',need_arrival:'2026-05-21'},
+  {week:'2026-05-11',sku:'FG 62108',pallets:7,units:980,order_date:'2026-05-15',delivery_date:'2026-05-20',need_arrival:'2026-05-21'},
+  {week:'2026-05-11',sku:'FG 62322',pallets:9,units:1260,order_date:'2026-05-15',delivery_date:'2026-05-20',need_arrival:'2026-05-21'},
+  {week:'2026-05-18',sku:'FG 61737',pallets:23,units:3220,order_date:'2026-05-22',delivery_date:'2026-05-27',need_arrival:'2026-05-28'},
+  {week:'2026-05-18',sku:'FG 61740',pallets:2,units:280,order_date:'2026-05-22',delivery_date:'2026-05-27',need_arrival:'2026-05-28'},
+  {week:'2026-05-18',sku:'FG 61909',pallets:1,units:189,order_date:'2026-05-22',delivery_date:'2026-05-27',need_arrival:'2026-05-28'},
+  {week:'2026-05-18',sku:'FG 62059',pallets:1,units:171,order_date:'2026-05-22',delivery_date:'2026-05-27',need_arrival:'2026-05-28'},
+  {week:'2026-05-18',sku:'FG 62106',pallets:2,units:280,order_date:'2026-05-22',delivery_date:'2026-05-27',need_arrival:'2026-05-28'},
+  {week:'2026-05-25',sku:'FG 61737',pallets:17,units:2380,order_date:'2026-05-29',delivery_date:'2026-06-03',need_arrival:'2026-06-04'},
+  {week:'2026-05-25',sku:'FG 61740',pallets:3,units:420,order_date:'2026-05-29',delivery_date:'2026-06-03',need_arrival:'2026-06-04'},
+  {week:'2026-05-25',sku:'FG 61909',pallets:1,units:189,order_date:'2026-05-29',delivery_date:'2026-06-03',need_arrival:'2026-06-04'},
+  {week:'2026-05-25',sku:'FG 62059',pallets:1,units:171,order_date:'2026-05-29',delivery_date:'2026-06-03',need_arrival:'2026-06-04'},
+  {week:'2026-05-25',sku:'FG 62060',pallets:7,units:980,order_date:'2026-05-29',delivery_date:'2026-06-03',need_arrival:'2026-06-04'},
+  {week:'2026-05-25',sku:'FG 62106',pallets:3,units:420,order_date:'2026-05-29',delivery_date:'2026-06-03',need_arrival:'2026-06-04'},
+  {week:'2026-05-25',sku:'FG 62108',pallets:9,units:1260,order_date:'2026-05-29',delivery_date:'2026-06-03',need_arrival:'2026-06-04'},
+  {week:'2026-05-25',sku:'FG 62322',pallets:8,units:1120,order_date:'2026-05-29',delivery_date:'2026-06-03',need_arrival:'2026-06-04'},
+  {week:'2026-06-01',sku:'FG 61909',pallets:1,units:189,order_date:'2026-06-05',delivery_date:'2026-06-10',need_arrival:'2026-06-11'},
+  {week:'2026-06-01',sku:'FG 62059',pallets:1,units:171,order_date:'2026-06-05',delivery_date:'2026-06-10',need_arrival:'2026-06-11'},
+  {week:'2026-06-08',sku:'FG 61737',pallets:47,units:6545,order_date:'2026-06-12',delivery_date:'2026-06-17',need_arrival:'2026-06-18'},
+  {week:'2026-06-08',sku:'FG 61740',pallets:7,units:914,order_date:'2026-06-12',delivery_date:'2026-06-17',need_arrival:'2026-06-18'},
+  {week:'2026-06-08',sku:'FG 61909',pallets:1,units:189,order_date:'2026-06-12',delivery_date:'2026-06-17',need_arrival:'2026-06-18'},
+  {week:'2026-06-08',sku:'FG 62060',pallets:6,units:840,order_date:'2026-06-12',delivery_date:'2026-06-17',need_arrival:'2026-06-18'},
+  {week:'2026-06-08',sku:'FG 62106',pallets:8,units:973,order_date:'2026-06-12',delivery_date:'2026-06-17',need_arrival:'2026-06-18'},
+  {week:'2026-06-08',sku:'FG 62108',pallets:12,units:1680,order_date:'2026-06-12',delivery_date:'2026-06-17',need_arrival:'2026-06-18'},
+  {week:'2026-06-08',sku:'FG 62322',pallets:5,units:700,order_date:'2026-06-12',delivery_date:'2026-06-17',need_arrival:'2026-06-18'},
+  {week:'2026-06-15',sku:'FG 62059',pallets:1,units:171,order_date:'2026-06-19',delivery_date:'2026-06-24',need_arrival:'2026-06-25'},
+  {week:'2026-06-22',sku:'FG 61737',pallets:19,units:2660,order_date:'2026-06-26',delivery_date:'2026-07-01',need_arrival:'2026-07-02'},
+  {week:'2026-06-22',sku:'FG 61740',pallets:3,units:420,order_date:'2026-06-26',delivery_date:'2026-07-01',need_arrival:'2026-07-02'},
+  {week:'2026-06-22',sku:'FG 61909',pallets:1,units:189,order_date:'2026-06-26',delivery_date:'2026-07-01',need_arrival:'2026-07-02'},
+  {week:'2026-06-22',sku:'FG 62059',pallets:1,units:171,order_date:'2026-06-26',delivery_date:'2026-07-01',need_arrival:'2026-07-02'},
+  {week:'2026-06-22',sku:'FG 62060',pallets:7,units:980,order_date:'2026-06-26',delivery_date:'2026-07-01',need_arrival:'2026-07-02'},
+  {week:'2026-06-22',sku:'FG 62106',pallets:3,units:420,order_date:'2026-06-26',delivery_date:'2026-07-01',need_arrival:'2026-07-02'},
+  {week:'2026-06-22',sku:'FG 62108',pallets:12,units:1680,order_date:'2026-06-26',delivery_date:'2026-07-01',need_arrival:'2026-07-02'},
+  {week:'2026-06-22',sku:'FG 62322',pallets:7,units:980,order_date:'2026-06-26',delivery_date:'2026-07-01',need_arrival:'2026-07-02'},
+  {week:'2026-06-29',sku:'FG 61737',pallets:16,units:2240,order_date:'2026-07-03',delivery_date:'2026-07-08',need_arrival:'2026-07-09'},
+  {week:'2026-06-29',sku:'FG 61740',pallets:1,units:140,order_date:'2026-07-03',delivery_date:'2026-07-08',need_arrival:'2026-07-09'},
+  {week:'2026-06-29',sku:'FG 61909',pallets:1,units:189,order_date:'2026-07-03',delivery_date:'2026-07-08',need_arrival:'2026-07-09'},
+  {week:'2026-06-29',sku:'FG 62106',pallets:1,units:140,order_date:'2026-07-03',delivery_date:'2026-07-08',need_arrival:'2026-07-09'},
+  {week:'2026-07-06',sku:'FG 61737',pallets:40,units:5565,order_date:'2026-07-10',delivery_date:'2026-07-15',need_arrival:'2026-07-16'},
+  {week:'2026-07-06',sku:'FG 61740',pallets:6,units:789,order_date:'2026-07-10',delivery_date:'2026-07-15',need_arrival:'2026-07-16'},
+  {week:'2026-07-06',sku:'FG 61909',pallets:1,units:189,order_date:'2026-07-10',delivery_date:'2026-07-15',need_arrival:'2026-07-16'},
+  {week:'2026-07-06',sku:'FG 62059',pallets:1,units:171,order_date:'2026-07-10',delivery_date:'2026-07-15',need_arrival:'2026-07-16'},
+  {week:'2026-07-06',sku:'FG 62060',pallets:8,units:1120,order_date:'2026-07-10',delivery_date:'2026-07-15',need_arrival:'2026-07-16'},
+  {week:'2026-07-06',sku:'FG 62106',pallets:7,units:826,order_date:'2026-07-10',delivery_date:'2026-07-15',need_arrival:'2026-07-16'},
+  {week:'2026-07-06',sku:'FG 62108',pallets:13,units:1820,order_date:'2026-07-10',delivery_date:'2026-07-15',need_arrival:'2026-07-16'},
+  {week:'2026-07-06',sku:'FG 62322',pallets:8,units:1120,order_date:'2026-07-10',delivery_date:'2026-07-15',need_arrival:'2026-07-16'},
+  {week:'2026-07-13',sku:'FG 61909',pallets:2,units:378,order_date:'2026-07-17',delivery_date:'2026-07-22',need_arrival:'2026-07-23'},
+  {week:'2026-07-13',sku:'FG 62059',pallets:1,units:171,order_date:'2026-07-17',delivery_date:'2026-07-22',need_arrival:'2026-07-23'},
+  {week:'2026-07-20',sku:'FG 61737',pallets:37,units:5180,order_date:'2026-07-24',delivery_date:'2026-07-29',need_arrival:'2026-07-30'},
+  {week:'2026-07-20',sku:'FG 61740',pallets:3,units:420,order_date:'2026-07-24',delivery_date:'2026-07-29',need_arrival:'2026-07-30'},
+  {week:'2026-07-20',sku:'FG 61909',pallets:1,units:189,order_date:'2026-07-24',delivery_date:'2026-07-29',need_arrival:'2026-07-30'},
+  {week:'2026-07-20',sku:'FG 62059',pallets:1,units:171,order_date:'2026-07-24',delivery_date:'2026-07-29',need_arrival:'2026-07-30'},
+  {week:'2026-07-20',sku:'FG 62060',pallets:8,units:1120,order_date:'2026-07-24',delivery_date:'2026-07-29',need_arrival:'2026-07-30'},
+  {week:'2026-07-20',sku:'FG 62106',pallets:3,units:420,order_date:'2026-07-24',delivery_date:'2026-07-29',need_arrival:'2026-07-30'},
+  {week:'2026-07-20',sku:'FG 62108',pallets:12,units:1680,order_date:'2026-07-24',delivery_date:'2026-07-29',need_arrival:'2026-07-30'},
+  {week:'2026-07-20',sku:'FG 62322',pallets:8,units:1120,order_date:'2026-07-24',delivery_date:'2026-07-29',need_arrival:'2026-07-30'},
+  {week:'2026-07-27',sku:'FG 62059',pallets:1,units:171,order_date:'2026-07-31',delivery_date:'2026-08-05',need_arrival:'2026-08-06'},
+  {week:'2026-08-03',sku:'FG 61737',pallets:48,units:6615,order_date:'2026-08-07',delivery_date:'2026-08-12',need_arrival:'2026-08-13'},
+  {week:'2026-08-03',sku:'FG 61740',pallets:6,units:793,order_date:'2026-08-07',delivery_date:'2026-08-12',need_arrival:'2026-08-13'},
+  {week:'2026-08-03',sku:'FG 61909',pallets:1,units:189,order_date:'2026-08-07',delivery_date:'2026-08-12',need_arrival:'2026-08-13'},
+  {week:'2026-08-03',sku:'FG 62060',pallets:8,units:1120,order_date:'2026-08-07',delivery_date:'2026-08-12',need_arrival:'2026-08-13'},
+  {week:'2026-08-03',sku:'FG 62106',pallets:7,units:832,order_date:'2026-08-07',delivery_date:'2026-08-12',need_arrival:'2026-08-13'},
+  {week:'2026-08-03',sku:'FG 62108',pallets:14,units:1960,order_date:'2026-08-07',delivery_date:'2026-08-12',need_arrival:'2026-08-13'},
+  {week:'2026-08-03',sku:'FG 62322',pallets:11,units:1540,order_date:'2026-08-07',delivery_date:'2026-08-12',need_arrival:'2026-08-13'},
+  {week:'2026-08-10',sku:'FG 61737',pallets:18,units:2520,order_date:'2026-08-14',delivery_date:'2026-08-19',need_arrival:'2026-08-20'},
+  {week:'2026-08-10',sku:'FG 61740',pallets:2,units:280,order_date:'2026-08-14',delivery_date:'2026-08-19',need_arrival:'2026-08-20'},
+  {week:'2026-08-10',sku:'FG 61909',pallets:1,units:189,order_date:'2026-08-14',delivery_date:'2026-08-19',need_arrival:'2026-08-20'},
+  {week:'2026-08-10',sku:'FG 62059',pallets:1,units:171,order_date:'2026-08-14',delivery_date:'2026-08-19',need_arrival:'2026-08-20'},
+  {week:'2026-08-10',sku:'FG 62106',pallets:1,units:140,order_date:'2026-08-14',delivery_date:'2026-08-19',need_arrival:'2026-08-20'},
+  {week:'2026-08-17',sku:'FG 61737',pallets:18,units:2520,order_date:'2026-08-21',delivery_date:'2026-08-26',need_arrival:'2026-08-27'},
+  {week:'2026-08-17',sku:'FG 61740',pallets:2,units:280,order_date:'2026-08-21',delivery_date:'2026-08-26',need_arrival:'2026-08-27'},
+  {week:'2026-08-17',sku:'FG 61909',pallets:1,units:189,order_date:'2026-08-21',delivery_date:'2026-08-26',need_arrival:'2026-08-27'},
+  {week:'2026-08-17',sku:'FG 62059',pallets:1,units:171,order_date:'2026-08-21',delivery_date:'2026-08-26',need_arrival:'2026-08-27'},
+  {week:'2026-08-17',sku:'FG 62060',pallets:8,units:1120,order_date:'2026-08-21',delivery_date:'2026-08-26',need_arrival:'2026-08-27'},
+  {week:'2026-08-17',sku:'FG 62106',pallets:2,units:280,order_date:'2026-08-21',delivery_date:'2026-08-26',need_arrival:'2026-08-27'},
+  {week:'2026-08-17',sku:'FG 62108',pallets:12,units:1680,order_date:'2026-08-21',delivery_date:'2026-08-26',need_arrival:'2026-08-27'},
+  {week:'2026-08-17',sku:'FG 62322',pallets:8,units:1120,order_date:'2026-08-21',delivery_date:'2026-08-26',need_arrival:'2026-08-27'},
+  {week:'2026-08-24',sku:'FG 61909',pallets:1,units:189,order_date:'2026-08-28',delivery_date:'2026-09-02',need_arrival:'2026-09-03'},
+  {week:'2026-08-24',sku:'FG 62059',pallets:1,units:171,order_date:'2026-08-28',delivery_date:'2026-09-02',need_arrival:'2026-09-03'},
+  {week:'2026-08-31',sku:'FG 61737',pallets:69,units:9590,order_date:'2026-09-04',delivery_date:'2026-09-09',need_arrival:'2026-09-10'},
+  {week:'2026-08-31',sku:'FG 61740',pallets:7,units:911,order_date:'2026-09-04',delivery_date:'2026-09-09',need_arrival:'2026-09-10'},
+  {week:'2026-08-31',sku:'FG 61909',pallets:1,units:189,order_date:'2026-09-04',delivery_date:'2026-09-09',need_arrival:'2026-09-10'},
+  {week:'2026-08-31',sku:'FG 62059',pallets:1,units:171,order_date:'2026-09-04',delivery_date:'2026-09-09',need_arrival:'2026-09-10'},
+  {week:'2026-08-31',sku:'FG 62060',pallets:6,units:840,order_date:'2026-09-04',delivery_date:'2026-09-09',need_arrival:'2026-09-10'},
+  {week:'2026-08-31',sku:'FG 62106',pallets:9,units:1055,order_date:'2026-09-04',delivery_date:'2026-09-09',need_arrival:'2026-09-10'},
+  {week:'2026-08-31',sku:'FG 62108',pallets:13,units:1820,order_date:'2026-09-04',delivery_date:'2026-09-09',need_arrival:'2026-09-10'},
+  {week:'2026-08-31',sku:'FG 62322',pallets:11,units:1540,order_date:'2026-09-04',delivery_date:'2026-09-09',need_arrival:'2026-09-10'},
+  {week:'2026-09-07',sku:'FG 62059',pallets:1,units:171,order_date:'2026-09-11',delivery_date:'2026-09-16',need_arrival:'2026-09-17'},
+  {week:'2026-09-14',sku:'FG 61737',pallets:18,units:2520,order_date:'2026-09-18',delivery_date:'2026-09-23',need_arrival:'2026-09-24'},
+  {week:'2026-09-14',sku:'FG 61740',pallets:2,units:280,order_date:'2026-09-18',delivery_date:'2026-09-23',need_arrival:'2026-09-24'},
+  {week:'2026-09-14',sku:'FG 61909',pallets:1,units:189,order_date:'2026-09-18',delivery_date:'2026-09-23',need_arrival:'2026-09-24'},
+  {week:'2026-09-14',sku:'FG 62060',pallets:9,units:1260,order_date:'2026-09-18',delivery_date:'2026-09-23',need_arrival:'2026-09-24'},
+  {week:'2026-09-14',sku:'FG 62106',pallets:2,units:280,order_date:'2026-09-18',delivery_date:'2026-09-23',need_arrival:'2026-09-24'},
+  {week:'2026-09-14',sku:'FG 62108',pallets:13,units:1820,order_date:'2026-09-18',delivery_date:'2026-09-23',need_arrival:'2026-09-24'},
+  {week:'2026-09-14',sku:'FG 62322',pallets:9,units:1260,order_date:'2026-09-18',delivery_date:'2026-09-23',need_arrival:'2026-09-24'},
+  {week:'2026-09-21',sku:'FG 61737',pallets:19,units:2660,order_date:'2026-09-25',delivery_date:'2026-09-30',need_arrival:'2026-10-01'},
+  {week:'2026-09-21',sku:'FG 61740',pallets:2,units:280,order_date:'2026-09-25',delivery_date:'2026-09-30',need_arrival:'2026-10-01'},
+  {week:'2026-09-21',sku:'FG 61909',pallets:1,units:189,order_date:'2026-09-25',delivery_date:'2026-09-30',need_arrival:'2026-10-01'},
+  {week:'2026-09-21',sku:'FG 62059',pallets:1,units:171,order_date:'2026-09-25',delivery_date:'2026-09-30',need_arrival:'2026-10-01'},
+  {week:'2026-09-21',sku:'FG 62106',pallets:1,units:140,order_date:'2026-09-25',delivery_date:'2026-09-30',need_arrival:'2026-10-01'},
+  {week:'2026-09-28',sku:'FG 61737',pallets:53,units:7350,order_date:'2026-10-02',delivery_date:'2026-10-07',need_arrival:'2026-10-08'},
+  {week:'2026-09-28',sku:'FG 61740',pallets:6,units:781,order_date:'2026-10-02',delivery_date:'2026-10-07',need_arrival:'2026-10-08'},
+  {week:'2026-09-28',sku:'FG 61909',pallets:1,units:189,order_date:'2026-10-02',delivery_date:'2026-10-07',need_arrival:'2026-10-08'},
+  {week:'2026-09-28',sku:'FG 62059',pallets:1,units:171,order_date:'2026-10-02',delivery_date:'2026-10-07',need_arrival:'2026-10-08'},
+  {week:'2026-09-28',sku:'FG 62060',pallets:6,units:840,order_date:'2026-10-02',delivery_date:'2026-10-07',need_arrival:'2026-10-08'},
+  {week:'2026-09-28',sku:'FG 62106',pallets:9,units:1007,order_date:'2026-10-02',delivery_date:'2026-10-07',need_arrival:'2026-10-08'},
+  {week:'2026-09-28',sku:'FG 62108',pallets:12,units:1680,order_date:'2026-10-02',delivery_date:'2026-10-07',need_arrival:'2026-10-08'},
+  {week:'2026-09-28',sku:'FG 62322',pallets:11,units:1540,order_date:'2026-10-02',delivery_date:'2026-10-07',need_arrival:'2026-10-08'},
+  {week:'2026-10-05',sku:'FG 61909',pallets:1,units:189,order_date:'2026-10-09',delivery_date:'2026-10-14',need_arrival:'2026-10-15'},
+  {week:'2026-10-05',sku:'FG 62059',pallets:1,units:171,order_date:'2026-10-09',delivery_date:'2026-10-14',need_arrival:'2026-10-15'},
+  {week:'2026-10-12',sku:'FG 61737',pallets:42,units:5880,order_date:'2026-10-16',delivery_date:'2026-10-21',need_arrival:'2026-10-22'},
+  {week:'2026-10-12',sku:'FG 61740',pallets:3,units:420,order_date:'2026-10-16',delivery_date:'2026-10-21',need_arrival:'2026-10-22'},
+  {week:'2026-10-12',sku:'FG 62060',pallets:7,units:980,order_date:'2026-10-16',delivery_date:'2026-10-21',need_arrival:'2026-10-22'},
+  {week:'2026-10-12',sku:'FG 62106',pallets:4,units:560,order_date:'2026-10-16',delivery_date:'2026-10-21',need_arrival:'2026-10-22'},
+  {week:'2026-10-12',sku:'FG 62108',pallets:15,units:2100,order_date:'2026-10-16',delivery_date:'2026-10-21',need_arrival:'2026-10-22'},
+  {week:'2026-10-12',sku:'FG 62322',pallets:10,units:1400,order_date:'2026-10-16',delivery_date:'2026-10-21',need_arrival:'2026-10-22'},
+  {week:'2026-10-19',sku:'FG 61909',pallets:1,units:189,order_date:'2026-10-23',delivery_date:'2026-10-28',need_arrival:'2026-10-29'},
+  {week:'2026-10-19',sku:'FG 62059',pallets:1,units:171,order_date:'2026-10-23',delivery_date:'2026-10-28',need_arrival:'2026-10-29'},
+  {week:'2026-10-26',sku:'FG 61737',pallets:41,units:5740,order_date:'2026-10-30',delivery_date:'2026-11-04',need_arrival:'2026-11-05'},
+  {week:'2026-10-26',sku:'FG 61740',pallets:7,units:812,order_date:'2026-10-30',delivery_date:'2026-11-04',need_arrival:'2026-11-05'},
+  {week:'2026-10-26',sku:'FG 61909',pallets:1,units:189,order_date:'2026-10-30',delivery_date:'2026-11-04',need_arrival:'2026-11-05'},
+  {week:'2026-10-26',sku:'FG 62059',pallets:1,units:171,order_date:'2026-10-30',delivery_date:'2026-11-04',need_arrival:'2026-11-05'},
+  {week:'2026-10-26',sku:'FG 62060',pallets:8,units:1120,order_date:'2026-10-30',delivery_date:'2026-11-04',need_arrival:'2026-11-05'},
+  {week:'2026-10-26',sku:'FG 62106',pallets:8,units:876,order_date:'2026-10-30',delivery_date:'2026-11-04',need_arrival:'2026-11-05'},
+  {week:'2026-10-26',sku:'FG 62108',pallets:14,units:1960,order_date:'2026-10-30',delivery_date:'2026-11-04',need_arrival:'2026-11-05'},
+  {week:'2026-10-26',sku:'FG 62322',pallets:6,units:840,order_date:'2026-10-30',delivery_date:'2026-11-04',need_arrival:'2026-11-05'},
+  {week:'2026-11-02',sku:'FG 61737',pallets:17,units:2380,order_date:'2026-11-06',delivery_date:'2026-11-11',need_arrival:'2026-11-12'},
+  {week:'2026-11-02',sku:'FG 61740',pallets:1,units:140,order_date:'2026-11-06',delivery_date:'2026-11-11',need_arrival:'2026-11-12'},
+  {week:'2026-11-02',sku:'FG 61909',pallets:1,units:189,order_date:'2026-11-06',delivery_date:'2026-11-11',need_arrival:'2026-11-12'},
+  {week:'2026-11-02',sku:'FG 62059',pallets:1,units:171,order_date:'2026-11-06',delivery_date:'2026-11-11',need_arrival:'2026-11-12'},
+  {week:'2026-11-02',sku:'FG 62106',pallets:1,units:140,order_date:'2026-11-06',delivery_date:'2026-11-11',need_arrival:'2026-11-12'},
+  {week:'2026-11-09',sku:'FG 61737',pallets:22,units:3080,order_date:'2026-11-13',delivery_date:'2026-11-18',need_arrival:'2026-11-19'},
+  {week:'2026-11-09',sku:'FG 61740',pallets:3,units:420,order_date:'2026-11-13',delivery_date:'2026-11-18',need_arrival:'2026-11-19'},
+  {week:'2026-11-09',sku:'FG 61909',pallets:1,units:189,order_date:'2026-11-13',delivery_date:'2026-11-18',need_arrival:'2026-11-19'},
+  {week:'2026-11-09',sku:'FG 62059',pallets:1,units:171,order_date:'2026-11-13',delivery_date:'2026-11-18',need_arrival:'2026-11-19'},
+  {week:'2026-11-09',sku:'FG 62060',pallets:8,units:1120,order_date:'2026-11-13',delivery_date:'2026-11-18',need_arrival:'2026-11-19'},
+  {week:'2026-11-09',sku:'FG 62106',pallets:4,units:560,order_date:'2026-11-13',delivery_date:'2026-11-18',need_arrival:'2026-11-19'},
+  {week:'2026-11-09',sku:'FG 62108',pallets:13,units:1820,order_date:'2026-11-13',delivery_date:'2026-11-18',need_arrival:'2026-11-19'},
+  {week:'2026-11-09',sku:'FG 62322',pallets:7,units:980,order_date:'2026-11-13',delivery_date:'2026-11-18',need_arrival:'2026-11-19'},
+  {week:'2026-11-16',sku:'FG 61909',pallets:1,units:189,order_date:'2026-11-20',delivery_date:'2026-11-25',need_arrival:'2026-11-26'},
+  {week:'2026-11-16',sku:'FG 62059',pallets:1,units:171,order_date:'2026-11-20',delivery_date:'2026-11-25',need_arrival:'2026-11-26'},
+  {week:'2026-11-23',sku:'FG 61737',pallets:75,units:10465,order_date:'2026-11-27',delivery_date:'2026-12-02',need_arrival:'2026-12-03'},
+  {week:'2026-11-23',sku:'FG 61740',pallets:8,units:1072,order_date:'2026-11-27',delivery_date:'2026-12-02',need_arrival:'2026-12-03'},
+  {week:'2026-11-23',sku:'FG 62060',pallets:7,units:980,order_date:'2026-11-27',delivery_date:'2026-12-02',need_arrival:'2026-12-03'},
+  {week:'2026-11-23',sku:'FG 62106',pallets:7,units:774,order_date:'2026-11-27',delivery_date:'2026-12-02',need_arrival:'2026-12-03'},
+  {week:'2026-11-23',sku:'FG 62108',pallets:9,units:1260,order_date:'2026-11-27',delivery_date:'2026-12-02',need_arrival:'2026-12-03'},
+  {week:'2026-11-23',sku:'FG 62322',pallets:11,units:1540,order_date:'2026-11-27',delivery_date:'2026-12-02',need_arrival:'2026-12-03'},
+  {week:'2026-11-30',sku:'FG 61909',pallets:1,units:189,order_date:'2026-12-04',delivery_date:'2026-12-09',need_arrival:'2026-12-10'},
+  {week:'2026-11-30',sku:'FG 62059',pallets:1,units:171,order_date:'2026-12-04',delivery_date:'2026-12-09',need_arrival:'2026-12-10'},
+  {week:'2026-12-07',sku:'FG 61737',pallets:18,units:2520,order_date:'2026-12-11',delivery_date:'2026-12-16',need_arrival:'2026-12-17'},
+  {week:'2026-12-07',sku:'FG 61740',pallets:3,units:420,order_date:'2026-12-11',delivery_date:'2026-12-16',need_arrival:'2026-12-17'},
+  {week:'2026-12-07',sku:'FG 61909',pallets:1,units:189,order_date:'2026-12-11',delivery_date:'2026-12-16',need_arrival:'2026-12-17'},
+  {week:'2026-12-07',sku:'FG 62059',pallets:1,units:171,order_date:'2026-12-11',delivery_date:'2026-12-16',need_arrival:'2026-12-17'},
+  {week:'2026-12-07',sku:'FG 62060',pallets:5,units:700,order_date:'2026-12-11',delivery_date:'2026-12-16',need_arrival:'2026-12-17'},
+  {week:'2026-12-07',sku:'FG 62106',pallets:2,units:280,order_date:'2026-12-11',delivery_date:'2026-12-16',need_arrival:'2026-12-17'},
+  {week:'2026-12-07',sku:'FG 62108',pallets:9,units:1260,order_date:'2026-12-11',delivery_date:'2026-12-16',need_arrival:'2026-12-17'},
+  {week:'2026-12-07',sku:'FG 62322',pallets:4,units:560,order_date:'2026-12-11',delivery_date:'2026-12-16',need_arrival:'2026-12-17'},
+  {week:'2026-12-14',sku:'FG 61737',pallets:17,units:2380,order_date:'2026-12-18',delivery_date:'2026-12-23',need_arrival:'2026-12-24'},
+  {week:'2026-12-14',sku:'FG 61740',pallets:1,units:140,order_date:'2026-12-18',delivery_date:'2026-12-23',need_arrival:'2026-12-24'},
+  {week:'2026-12-14',sku:'FG 62106',pallets:2,units:280,order_date:'2026-12-18',delivery_date:'2026-12-23',need_arrival:'2026-12-24'},
+  {week:'2026-12-21',sku:'FG 61737',pallets:49,units:6790,order_date:'2026-12-25',delivery_date:'2026-12-30',need_arrival:'2026-12-31'},
+  {week:'2026-12-21',sku:'FG 61740',pallets:5,units:625,order_date:'2026-12-25',delivery_date:'2026-12-30',need_arrival:'2026-12-31'},
+  {week:'2026-12-21',sku:'FG 62059',pallets:1,units:171,order_date:'2026-12-25',delivery_date:'2026-12-30',need_arrival:'2026-12-31'},
+  {week:'2026-12-21',sku:'FG 62060',pallets:7,units:980,order_date:'2026-12-25',delivery_date:'2026-12-30',need_arrival:'2026-12-31'},
+  {week:'2026-12-21',sku:'FG 62106',pallets:6,units:631,order_date:'2026-12-25',delivery_date:'2026-12-30',need_arrival:'2026-12-31'},
+  {week:'2026-12-21',sku:'FG 62108',pallets:11,units:1540,order_date:'2026-12-25',delivery_date:'2026-12-30',need_arrival:'2026-12-31'},
+  {week:'2026-12-21',sku:'FG 62322',pallets:8,units:1120,order_date:'2026-12-25',delivery_date:'2026-12-30',need_arrival:'2026-12-31'},
+  {week:'2026-12-28',sku:'FG 61909',pallets:1,units:189,order_date:'2027-01-01',delivery_date:'2027-01-06',need_arrival:'2027-01-07'},
+  {week:'2026-12-28',sku:'FG 62059',pallets:1,units:171,order_date:'2027-01-01',delivery_date:'2027-01-06',need_arrival:'2027-01-07'},
+  {week:'2027-01-04',sku:'FG 61737',pallets:37,units:5180,order_date:'2027-01-08',delivery_date:'2027-01-13',need_arrival:'2027-01-14'},
+  {week:'2027-01-04',sku:'FG 61740',pallets:3,units:420,order_date:'2027-01-08',delivery_date:'2027-01-13',need_arrival:'2027-01-14'},
+  {week:'2027-01-04',sku:'FG 62060',pallets:5,units:700,order_date:'2027-01-08',delivery_date:'2027-01-13',need_arrival:'2027-01-14'},
+  {week:'2027-01-04',sku:'FG 62106',pallets:3,units:420,order_date:'2027-01-08',delivery_date:'2027-01-13',need_arrival:'2027-01-14'},
+  {week:'2027-01-04',sku:'FG 62108',pallets:11,units:1540,order_date:'2027-01-08',delivery_date:'2027-01-13',need_arrival:'2027-01-14'},
+  {week:'2027-01-04',sku:'FG 62322',pallets:10,units:1400,order_date:'2027-01-08',delivery_date:'2027-01-13',need_arrival:'2027-01-14'},
+  {week:'2027-01-11',sku:'FG 61909',pallets:1,units:189,order_date:'2027-01-15',delivery_date:'2027-01-20',need_arrival:'2027-01-21'},
+  {week:'2027-01-11',sku:'FG 62059',pallets:1,units:171,order_date:'2027-01-15',delivery_date:'2027-01-20',need_arrival:'2027-01-21'},
+  {week:'2027-01-18',sku:'FG 61737',pallets:45,units:6230,order_date:'2027-01-22',delivery_date:'2027-01-27',need_arrival:'2027-01-28'},
+  {week:'2027-01-18',sku:'FG 61740',pallets:7,units:940,order_date:'2027-01-22',delivery_date:'2027-01-27',need_arrival:'2027-01-28'},
+  {week:'2027-01-18',sku:'FG 62059',pallets:1,units:171,order_date:'2027-01-22',delivery_date:'2027-01-27',need_arrival:'2027-01-28'},
+  {week:'2027-01-18',sku:'FG 62060',pallets:8,units:1120,order_date:'2027-01-22',delivery_date:'2027-01-27',need_arrival:'2027-01-28'},
+  {week:'2027-01-18',sku:'FG 62106',pallets:8,units:913,order_date:'2027-01-22',delivery_date:'2027-01-27',need_arrival:'2027-01-28'},
+  {week:'2027-01-18',sku:'FG 62108',pallets:11,units:1540,order_date:'2027-01-22',delivery_date:'2027-01-27',need_arrival:'2027-01-28'},
+  {week:'2027-01-18',sku:'FG 62322',pallets:9,units:1260,order_date:'2027-01-22',delivery_date:'2027-01-27',need_arrival:'2027-01-28'},
+  {week:'2027-01-25',sku:'FG 61737',pallets:15,units:2100,order_date:'2027-01-29',delivery_date:'2027-02-03',need_arrival:'2027-02-04'},
+  {week:'2027-01-25',sku:'FG 61740',pallets:2,units:280,order_date:'2027-01-29',delivery_date:'2027-02-03',need_arrival:'2027-02-04'},
+  {week:'2027-01-25',sku:'FG 61909',pallets:1,units:189,order_date:'2027-01-29',delivery_date:'2027-02-03',need_arrival:'2027-02-04'},
+  {week:'2027-01-25',sku:'FG 62059',pallets:1,units:171,order_date:'2027-01-29',delivery_date:'2027-02-03',need_arrival:'2027-02-04'},
+  {week:'2027-01-25',sku:'FG 62106',pallets:1,units:140,order_date:'2027-01-29',delivery_date:'2027-02-03',need_arrival:'2027-02-04'},
+  {week:'2027-02-01',sku:'FG 61737',pallets:23,units:3220,order_date:'2027-02-05',delivery_date:'2027-02-10',need_arrival:'2027-02-11'},
+  {week:'2027-02-01',sku:'FG 61740',pallets:3,units:420,order_date:'2027-02-05',delivery_date:'2027-02-10',need_arrival:'2027-02-11'},
+  {week:'2027-02-01',sku:'FG 61909',pallets:1,units:189,order_date:'2027-02-05',delivery_date:'2027-02-10',need_arrival:'2027-02-11'},
+  {week:'2027-02-01',sku:'FG 62059',pallets:1,units:171,order_date:'2027-02-05',delivery_date:'2027-02-10',need_arrival:'2027-02-11'},
+  {week:'2027-02-01',sku:'FG 62060',pallets:7,units:980,order_date:'2027-02-05',delivery_date:'2027-02-10',need_arrival:'2027-02-11'},
+  {week:'2027-02-01',sku:'FG 62106',pallets:2,units:280,order_date:'2027-02-05',delivery_date:'2027-02-10',need_arrival:'2027-02-11'},
+  {week:'2027-02-01',sku:'FG 62108',pallets:10,units:1400,order_date:'2027-02-05',delivery_date:'2027-02-10',need_arrival:'2027-02-11'},
+  {week:'2027-02-01',sku:'FG 62322',pallets:10,units:1400,order_date:'2027-02-05',delivery_date:'2027-02-10',need_arrival:'2027-02-11'},
+  {week:'2027-02-15',sku:'FG 61737',pallets:59,units:8155,order_date:'2027-02-19',delivery_date:'2027-02-24',need_arrival:'2027-02-25'},
+  {week:'2027-02-15',sku:'FG 61740',pallets:7,units:940,order_date:'2027-02-19',delivery_date:'2027-02-24',need_arrival:'2027-02-25'},
+  {week:'2027-02-15',sku:'FG 61909',pallets:1,units:189,order_date:'2027-02-19',delivery_date:'2027-02-24',need_arrival:'2027-02-25'},
+  {week:'2027-02-15',sku:'FG 62059',pallets:1,units:171,order_date:'2027-02-19',delivery_date:'2027-02-24',need_arrival:'2027-02-25'},
+  {week:'2027-02-15',sku:'FG 62060',pallets:8,units:1120,order_date:'2027-02-19',delivery_date:'2027-02-24',need_arrival:'2027-02-25'},
+  {week:'2027-02-15',sku:'FG 62106',pallets:9,units:1125,order_date:'2027-02-19',delivery_date:'2027-02-24',need_arrival:'2027-02-25'},
+  {week:'2027-02-15',sku:'FG 62108',pallets:13,units:1820,order_date:'2027-02-19',delivery_date:'2027-02-24',need_arrival:'2027-02-25'},
+  {week:'2027-02-15',sku:'FG 62322',pallets:11,units:1540,order_date:'2027-02-19',delivery_date:'2027-02-24',need_arrival:'2027-02-25'},
+  {week:'2027-02-22',sku:'FG 61909',pallets:1,units:189,order_date:'2027-02-26',delivery_date:'2027-03-03',need_arrival:'2027-03-04'},
+  {week:'2027-02-22',sku:'FG 62059',pallets:1,units:171,order_date:'2027-02-26',delivery_date:'2027-03-03',need_arrival:'2027-03-04'},
+  {week:'2027-03-01',sku:'FG 61737',pallets:24,units:3360,order_date:'2027-03-05',delivery_date:'2027-03-10',need_arrival:'2027-03-11'},
+  {week:'2027-03-01',sku:'FG 61740',pallets:3,units:420,order_date:'2027-03-05',delivery_date:'2027-03-10',need_arrival:'2027-03-11'},
+  {week:'2027-03-01',sku:'FG 61909',pallets:1,units:189,order_date:'2027-03-05',delivery_date:'2027-03-10',need_arrival:'2027-03-11'},
+  {week:'2027-03-01',sku:'FG 62059',pallets:1,units:171,order_date:'2027-03-05',delivery_date:'2027-03-10',need_arrival:'2027-03-11'},
+  {week:'2027-03-01',sku:'FG 62060',pallets:6,units:840,order_date:'2027-03-05',delivery_date:'2027-03-10',need_arrival:'2027-03-11'},
+  {week:'2027-03-01',sku:'FG 62106',pallets:2,units:280,order_date:'2027-03-05',delivery_date:'2027-03-10',need_arrival:'2027-03-11'},
+  {week:'2027-03-01',sku:'FG 62108',pallets:12,units:1680,order_date:'2027-03-05',delivery_date:'2027-03-10',need_arrival:'2027-03-11'},
+  {week:'2027-03-01',sku:'FG 62322',pallets:10,units:1400,order_date:'2027-03-05',delivery_date:'2027-03-10',need_arrival:'2027-03-11'},
+  {week:'2027-03-08',sku:'FG 61737',pallets:17,units:2380,order_date:'2027-03-12',delivery_date:'2027-03-17',need_arrival:'2027-03-18'},
+  {week:'2027-03-08',sku:'FG 61740',pallets:2,units:280,order_date:'2027-03-12',delivery_date:'2027-03-17',need_arrival:'2027-03-18'},
+  {week:'2027-03-08',sku:'FG 61909',pallets:1,units:189,order_date:'2027-03-12',delivery_date:'2027-03-17',need_arrival:'2027-03-18'},
+  {week:'2027-03-08',sku:'FG 62059',pallets:1,units:171,order_date:'2027-03-12',delivery_date:'2027-03-17',need_arrival:'2027-03-18'},
+  {week:'2027-03-08',sku:'FG 62106',pallets:3,units:420,order_date:'2027-03-12',delivery_date:'2027-03-17',need_arrival:'2027-03-18'},
+  {week:'2027-03-15',sku:'FG 61737',pallets:47,units:6510,order_date:'2027-03-19',delivery_date:'2027-03-24',need_arrival:'2027-03-25'},
+  {week:'2027-03-15',sku:'FG 61740',pallets:9,units:1102,order_date:'2027-03-19',delivery_date:'2027-03-24',need_arrival:'2027-03-25'},
+  {week:'2027-03-15',sku:'FG 62059',pallets:1,units:171,order_date:'2027-03-19',delivery_date:'2027-03-24',need_arrival:'2027-03-25'},
+  {week:'2027-03-15',sku:'FG 62060',pallets:9,units:1260,order_date:'2027-03-19',delivery_date:'2027-03-24',need_arrival:'2027-03-25'},
+  {week:'2027-03-15',sku:'FG 62106',pallets:10,units:1216,order_date:'2027-03-19',delivery_date:'2027-03-24',need_arrival:'2027-03-25'},
+  {week:'2027-03-15',sku:'FG 62108',pallets:13,units:1820,order_date:'2027-03-19',delivery_date:'2027-03-24',need_arrival:'2027-03-25'},
+  {week:'2027-03-15',sku:'FG 62322',pallets:9,units:1260,order_date:'2027-03-19',delivery_date:'2027-03-24',need_arrival:'2027-03-25'},
+  {week:'2027-03-22',sku:'FG 61909',pallets:1,units:189,order_date:'2027-03-26',delivery_date:'2027-03-31',need_arrival:'2027-04-01'},
+  {week:'2027-03-22',sku:'FG 62059',pallets:1,units:171,order_date:'2027-03-26',delivery_date:'2027-03-31',need_arrival:'2027-04-01'},
+  {week:'2027-03-29',sku:'FG 61737',pallets:49,units:6860,order_date:'2027-04-02',delivery_date:'2027-04-07',need_arrival:'2027-04-08'},
+  {week:'2027-03-29',sku:'FG 61740',pallets:6,units:840,order_date:'2027-04-02',delivery_date:'2027-04-07',need_arrival:'2027-04-08'},
+  {week:'2027-03-29',sku:'FG 61909',pallets:1,units:189,order_date:'2027-04-02',delivery_date:'2027-04-07',need_arrival:'2027-04-08'},
+  {week:'2027-03-29',sku:'FG 62060',pallets:10,units:1400,order_date:'2027-04-02',delivery_date:'2027-04-07',need_arrival:'2027-04-08'},
+  {week:'2027-03-29',sku:'FG 62106',pallets:8,units:1120,order_date:'2027-04-02',delivery_date:'2027-04-07',need_arrival:'2027-04-08'},
+  {week:'2027-03-29',sku:'FG 62108',pallets:13,units:1820,order_date:'2027-04-02',delivery_date:'2027-04-07',need_arrival:'2027-04-08'},
+  {week:'2027-03-29',sku:'FG 62322',pallets:9,units:1260,order_date:'2027-04-02',delivery_date:'2027-04-07',need_arrival:'2027-04-08'},
+];
+
+// SKU descriptions for forecast display
+const OATLY_SKU_DESC = {
+  'FG 61737': 'Oatly Barista 1L',
+  'FG 61739': 'Oatly Organic 1L',
+  'FG 61740': 'Oatly Chocolate 1L',
+  'FG 61909': 'Oatly Oat Cream 250ml',
+  'FG 62059': 'Oatly Oat Milk 500ml',
+  'FG 62060': 'Oatly Vanilla 1L',
+  'FG 62106': 'Oatly Low Sugar 1L',
+  'FG 62108': 'Oatly Full Fat 1L',
+  'FG 62322': 'Oatly Barista Organic 1L',
+};
 
 // ---- PO overdue helpers (based on Expected Receipt Date from NetSuite) ----
 // Today for overdue calcs: 24/04/2026
@@ -919,6 +1221,116 @@ function renderAP(){
   </tr>`;
 }
 
+// ---- Retailer Forecast (WW) tab ----
+function renderWWForecast(){
+  if(!WW_FORECAST_DATA || WW_FORECAST_DATA.length === 0){
+    document.getElementById('ww-forecast-thead').innerHTML='<tr><th>No forecast data loaded</th></tr>';
+    document.getElementById('ww-forecast-tbody').innerHTML='<tr><td style="padding:24px;color:#888;font-style:italic">No WW forecast data available. Email the WW planned orders file to the daemon to load it.</td></tr>';
+    document.getElementById('ww-forecast-tfoot').innerHTML='';
+    document.getElementById('ww-forecast-summary-tiles').innerHTML='<div class="tile amber"><div class="tile-label">Status</div><div class="tile-value" style="font-size:13pt">No Data</div><div class="tile-sub">Email WW forecast file to load</div></div>';
+    return;
+  }
+
+  const skuFilter=document.getElementById('ww-sku-filter').value;
+  const weeksLimit=parseInt(document.getElementById('ww-weeks-filter').value)||13;
+
+  // Populate SKU filter on first call
+  const skuSel=document.getElementById('ww-sku-filter');
+  if(skuSel.options.length<=1){
+    const skus=[...new Set(WW_FORECAST_DATA.map(r=>r.sku))].sort();
+    skus.forEach(s=>{
+      const o=document.createElement('option');
+      o.value=s;
+      o.textContent=s+(OATLY_SKU_DESC[s]?' - '+OATLY_SKU_DESC[s]:'');
+      skuSel.appendChild(o);
+    });
+  }
+
+  // Get sorted unique weeks, limit to next N from today
+  const today=new Date();
+  const allWeeks=[...new Set(WW_FORECAST_DATA.map(r=>r.week))].sort();
+  const futureWeeks=allWeeks.filter(w=>new Date(w)>=new Date(today.getFullYear(),today.getMonth(),today.getDate()-7));
+  const displayWeeks=futureWeeks.slice(0,weeksLimit);
+
+  // Get SKUs to display
+  let displaySkus=[...new Set(WW_FORECAST_DATA.map(r=>r.sku))].sort();
+  if(skuFilter!=='all') displaySkus=displaySkus.filter(s=>s===skuFilter);
+
+  // Build lookup: {week: {sku: {pallets, units}}}
+  const lookup={};
+  WW_FORECAST_DATA.forEach(r=>{
+    if(!lookup[r.week]) lookup[r.week]={};
+    lookup[r.week][r.sku]={pallets:r.pallets,units:r.units};
+  });
+
+  // Summary tiles
+  const totalUnits=WW_FORECAST_DATA.reduce((s,r)=>s+r.units,0);
+  const totalPallets=WW_FORECAST_DATA.reduce((s,r)=>s+r.pallets,0);
+  const skuCount=[...new Set(WW_FORECAST_DATA.map(r=>r.sku))].length;
+  const weekCount=[...new Set(WW_FORECAST_DATA.map(r=>r.week))].length;
+  document.getElementById('ww-forecast-summary-tiles').innerHTML=`
+    <div class="tile blue"><div class="tile-label">Total Units (forecast)</div><div class="tile-value">${fmtNum(totalUnits)}</div><div class="tile-sub">All weeks, all SKUs</div></div>
+    <div class="tile"><div class="tile-label">Total Pallets</div><div class="tile-value">${fmtNum(totalPallets)}</div><div class="tile-sub">WW planned orders</div></div>
+    <div class="tile green"><div class="tile-label">SKUs</div><div class="tile-value">${skuCount}</div><div class="tile-sub">SKUs with forecast</div></div>
+    <div class="tile"><div class="tile-label">Weeks</div><div class="tile-value">${weekCount}</div><div class="tile-sub">Week range in file</div></div>`;
+
+  // Header row: Week columns
+  const headCols=displayWeeks.map(w=>{
+    const d=new Date(w);
+    const label=d.getDate()+'/'+(d.getMonth()+1);
+    return`<th class="num" style="min-width:70px;font-size:8pt">${label}</th>`;
+  }).join('');
+  document.getElementById('ww-forecast-thead').innerHTML=`<tr>
+    <th style="min-width:110px">SKU</th>
+    <th>Description</th>
+    <th style="min-width:80px;text-align:center">Total Units</th>
+    <th style="min-width:70px;text-align:center">Pallets</th>
+    ${headCols}
+  </tr>`;
+
+  // Body rows: one row per SKU, columns are weeks
+  const totalsRow={};
+  displayWeeks.forEach(w=>{totalsRow[w]={pallets:0,units:0};});
+  let grandUnits=0,grandPallets=0;
+
+  const tbody=displaySkus.map(sku=>{
+    const desc=OATLY_SKU_DESC[sku]||sku;
+    const skuTotal=WW_FORECAST_DATA.filter(r=>r.sku===sku).reduce((s,r)=>({units:s.units+r.units,pallets:s.pallets+r.pallets}),{units:0,pallets:0});
+    grandUnits+=skuTotal.units;
+    grandPallets+=skuTotal.pallets;
+    const weekCols=displayWeeks.map(w=>{
+      const cell=lookup[w]&&lookup[w][sku];
+      if(cell&&cell.units>0){
+        totalsRow[w].units+=cell.units;
+        totalsRow[w].pallets+=cell.pallets;
+        return`<td class="num" style="font-size:8.5pt">${fmtNum(cell.units)}</td>`;
+      }
+      return`<td class="num" style="color:#ccc;font-size:8pt">-</td>`;
+    }).join('');
+    return`<tr>
+      <td style="font-size:8.5pt;font-weight:bold">${sku}</td>
+      <td style="font-size:8.5pt">${desc}</td>
+      <td class="num" style="font-weight:bold">${fmtNum(skuTotal.units)}</td>
+      <td class="num">${fmtNum(skuTotal.pallets)}</td>
+      ${weekCols}
+    </tr>`;
+  }).join('');
+
+  document.getElementById('ww-forecast-tbody').innerHTML=tbody;
+
+  // Totals footer row
+  const totalWeekCols=displayWeeks.map(w=>{
+    const t=totalsRow[w];
+    return t.units>0?`<td class="num" style="font-size:8.5pt;font-weight:bold">${fmtNum(t.units)}</td>`:'<td class="num" style="color:#ccc">-</td>';
+  }).join('');
+  document.getElementById('ww-forecast-tfoot').innerHTML=`<tr>
+    <td colspan="2"><strong>Total (${displayWeeks.length} weeks shown)</strong></td>
+    <td class="num"><strong>${fmtNum(grandUnits)}</strong></td>
+    <td class="num"><strong>${fmtNum(grandPallets)}</strong></td>
+    ${totalWeekCols}
+  </tr>`;
+}
+
 // ---- Render all ----
 function renderAll(){
   renderSkuCards();
@@ -926,6 +1338,7 @@ function renderAll(){
   renderSO();
   renderPO();
   renderAP();
+  renderWWForecast();
   const now=new Date().toLocaleString('en-AU',{timeZone:'Australia/Brisbane',hour12:false});
   document.getElementById('last-refresh').textContent='Refreshed: '+now+' AEST';
   document.getElementById('footer-gen').textContent='Generated: '+now;
