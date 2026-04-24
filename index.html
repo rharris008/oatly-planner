@@ -12,7 +12,7 @@
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
   body { font-family: Arial, sans-serif; background: #F5F5F5; color: #333; font-size: 10pt; min-height: 100vh; }
   :root { --navy:#1B2A4A; --red:#C0392B; --amber:#E67E22; --green:#27AE60; --blue:#0E7CCE; --white:#FFFFFF; --ltgrey:#F5F5F5; --mdgrey:#CCCCCC; --dktext:#333333; }
-  .page-header { background:var(--navy); color:var(--white); padding:16px 24px; display:flex; align-items:center; justify-content:space-between; border-bottom:4px solid var(--blue); }
+  .page-header { background:var(--navy); color:var(--white); padding:16px 24px; display:flex; align-items:center; justify-content:space-between; border-bottom:4px solid var(--blue); position:sticky; top:0; z-index:100; }
   .page-header h1 { font-size:20pt; font-weight:bold; }
   .page-header .subtitle { font-size:11pt; color:#8fa8c8; margin-top:2px; }
   .header-logo { height:38px; margin-right:12px; }
@@ -20,7 +20,7 @@
   .tile-link { cursor:pointer; transition:transform .1s,box-shadow .1s; }
   .tile-link:hover { transform:translateY(-2px); box-shadow:0 4px 12px rgba(0,0,0,.15); }
   /* Tab nav */
-  .tab-nav { background:var(--white); border-bottom:2px solid var(--mdgrey); padding:0 24px; display:flex; gap:0; }
+  .tab-nav { background:var(--white); border-bottom:2px solid var(--mdgrey); padding:0 24px; display:flex; gap:0; position:sticky; top:70px; z-index:90; }
   .tab-btn { font-family:Arial,sans-serif; font-size:10pt; font-weight:bold; padding:12px 22px; border:none; background:none; color:#666; cursor:pointer; border-bottom:3px solid transparent; margin-bottom:-2px; transition:color .15s,border-color .15s; }
   .tab-btn:hover { color:var(--navy); }
   .tab-btn.active { color:var(--navy); border-bottom-color:var(--blue); }
@@ -80,7 +80,7 @@
   .data-section { padding:16px 24px 24px; }
   .data-table-wrap { background:var(--white); border-radius:8px; box-shadow:0 1px 6px rgba(0,0,0,.08); overflow:hidden; margin-top:16px; }
   .data-table { width:100%; border-collapse:collapse; font-size:9pt; }
-  .data-table thead th { background:var(--navy); color:var(--white); padding:8px 12px; text-align:left; font-size:8.5pt; font-weight:bold; white-space:nowrap; }
+  .data-table thead th { background:var(--navy); color:var(--white); padding:8px 12px; text-align:left; font-size:8.5pt; font-weight:bold; white-space:nowrap; position:sticky; top:116px; z-index:10; }
   .data-table thead th.num { text-align:right; }
   .data-table tbody td { padding:7px 12px; border-bottom:1px solid var(--ltgrey); }
   .data-table tbody tr:last-child td { border-bottom:none; }
