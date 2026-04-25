@@ -169,7 +169,7 @@
 
 <!-- PLANNING DASHBOARD -->
 <div id="tab-forecast" class="tab-pane active">
-  <div class="ns-banner" style="background:#e8f4fd;border-left-color:var(--blue)">Data sources: Stock from NetSuite (25/04/2026). Sales orders from Report 762 (25/04/2026). Open POs from SuiteQL (25/04/2026). Creditors from Report 557 (25/04/2026).</div>
+  <div class="ns-banner" style="background:#e8f4fd;border-left-color:var(--blue)">Data sources: Stock from NetSuite (26/04/2026). Sales orders from Report 762 (26/04/2026). Open POs from SuiteQL (26/04/2026). Creditors from Report 557 (26/04/2026).</div>
   <div class="section-header" style="margin-top:8px">Planning Position by SKU</div>
   <div class="front-cards-grid" id="front-cards">
     <div class="loader"><span class="spinner"></span>Loading planning data...</div>
@@ -205,7 +205,7 @@
 
 <!-- STOCK TAB -->
 <div id="tab-stock" class="tab-pane">
-  <div class="ns-banner">NetSuite extract: 25/04/2026 | AGD Erskine Park | Inventory balance by item (all lots/bins aggregated)</div>
+  <div class="ns-banner">NetSuite extract: 26/04/2026 | AGD Erskine Park | Inventory balance by item (all lots/bins aggregated)</div>
   <div class="summary-row" id="stock-summary-tiles"></div>
   <div class="data-section">
     <div class="data-table-wrap">
@@ -228,7 +228,7 @@
 
 <!-- SALES ORDERS TAB -->
 <div id="tab-so" class="tab-pane">
-  <div class="ns-banner">NetSuite Report 762, 25/04/2026 | Open sales orders for Oatly SKUs</div>
+  <div class="ns-banner">NetSuite Report 762, 26/04/2026 | Open sales orders for Oatly SKUs</div>
   <div class="summary-row" id="so-summary-tiles"></div>
   <div class="data-section">
     <div class="data-table-wrap">
@@ -254,7 +254,7 @@
 
 <!-- PO TAB -->
 <div id="tab-po" class="tab-pane">
-  <div class="ns-banner">NetSuite SuiteQL extract: 25/04/2026 | Open Oatly purchase orders by SKU | Status B=Pending Receipt, F=Pending Bill, E=Partially Received</div>
+  <div class="ns-banner">NetSuite SuiteQL extract: 26/04/2026 | Open Oatly purchase orders by SKU | Status B=Pending Receipt, F=Pending Bill, E=Partially Received</div>
   <div class="summary-row" id="po-summary-tiles"></div>
   <div class="data-section">
     <div class="data-table-wrap">
@@ -280,7 +280,7 @@
 
 <!-- CREDITORS TAB -->
 <div id="tab-creditors" class="tab-pane">
-  <div class="ns-banner">NetSuite extract: 25/04/2026 | Oatly Open Bills (Report 557, filtered to OAT101 only) | Total: AUD 529,797 | 30 open bills</div>
+  <div class="ns-banner">NetSuite extract: 26/04/2026 | Oatly Open Bills (Report 557, filtered to OAT101 only) | Total: AUD 529,797 | 30 open bills</div>
   <div class="ap-filter-bar">
     <label>Show:</label>
     <select id="ap-filter" onchange="renderAP()">
@@ -382,12 +382,12 @@
 </div>
 
 <div class="page-footer">
-  <span>AGD Oatly Planner | Data: NetSuite 25/04/2026 | INTERNAL - NOT FOR DISTRIBUTION</span>
+  <span>AGD Oatly Planner | Data: NetSuite 26/04/2026 | INTERNAL - NOT FOR DISTRIBUTION</span>
   <span id="footer-gen">Generated: --</span>
 </div>
 
 <script>
-// ---- Static NetSuite data (extracted 25/04/2026) ----
+// ---- Static NetSuite data (extracted 26/04/2026) ----
 const STOCK_DATA = [
   {code:'FG 61737',desc:'Oatly Oat Milk Barista Edition 1L',soh:57689,avail:57689},
   {code:'FG 62108',desc:'Oatly Oat Milk Full 2.8% Fat 1.0L',soh:6171,avail:6171},
@@ -426,7 +426,7 @@ const SALES_ORDERS_DATA = [
   {sku:'FG 62108',desc:'Oatly Full 2.8% fat 1L',so:'SOAGD2070',customer:'WOO110 Woolworths - Melbourne South Regional DC (3995)',date:'23/04/2026',qty:280,fulfilled:0},
 ];
 
-// Open PO data by SKU (SuiteQL extract 25/04/2026)
+// Open PO data by SKU (SuiteQL extract 26/04/2026)
 const OPEN_PO_BY_SKU = [
   {code:'FG 61737',desc:'',open_qty:220100,po_count:71,pending_receipt:9,pending_bill:62},
   {code:'FG 61739',desc:'',open_qty:17271,po_count:6,pending_receipt:1,pending_bill:5},
@@ -471,6 +471,7 @@ const AP_DATA = [
   {inv:"3010600069819",vendor:"OAT101 OATLY EMEA AB",bill_date:"10/04/2026",due_date:"25/05/2026",aud:32279.48,auth:"",memo:null},
 ];
 
+// Individual PO lines with expected receipt dates for overdue tracking
 // Individual PO lines with expected receipt dates for overdue tracking
 // Individual PO lines with expected receipt dates for overdue tracking
 const PO_LINES = [
@@ -569,6 +570,7 @@ const PO_LINES = [
 
 // WW retailer forecast data (from AGD Oatly  Planned orders 150426.xlsx, updated 24/04/2026)
 // WW retailer forecast data (from AGD Oatly  Planned orders 150426.xlsx, updated 2026-04-24T14:15:25.147090+10:00)
+// WW retailer forecast data (from AGD Oatly  Planned orders 150426.xlsx, updated 2026-04-24T14:20:15.710178+10:00)
 // WW retailer forecast data (from AGD Oatly  Planned orders 150426.xlsx, updated 2026-04-24T14:20:15.710178+10:00)
 const WW_FORECAST_DATA = [
   {week:'2026-04-13',sku:'FG 61737',pallets:12,units:1645,order_date:'2026-04-17',delivery_date:'2026-04-22',need_arrival:'2026-04-23'},
@@ -845,8 +847,8 @@ const OATLY_SKU_DESC = {
 };
 
 // ---- PO overdue helpers (based on Expected Receipt Date from NetSuite) ----
-// Today for overdue calcs: 25/04/2026
-const TODAY_DATE = new Date(2026, 3, 25); // months are 0-indexed
+// Today for overdue calcs: 26/04/2026
+const TODAY_DATE = new Date(2026, 3, 26); // months are 0-indexed
 
 function parsePODate(s) {
   const [d,m,y] = s.split('/');
