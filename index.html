@@ -179,7 +179,7 @@
 
 <!-- RETAILER FORECAST TAB -->
 <div id="tab-ww-forecast" class="tab-pane">
-  <div class="ns-banner">WW Forecast: 258 week/SKU rows | File received 24/04/2026 | Range covers 50 weeks</div>
+  <div class="ns-banner">WW Forecast: 258 week/SKU rows | File received 27/04/2026 | Range covers 50 weeks</div>
   <div class="summary-row" id="ww-forecast-summary-tiles"></div>
   <div class="filter-bar">
     <label>SKU:</label>
@@ -503,6 +503,7 @@ const AP_DATA = [
 // Individual PO lines with expected receipt dates for overdue tracking
 // Individual PO lines with expected receipt dates for overdue tracking
 // Individual PO lines with expected receipt dates for overdue tracking
+// Individual PO lines with expected receipt dates for overdue tracking
 const PO_LINES = [
   {po:'POAGD257',sku:'FG 61737',date:'17/12/2025',status:'F',qty:3100,exp_receipt:'06/04/2026'},
   {po:'POAGD258',sku:'FG 61737',date:'17/12/2025',status:'F',qty:3100,exp_receipt:'13/04/2026'},
@@ -602,6 +603,7 @@ const PO_LINES = [
 // WW retailer forecast data (from AGD Oatly  Planned orders 150426.xlsx, updated 2026-04-24T14:20:15.710178+10:00)
 // WW retailer forecast data (from AGD Oatly  Planned orders 150426.xlsx, updated 2026-04-24T14:20:15.710178+10:00)
 // WW retailer forecast data (from AGD Oatly  Planned orders 150426.xlsx, updated 2026-04-24T14:20:15.710178+10:00)
+// WW retailer forecast data (from AGD Oatly  Planned orders 150426.xlsx, updated 2026-04-27T14:58:38.044297+10:00)
 const WW_FORECAST_DATA = [
   {week:'2026-04-13',sku:'FG 61737',pallets:12,units:1645,order_date:'2026-04-17',delivery_date:'2026-04-22',need_arrival:'2026-04-23'},
   {week:'2026-04-13',sku:'FG 61740',pallets:5,units:665,order_date:'2026-04-17',delivery_date:'2026-04-22',need_arrival:'2026-04-23'},
@@ -864,8 +866,22 @@ const WW_FORECAST_DATA = [
 ];
 
 // Coles retailer forecast data (injected by oatly_planner_sync.py when coles_forecast.json is available)
-const COLES_FORECAST_DATA = [];
-const COLES_FORECAST_META = {"updated_at":"","filename":"","row_count":0};
+// Coles retailer forecast data (from AGD ORDER PLAN .xlsm, updated 2026-04-27T15:02:25.405001+10:00)
+const COLES_FORECAST_DATA = [
+  {week:'2026-04-20',sku:'Oatly Barista 1L',pallets:0,units:2520,order_date:'',delivery_date:null,need_arrival:null},
+  {week:'2026-04-20',sku:'Oatly Organic 1L',pallets:0,units:1680,order_date:'',delivery_date:null,need_arrival:null},
+  {week:'2026-04-24',sku:'Oatly Barista 1L',pallets:0,units:3080,order_date:'',delivery_date:null,need_arrival:null},
+  {week:'2026-04-24',sku:'Oatly Organic 1L',pallets:0,units:420,order_date:'',delivery_date:null,need_arrival:null},
+  {week:'2026-04-29',sku:'Oatly Barista 1L',pallets:0,units:140,order_date:'',delivery_date:null,need_arrival:null},
+  {week:'2026-04-29',sku:'Oatly Organic 1L',pallets:0,units:140,order_date:'',delivery_date:null,need_arrival:null},
+  {week:'2026-05-04',sku:'Oatly Barista 1L',pallets:0,units:2100,order_date:'',delivery_date:null,need_arrival:null},
+  {week:'2026-05-04',sku:'Oatly Organic 1L',pallets:0,units:280,order_date:'',delivery_date:null,need_arrival:null},
+  {week:'2026-05-06',sku:'Oatly Barista 1L',pallets:0,units:140,order_date:'',delivery_date:null,need_arrival:null},
+  {week:'2026-05-11',sku:'Oatly Barista 1L',pallets:0,units:1820,order_date:'',delivery_date:null,need_arrival:null},
+  {week:'2026-05-11',sku:'Oatly Organic 1L',pallets:0,units:420,order_date:'',delivery_date:null,need_arrival:null},
+  {week:'2026-05-18',sku:'Oatly Barista 1L',pallets:0,units:700,order_date:'',delivery_date:null,need_arrival:null},
+];
+const COLES_FORECAST_META = {updated_at:'2026-04-27',filename:'AGD ORDER PLAN .xlsm',row_count:12};
 
 // SKU descriptions for forecast display
 const OATLY_SKU_DESC = {
