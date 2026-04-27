@@ -164,7 +164,8 @@
   <button class="tab-btn" onclick="showTab('po',this)">Purchase Orders</button>
   <button class="tab-btn" onclick="showTab('creditors',this)">Creditors</button>
   <button class="tab-btn" onclick="showTab('grni',this)">Goods received not invoiced</button>
-  <button class="tab-btn" onclick="showTab('ww-forecast',this)">Retailer Forecast</button>
+  <button class="tab-btn" onclick="showTab('ww-forecast',this)">WW Forecast</button>
+  <button class="tab-btn" onclick="showTab('coles-forecast',this)">Coles Forecast</button>
 </nav>
 
 <!-- PLANNING DASHBOARD -->
@@ -198,6 +199,33 @@
         <thead id="ww-forecast-thead"></thead>
         <tbody id="ww-forecast-tbody"></tbody>
         <tfoot id="ww-forecast-tfoot"></tfoot>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- COLES FORECAST TAB -->
+<div id="tab-coles-forecast" class="tab-pane">
+  <div class="ns-banner" id="coles-forecast-banner">Coles Forecast: awaiting upload file | Email the Coles planned orders sheet to robspaabh@gmail.com</div>
+  <div class="summary-row" id="coles-forecast-summary-tiles"></div>
+  <div class="filter-bar">
+    <label>SKU:</label>
+    <select id="coles-sku-filter" onchange="renderColesForecast()">
+      <option value="all">All SKUs</option>
+    </select>
+    <label style="margin-left:16px">Weeks to show:</label>
+    <select id="coles-weeks-filter" onchange="renderColesForecast()">
+      <option value="13">Next 13 weeks</option>
+      <option value="26">Next 26 weeks</option>
+      <option value="52">All weeks</option>
+    </select>
+  </div>
+  <div class="data-section">
+    <div class="data-table-wrap">
+      <table class="data-table" id="coles-forecast-table">
+        <thead id="coles-forecast-thead"></thead>
+        <tbody id="coles-forecast-tbody"></tbody>
+        <tfoot id="coles-forecast-tfoot"></tfoot>
       </table>
     </div>
   </div>
@@ -835,6 +863,10 @@ const WW_FORECAST_DATA = [
   {week:'2027-03-29',sku:'FG 62322',pallets:9,units:1260,order_date:'2027-04-02',delivery_date:'2027-04-07',need_arrival:'2027-04-08'},
 ];
 
+// Coles retailer forecast data (injected by oatly_planner_sync.py when coles_forecast.json is available)
+const COLES_FORECAST_DATA = [];
+const COLES_FORECAST_META = {"updated_at":"","filename":"","row_count":0};
+
 // SKU descriptions for forecast display
 const OATLY_SKU_DESC = {
   'FG 61737': 'Oatly Barista 1L',
@@ -1337,6 +1369,59 @@ function renderWWForecast(){
   </tr>`;
 }
 
+function renderColesForecast(){
+  const skuFilter = (document.getElementById('coles-sku-filter')||{}).value||'all';
+  const weeksFilter = parseInt((document.getElementById('coles-weeks-filter')||{}).value)||13;
+  const today = new Date().toISOString().slice(0,10);
+  const cutoff = new Date(); cutoff.setDate(cutoff.getDate()+weeksFilter*7);
+  const cutoffStr = cutoff.toISOString().slice(0,10);
+  const data = (typeof COLES_FORECAST_DATA!=='undefined')?COLES_FORECAST_DATA:[];
+  const meta = (typeof COLES_FORECAST_META!=='undefined')?COLES_FORECAST_META:{};
+  if(!data||!data.length){
+    document.getElementById('coles-forecast-thead').innerHTML='<tr><th>No forecast data loaded</th></tr>';
+    document.getElementById('coles-forecast-tbody').innerHTML='<tr><td style="padding:24px;color:#888;font-style:italic">No Coles forecast data loaded. Email the Coles planned orders XLSX to robspaabh@gmail.com and the planner will update overnight.</td></tr>';
+    document.getElementById('coles-forecast-tfoot').innerHTML='';
+    document.getElementById('coles-forecast-summary-tiles').innerHTML='<div class="tile amber"><div class="tile-label">Status</div><div class="tile-value">Awaiting file</div><div class="tile-sub">No upload received</div></div>';
+    return;
+  }
+  const allSkus=[...new Set(data.map(r=>r.sku))].sort();
+  const skuSel=document.getElementById('coles-sku-filter');
+  const prevSku=skuSel.value;
+  skuSel.innerHTML='<option value="all">All SKUs</option>'+allSkus.map(s=>`<option value="${s}">${(typeof OATLY_SKU_DESC!=='undefined'&&OATLY_SKU_DESC[s])||s}</option>`).join('');
+  if(prevSku)skuSel.value=prevSku;
+  let rows=data.filter(r=>{const wk=(r.week||r.week_date||'');return wk>=today&&wk<=cutoffStr&&(skuFilter==='all'||r.sku===skuFilter);});
+  if(!rows.length){
+    document.getElementById('coles-forecast-thead').innerHTML='<tr><th>No data in range</th></tr>';
+    document.getElementById('coles-forecast-tbody').innerHTML='<tr><td style="padding:24px;color:#888">No forecast rows in the selected period.</td></tr>';
+    document.getElementById('coles-forecast-tfoot').innerHTML='';
+    document.getElementById('coles-forecast-summary-tiles').innerHTML='';
+    return;
+  }
+  const weeks=[...new Set(rows.map(r=>r.week||r.week_date))].sort().slice(0,weeksFilter);
+  const skus=skuFilter==='all'?allSkus:[skuFilter];
+  const totalPal=rows.reduce((s,r)=>s+(r.pallets||0),0);
+  const totalUni=rows.reduce((s,r)=>s+(r.units||0),0);
+  document.getElementById('coles-forecast-summary-tiles').innerHTML=`
+    <div class="tile blue"><div class="tile-label">File</div><div class="tile-value" style="font-size:9pt">${meta.filename||'—'}</div><div class="tile-sub">Received ${meta.updated_at||'—'}</div></div>
+    <div class="tile"><div class="tile-label">SKUs</div><div class="tile-value">${skus.length}</div><div class="tile-sub">${weeks.length} weeks</div></div>
+    <div class="tile amber"><div class="tile-label">Total Pallets</div><div class="tile-value">${totalPal.toLocaleString('en-AU')}</div><div class="tile-sub">in period</div></div>
+    <div class="tile green"><div class="tile-label">Total Units</div><div class="tile-value">${totalUni.toLocaleString('en-AU')}</div><div class="tile-sub">in period</div></div>`;
+  document.getElementById('coles-forecast-thead').innerHTML=`<tr><th>SKU</th>${weeks.map(w=>`<th class="num">${w.slice(8,10)}/${w.slice(5,7)}</th>`).join('')}<th class="num">Total Pal</th><th class="num">Total Units</th></tr>`;
+  let tbody='';
+  skus.forEach(sku=>{
+    const desc=(typeof OATLY_SKU_DESC!=='undefined'&&OATLY_SKU_DESC[sku])||sku;
+    const skuRows=rows.filter(r=>r.sku===sku);
+    if(!skuRows.length)return;
+    const skuPal=skuRows.reduce((s,r)=>s+(r.pallets||0),0);
+    const skuUni=skuRows.reduce((s,r)=>s+(r.units||0),0);
+    tbody+=`<tr><td><strong>${sku}</strong><br><span style="font-size:8pt;color:#666">${desc}</span></td>`;
+    weeks.forEach(w=>{const cell=skuRows.find(r=>(r.week||r.week_date)===w);tbody+=`<td class="num">${cell?(cell.pallets||0).toLocaleString('en-AU'):'—'}</td>`;});
+    tbody+=`<td class="num"><strong>${skuPal.toLocaleString('en-AU')}</strong></td><td class="num"><strong>${skuUni.toLocaleString('en-AU')}</strong></td></tr>`;
+  });
+  document.getElementById('coles-forecast-tbody').innerHTML=tbody;
+  document.getElementById('coles-forecast-tfoot').innerHTML=`<tr style="font-weight:bold;background:var(--ltgrey)"><td>TOTAL</td>${weeks.map(w=>{const wPal=rows.filter(r=>(r.week||r.week_date)===w).reduce((s,r)=>s+(r.pallets||0),0);return`<td class="num">${wPal.toLocaleString('en-AU')}</td>`;}).join('')}<td class="num">${totalPal.toLocaleString('en-AU')}</td><td class="num">${totalUni.toLocaleString('en-AU')}</td></tr>`;
+}
+
 // ---- Render all ----
 function renderAll(){
   renderSkuCards();
@@ -1345,6 +1430,7 @@ function renderAll(){
   renderPO();
   renderAP();
   renderWWForecast();
+  renderColesForecast();
   const now=new Date().toLocaleString('en-AU',{timeZone:'Australia/Brisbane',hour12:false});
   document.getElementById('last-refresh').textContent='Refreshed: '+now+' AEST';
   document.getElementById('footer-gen').textContent='Generated: '+now;
