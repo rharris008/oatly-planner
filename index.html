@@ -536,6 +536,7 @@ const AP_DATA = [
 // Individual PO lines with expected receipt dates for overdue tracking
 // Individual PO lines with expected receipt dates for overdue tracking
 // Individual PO lines with expected receipt dates for overdue tracking
+// Individual PO lines with expected receipt dates for overdue tracking
 const PO_LINES = [
   {po:'POAGD279',sku:'FG 62322',date:'17/12/2025',status:'B',qty:2614,exp_receipt:'08/05/2026'},
   {po:'POAGD267',sku:'FG 61737',date:'17/12/2025',status:'B',qty:3100,exp_receipt:'27/04/2026'},
@@ -665,6 +666,7 @@ const PO_LINES = [
 // WW retailer forecast data (from AGD Oatly  Planned orders 150426.xlsx, updated 2026-04-27T14:58:38.044297+10:00)
 // WW retailer forecast data (from AGD Oatly  Planned orders 150426.xlsx, updated 2026-04-27T14:58:38.044297+10:00)
 // WW retailer forecast data (from AGD Oatly  Planned orders 150426.xlsx, updated 2026-04-27T14:58:38.044297+10:00)
+// WW retailer forecast data (from AGD Oatly  Planned orders 290426.xlsx, updated 2026-05-01T14:46:07.022642+10:00)
 // WW retailer forecast data (from AGD Oatly  Planned orders 290426.xlsx, updated 2026-05-01T14:46:07.022642+10:00)
 // WW retailer forecast data (from AGD Oatly  Planned orders 290426.xlsx, updated 2026-05-01T14:46:07.022642+10:00)
 // WW retailer forecast data (from AGD Oatly  Planned orders 290426.xlsx, updated 2026-05-01T14:46:07.022642+10:00)
@@ -1024,21 +1026,34 @@ const WW_FORECAST_DATA = [
 // Coles retailer forecast data (from AGD ORDER PLAN .xlsm, updated 2026-04-27T15:07:37.875722+10:00)
 // Coles retailer forecast data (from AGD ORDER PLAN .xlsm, updated 2026-04-27T15:07:37.875722+10:00)
 // Coles retailer forecast data (from AGD ORDER PLAN .xlsm, updated 2026-04-27T15:07:37.875722+10:00)
+// Coles retailer forecast data (from AGD FORECAST .xlsm, updated 2026-05-05T16:25:58.483196+10:00)
 const COLES_FORECAST_DATA = [
-  {week:'2026-04-20',sku:'Oatly Barista 1L',pallets:0,units:2520,order_date:'',delivery_date:null,need_arrival:null},
-  {week:'2026-04-20',sku:'Oatly Organic 1L',pallets:0,units:1680,order_date:'',delivery_date:null,need_arrival:null},
-  {week:'2026-04-24',sku:'Oatly Barista 1L',pallets:0,units:3080,order_date:'',delivery_date:null,need_arrival:null},
-  {week:'2026-04-24',sku:'Oatly Organic 1L',pallets:0,units:420,order_date:'',delivery_date:null,need_arrival:null},
-  {week:'2026-04-29',sku:'Oatly Barista 1L',pallets:0,units:140,order_date:'',delivery_date:null,need_arrival:null},
-  {week:'2026-04-29',sku:'Oatly Organic 1L',pallets:0,units:140,order_date:'',delivery_date:null,need_arrival:null},
-  {week:'2026-05-04',sku:'Oatly Barista 1L',pallets:0,units:2100,order_date:'',delivery_date:null,need_arrival:null},
-  {week:'2026-05-04',sku:'Oatly Organic 1L',pallets:0,units:280,order_date:'',delivery_date:null,need_arrival:null},
-  {week:'2026-05-06',sku:'Oatly Barista 1L',pallets:0,units:140,order_date:'',delivery_date:null,need_arrival:null},
-  {week:'2026-05-11',sku:'Oatly Barista 1L',pallets:0,units:1820,order_date:'',delivery_date:null,need_arrival:null},
-  {week:'2026-05-11',sku:'Oatly Organic 1L',pallets:0,units:420,order_date:'',delivery_date:null,need_arrival:null},
-  {week:'2026-05-18',sku:'Oatly Barista 1L',pallets:0,units:700,order_date:'',delivery_date:null,need_arrival:null},
+  {week:'2026-05-06',sku:'Oatly Barista 1L',pallets:0,units:27491,order_date:'',delivery_date:null,need_arrival:null},
+  {week:'2026-05-06',sku:'Oatly Organic 1L',pallets:0,units:2525,order_date:'',delivery_date:null,need_arrival:null},
+  {week:'2026-05-13',sku:'Oatly Barista 1L',pallets:0,units:13565,order_date:'',delivery_date:null,need_arrival:null},
+  {week:'2026-05-13',sku:'Oatly Organic 1L',pallets:0,units:2567,order_date:'',delivery_date:null,need_arrival:null},
+  {week:'2026-05-20',sku:'Oatly Barista 1L',pallets:0,units:13373,order_date:'',delivery_date:null,need_arrival:null},
+  {week:'2026-05-20',sku:'Oatly Organic 1L',pallets:0,units:2586,order_date:'',delivery_date:null,need_arrival:null},
+  {week:'2026-05-27',sku:'Oatly Barista 1L',pallets:0,units:12824,order_date:'',delivery_date:null,need_arrival:null},
+  {week:'2026-05-27',sku:'Oatly Organic 1L',pallets:0,units:2532,order_date:'',delivery_date:null,need_arrival:null},
+  {week:'2026-06-03',sku:'Oatly Barista 1L',pallets:0,units:12672,order_date:'',delivery_date:null,need_arrival:null},
+  {week:'2026-06-03',sku:'Oatly Organic 1L',pallets:0,units:2607,order_date:'',delivery_date:null,need_arrival:null},
+  {week:'2026-06-10',sku:'Oatly Barista 1L',pallets:0,units:12864,order_date:'',delivery_date:null,need_arrival:null},
+  {week:'2026-06-10',sku:'Oatly Organic 1L',pallets:0,units:2636,order_date:'',delivery_date:null,need_arrival:null},
+  {week:'2026-06-17',sku:'Oatly Barista 1L',pallets:0,units:12609,order_date:'',delivery_date:null,need_arrival:null},
+  {week:'2026-06-17',sku:'Oatly Organic 1L',pallets:0,units:2597,order_date:'',delivery_date:null,need_arrival:null},
+  {week:'2026-06-24',sku:'Oatly Barista 1L',pallets:0,units:25345,order_date:'',delivery_date:null,need_arrival:null},
+  {week:'2026-06-24',sku:'Oatly Organic 1L',pallets:0,units:5807,order_date:'',delivery_date:null,need_arrival:null},
+  {week:'2026-07-01',sku:'Oatly Barista 1L',pallets:0,units:12092,order_date:'',delivery_date:null,need_arrival:null},
+  {week:'2026-07-01',sku:'Oatly Organic 1L',pallets:0,units:2779,order_date:'',delivery_date:null,need_arrival:null},
+  {week:'2026-07-08',sku:'Oatly Barista 1L',pallets:0,units:12330,order_date:'',delivery_date:null,need_arrival:null},
+  {week:'2026-07-08',sku:'Oatly Organic 1L',pallets:0,units:2991,order_date:'',delivery_date:null,need_arrival:null},
+  {week:'2026-07-15',sku:'Oatly Barista 1L',pallets:0,units:33717,order_date:'',delivery_date:null,need_arrival:null},
+  {week:'2026-07-15',sku:'Oatly Organic 1L',pallets:0,units:8607,order_date:'',delivery_date:null,need_arrival:null},
+  {week:'2026-07-22',sku:'Oatly Barista 1L',pallets:0,units:12124,order_date:'',delivery_date:null,need_arrival:null},
+  {week:'2026-07-22',sku:'Oatly Organic 1L',pallets:0,units:2787,order_date:'',delivery_date:null,need_arrival:null},
 ];
-const COLES_FORECAST_META = {updated_at:'2026-04-27',filename:'AGD ORDER PLAN .xlsm',row_count:12};
+const COLES_FORECAST_META = {updated_at:'2026-05-05',filename:'AGD FORECAST .xlsm',row_count:24};
 
 // SKU descriptions for forecast display
 const OATLY_SKU_DESC = {
