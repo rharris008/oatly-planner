@@ -162,13 +162,15 @@
   <button class="tab-btn" onclick="showTab('stock',this)">Stock on Hand</button>
   <button class="tab-btn" onclick="showTab('so',this)">Sales Orders</button>
   <button class="tab-btn" onclick="showTab('po',this)">Purchase Orders</button>
+  <button class="tab-btn" onclick="showTab('creditors',this)">Creditors</button>
+  <button class="tab-btn" onclick="showTab('grni',this)">Goods received not invoiced</button>
   <button class="tab-btn" onclick="showTab('ww-forecast',this)">WW Forecast</button>
   <button class="tab-btn" onclick="showTab('coles-forecast',this)">Coles Forecast</button>
 </nav>
 
 <!-- PLANNING DASHBOARD -->
 <div id="tab-forecast" class="tab-pane active">
-  <div class="ns-banner" style="background:#e8f4fd;border-left-color:var(--blue)">Data sources: Stock from NetSuite (06/05/2026). 13-week sales history from NS Report 608 (04/02/2026–06/05/2026). Open POs from SuiteQL (06/05/2026).</div>
+  <div class="ns-banner" style="background:#e8f4fd;border-left-color:var(--blue)">Data sources: Stock from NetSuite (06/05/2026). Sales orders from Report 762 (06/05/2026). Open POs from SuiteQL (06/05/2026). Creditors from Report 557 (06/05/2026).</div>
   <div class="section-header" style="margin-top:8px">Planning Position by SKU</div>
   <div class="front-cards-grid" id="front-cards">
     <div class="loader"><span class="spinner"></span>Loading planning data...</div>
@@ -241,7 +243,6 @@
             <th>SKU Code</th>
             <th>Description</th>
             <th class="num">Units on Hand</th>
-            <th class="num">Litres on Hand</th>
             <th class="num">Available</th>
             <th style="width:180px">Visual</th>
           </tr>
@@ -305,6 +306,108 @@
   </div>
 </div>
 
+<!-- CREDITORS TAB -->
+<div id="tab-creditors" class="tab-pane">
+  <div class="ns-banner">NetSuite extract: 06/05/2026 | Oatly Open Bills (Report 557, filtered to OAT101 only) | Total: AUD 529,797 | 30 open bills</div>
+  <div class="ap-filter-bar">
+    <label>Show:</label>
+    <select id="ap-filter" onchange="renderAP()">
+      <option value="all">All bills</option>
+      <option value="overdue">Overdue only</option>
+      <option value="current">Current only</option>
+      <option value="credits">Promo credits only</option>
+    </select>
+    <label style="margin-left:16px">Vendor:</label>
+    <select id="ap-vendor-filter" onchange="renderAP()">
+      <option value="all">All vendors</option>
+    </select>
+  </div>
+  <div class="summary-row" id="ap-summary-tiles"></div>
+  <div class="data-section">
+    <div class="data-table-wrap">
+      <table class="data-table" id="ap-table">
+        <thead>
+          <tr>
+            <th>Invoice No.</th>
+            <th>Vendor</th>
+            <th>Bill Date</th>
+            <th>Due Date</th>
+            <th class="num">Amount (AUD)</th>
+            <th>Authoriser</th>
+            <th>Memo / PO Ref</th>
+          </tr>
+        </thead>
+        <tbody id="ap-tbody"></tbody>
+        <tfoot id="ap-tfoot"></tfoot>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- GRNI TAB -->
+<div id="tab-grni" class="tab-pane">
+  <div class="ns-banner">NetSuite extract: 24/04/2026 | Goods received not invoiced (Pending Bill POs) | AGD Oatly</div>
+  <div class="summary-row">
+    <div class="tile amber">
+      <div class="tile-label">Lines</div>
+      <div class="tile-value">12</div>
+      <div class="tile-sub">All Pending Bill</div>
+    </div>
+    <div class="tile amber">
+      <div class="tile-label">Total Units</div>
+      <div class="tile-value">37,200</div>
+      <div class="tile-sub">All Received</div>
+    </div>
+    <div class="tile red">
+      <div class="tile-label">Oldest</div>
+      <div class="tile-value">18 days</div>
+      <div class="tile-sub">Since receipt</div>
+    </div>
+    <div class="tile blue">
+      <div class="tile-label">Status</div>
+      <div class="tile-value" style="font-size:13pt">Pending Bill</div>
+      <div class="tile-sub">Awaiting invoice</div>
+    </div>
+  </div>
+  <div class="data-section">
+    <div class="data-table-wrap">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>PO Number</th>
+            <th>Item Code</th>
+            <th>Date</th>
+            <th class="num">Units</th>
+            <th class="num">Days Outstanding</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr style="background:#FDE8E8"><td>POAGD257</td><td>FG 61737</td><td>06/04/2026</td><td class="num">3,100</td><td class="num">18</td><td>Pending Bill</td></tr>
+          <tr style="background:#FEF3CD"><td>POAGD258</td><td>FG 61737</td><td>13/04/2026</td><td class="num">3,100</td><td class="num">11</td><td>Pending Bill</td></tr>
+          <tr style="background:#FEF3CD"><td>POAGD259</td><td>FG 61737</td><td>13/04/2026</td><td class="num">3,100</td><td class="num">11</td><td>Pending Bill</td></tr>
+          <tr style="background:#FEF3CD"><td>POAGD260</td><td>FG 61737</td><td>13/04/2026</td><td class="num">3,100</td><td class="num">11</td><td>Pending Bill</td></tr>
+          <tr style="background:#FEF3CD"><td>POAGD261</td><td>FG 61737</td><td>13/04/2026</td><td class="num">3,100</td><td class="num">11</td><td>Pending Bill</td></tr>
+          <tr><td>POAGD262</td><td>FG 61737</td><td>20/04/2026</td><td class="num">3,100</td><td class="num">4</td><td>Pending Bill</td></tr>
+          <tr><td>POAGD263</td><td>FG 61737</td><td>20/04/2026</td><td class="num">3,100</td><td class="num">4</td><td>Pending Bill</td></tr>
+          <tr><td>POAGD264</td><td>FG 61737</td><td>20/04/2026</td><td class="num">3,100</td><td class="num">4</td><td>Pending Bill</td></tr>
+          <tr><td>POAGD265</td><td>FG 61737</td><td>20/04/2026</td><td class="num">3,100</td><td class="num">4</td><td>Pending Bill</td></tr>
+          <tr style="background:#FDE8E8"><td>POAGD270</td><td>FG 61739</td><td>06/04/2026</td><td class="num">3,100</td><td class="num">18</td><td>Pending Bill</td></tr>
+          <tr style="background:#FEF3CD"><td>POAGD276</td><td>FG 62106</td><td>13/04/2026</td><td class="num">3,100</td><td class="num">11</td><td>Pending Bill</td></tr>
+          <tr style="background:#FEF3CD"><td>POAGD278</td><td>FG 62108</td><td>13/04/2026</td><td class="num">3,100</td><td class="num">11</td><td>Pending Bill</td></tr>
+        </tbody>
+        <tfoot>
+          <tr>
+            <td colspan="3"><strong>Total</strong></td>
+            <td class="num"><strong>37,200</strong></td>
+            <td class="num"><strong>12 lines</strong></td>
+            <td></td>
+          </tr>
+        </tfoot>
+      </table>
+    </div>
+  </div>
+</div>
 
 <div class="page-footer">
   <span>AGD Oatly Planner | Data: NetSuite 06/05/2026 | INTERNAL - NOT FOR DISTRIBUTION</span>
@@ -314,28 +417,14 @@
 <script>
 // ---- Static NetSuite data (extracted 06/05/2026) ----
 const STOCK_DATA = [
-  {code:'FG 61737',desc:'Oatly Oat Milk Barista Edition 1L',soh:44298,avail:44298,litresMult:6},
-  {code:'FG 61739',desc:'Oatly Oat Milk Organic 1L',soh:2133,avail:2133,litresMult:6},
-  {code:'FG 61740',desc:'Oatly Oat Milk Chocolate 1L',soh:5443,avail:5443,litresMult:6},
-  {code:'FG 62059',desc:'Oatly Oat Milk Barista Edition 500ml',soh:2004,avail:2004,litresMult:5},
-  {code:'FG 62060',desc:'Oatly Oat Milk Vanilla Flavour 1L',soh:1403,avail:1403,litresMult:6},
-  {code:'FG 62106',desc:'Oatly Oat Milk Low Sugar 1L',soh:3789,avail:3789,litresMult:6},
-  {code:'FG 62108',desc:'Oatly Oat Milk Full 2.8% Fat 1.0L',soh:3860,avail:3860,litresMult:6},
+  {code:'FG 61737',desc:'Oatly Oat Milk Barista Edition 1L',soh:44298,avail:44298},
+  {code:'FG 61739',desc:'Oatly Oat Milk Organic 1L',soh:2133,avail:2133},
+  {code:'FG 61740',desc:'Oatly Oat Milk Chocolate 1L',soh:5443,avail:5443},
+  {code:'FG 62059',desc:'Oatly Oat Milk Barista Edition 500ml',soh:2004,avail:2004},
+  {code:'FG 62060',desc:'Oatly Oat Milk Vanilla Flavour 1L',soh:1403,avail:1403},
+  {code:'FG 62106',desc:'Oatly Oat Milk Low Sugar 1L',soh:3789,avail:3789},
+  {code:'FG 62108',desc:'Oatly Oat Milk Full 2.8% Fat 1.0L',soh:3860,avail:3860},
 ];
-
-// 13-week historical sales (NetSuite Report 608, 04/02/2026–06/05/2026)
-// avgWeekly = total13w / 13
-const SALES_HISTORY_13W = {
-  'FG 61737': {total13w:160599, avgWeekly:12354},
-  'FG 61739': {total13w:6760,   avgWeekly:520},
-  'FG 61740': {total13w:6175,   avgWeekly:475},
-  'FG 61909': {total13w:1160,   avgWeekly:89},
-  'FG 62059': {total13w:2590,   avgWeekly:199},
-  'FG 62060': {total13w:5931,   avgWeekly:456},
-  'FG 62106': {total13w:7215,   avgWeekly:555},
-  'FG 62108': {total13w:11531,  avgWeekly:887},
-  'FG 62322': {total13w:7020,   avgWeekly:540},
-};
 
 const SALES_ORDERS_DATA = [
   {sku:'FG 61737',desc:'Oatly Oat Milk Barista Edition 1L',so:'SOAGD2121',customer:'AMA108 AMAZON DANDENONG SOUTH MEL1',date:'04/05/2026',qty:168,fulfilled:0},
@@ -1095,16 +1184,20 @@ function renderSkuCards(){
     const overdueQty = overduePOs.reduce((sum, l) => sum + l.qty, 0);
     const hasOverdue = overdueCount > 0;
 
-    // Weeks of Cover: use 13-week historical sales avg (NS Report 608, 04/02/2026–06/05/2026)
+    // Weeks of Cover: no sales history available for most SKUs
+    // Use sales order run rate as a proxy where we have data, otherwise N/A
     let wocDisplay='N/A';
     let wocClass='';
-    const hist = SALES_HISTORY_13W[s.code];
-    if(hist && hist.avgWeekly > 0) {
+    // Only calculate if there are actual sales orders to derive a rate from
+    if(ordersQty > 0) {
+      // Very rough: assume orders represent ~1 week demand
+      const weeklyRate = ordersQty;
       const totalSupply = s.soh + poQty;
-      const woc = Math.round(totalSupply / hist.avgWeekly * 10) / 10;
-      wocDisplay = woc.toFixed(1) + ' weeks (avg ' + fmtNum(hist.avgWeekly) + '/wk)';
+      const woc = weeklyRate > 0 ? Math.round(totalSupply / weeklyRate) : 0;
+      wocDisplay = woc + ' weeks';
       wocClass = woc >= 8 ? 'woc-green' : woc >= 4 ? 'woc-amber' : 'woc-red';
     } else if(s.soh > 0 || poQty > 0) {
+      // Have supply but no demand signal
       wocDisplay = 'N/A (no sales history)';
     }
 
@@ -1162,20 +1255,17 @@ function renderStock(){
     <div class="tile amber"><div class="tile-label">Zero Stock SKUs</div><div class="tile-value">${zeroStock.length}</div><div class="tile-sub">no units at AGD EP</div></div>`;
 
   const totalAvail=STOCK_DATA.reduce((s,d)=>s+d.avail,0);
-  const totalLitres=STOCK_DATA.reduce((s,d)=>s+(d.soh*(d.litresMult||6)),0);
-  document.getElementById('stock-tfoot').innerHTML=`<tr><td colspan="2">Total</td><td class="num">${fmtNum(totalSoh)}</td><td class="num">${fmtNum(Math.round(totalLitres))}</td><td class="num">${fmtNum(totalAvail)}</td><td></td></tr>`;
+  document.getElementById('stock-tfoot').innerHTML=`<tr><td colspan="2">Total</td><td class="num">${fmtNum(totalSoh)}</td><td class="num">${fmtNum(totalAvail)}</td><td></td></tr>`;
 
   const maxSoh=Math.max(...STOCK_DATA.map(s=>s.soh),1);
   const tbody=document.getElementById('stock-tbody');
   tbody.innerHTML=STOCK_DATA.map(s=>{
     const pct=Math.round(s.soh/maxSoh*100);
     const cls=s.soh===0?'style="color:#aaa"':'';
-    const litres=Math.round(s.soh*(s.litresMult||6));
     return`<tr>
       <td ${cls}>${s.code}</td>
       <td ${cls}>${s.desc}</td>
       <td class="num" ${cls}>${s.soh>0?fmtNum(s.soh):'--'}</td>
-      <td class="num" ${cls}>${s.soh>0?fmtNum(litres):'--'}</td>
       <td class="num" ${cls}>${s.avail>0?fmtNum(s.avail):'--'}</td>
       <td>${s.soh>0?`<span class="stock-bar-wrap"><span class="stock-bar" style="width:${pct}%"></span></span>`:'<span style="font-size:8pt;color:#ccc">no stock</span>'}</td>
     </tr>`;
