@@ -245,7 +245,7 @@ for leg, opt, cost in flight_picks:
     flight_total += cost
     r += 1
 ws3.cell(row=r, column=2, value="Flights subtotal").font = BOLD
-fc = ws3.cell(row=r, column=3, value=f"=SUM(C{flight_start}:C{r-1})"); aud(fc); fc.font = BOLD; fc.alignment = CENTER
+fc = ws3.cell(row=r, column=3, value=flight_total); aud(fc); fc.font = BOLD; fc.alignment = CENTER
 fc.fill = TOTAL_FILL; ws3.cell(row=r, column=2).fill = TOTAL_FILL
 flights_subtotal_row = r
 r += 2
@@ -267,15 +267,16 @@ for dest, opt, cost in accom_picks:
     for c in range(1, 4):
         ws3.cell(row=r, column=c).border = BORDER
     r += 1
+accom_total = sum(c for _, _, c in accom_picks)
 ws3.cell(row=r, column=2, value="Accommodation subtotal").font = BOLD
-ac = ws3.cell(row=r, column=3, value=f"=SUM(C{accom_start}:C{r-1})"); aud(ac); ac.font = BOLD; ac.alignment = CENTER
+ac = ws3.cell(row=r, column=3, value=accom_total); aud(ac); ac.font = BOLD; ac.alignment = CENTER
 ac.fill = TOTAL_FILL; ws3.cell(row=r, column=2).fill = TOTAL_FILL
 accom_subtotal_row = r
 r += 2
 
 # --- Grand total ---
 ws3.cell(row=r, column=2, value="GRAND TOTAL (flights + accommodation)").font = Font(bold=True, size=12)
-gc = ws3.cell(row=r, column=3, value=f"=C{flights_subtotal_row}+C{accom_subtotal_row}")
+gc = ws3.cell(row=r, column=3, value=flight_total + accom_total)
 aud(gc); gc.font = Font(bold=True, size=12); gc.alignment = CENTER
 for c in range(1, 4):
     ws3.cell(row=r, column=c).fill = TOTAL_FILL
